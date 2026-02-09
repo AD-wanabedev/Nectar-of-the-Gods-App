@@ -163,7 +163,7 @@ export default function AddLeadForm({ onClose, initialData = null }) {
 
     return (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in slide-in-from-bottom-10">
-            <div className="glass-card w-full max-w-md p-6 relative bg-gray-900 border-blue-500/20 shadow-blue-900/20">
+            <div className="glass-card w-full max-w-md max-h-[90vh] overflow-y-auto p-6 relative bg-gray-900 border-blue-500/20 shadow-blue-900/20">
                 <button onClick={onClose} className="absolute top-4 right-4 text-white/60 hover:text-white">
                     <X size={24} />
                 </button>
