@@ -334,19 +334,19 @@ export default function AddLeadForm({ onClose, initialData = null }) {
                         </div>
                     </div>
 
-                    <div className="pt-4 flex gap-3">
-                        {initialData && (
-                            <GlassButton type="button" onClick={handleDeleteLead} className="bg-red-600/20 hover:bg-red-600/40 text-red-200 border-red-500/30">
-                                Delete
-                            </GlassButton>
-                        )}
-                        <GlassButton type="button" onClick={onClose} variant="secondary" className="flex-1">
-                            Cancel
-                        </GlassButton>
-                        <GlassButton type="submit" className="flex-1 bg-blue-600/20 hover:bg-blue-600/40 text-blue-100 border-blue-500/30">
-                            Save Lead
-                        </GlassButton>
-                    </div>
+                    <div className="pt-4 pb-6 flex gap-3 sticky bottom-0 bg-gray-900/95 backdrop-blur-sm -mx-6 px-6 mt-6">
+    {initialData && (
+        <GlassButton type="button" onClick={handleDeleteLead} className="bg-red-600/20 hover:bg-red-600/40 text-red-200 border-red-500/30">
+            Delete
+        </GlassButton>
+    )}
+    <GlassButton type="button" onClick={onClose} variant="secondary" className="flex-1">
+        Cancel
+    </GlassButton>
+    <GlassButton type="submit" className="flex-1 bg-blue-600/20 hover:bg-blue-600/40 text-blue-100 border-blue-500/30">
+        Save Lead
+    </GlassButton>
+</div>
                 </form>
             </div>
         </div>
