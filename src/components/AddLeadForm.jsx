@@ -2,14 +2,14 @@ import { useState, useEffect } from 'react';
 import GlassInput from './ui/GlassInput';
 import GlassButton from './ui/GlassButton';
 import { db } from '../db';
-import { X, Calendar, UserPlus, Clock, Mic, Instagram, Phone, Mail, MessageCircle } from 'lucide-react';
-import { format, set } from 'date-fns';
+import { X, Calendar, UserPlus, Mic, Instagram, Phone, Mail, MessageCircle, User } from 'lucide-react';
+import { format } from 'date-fns';
 
 export default function AddLeadForm({ onClose, initialData = null }) {
     // --- Team Member Logic ---
     const [teamMembers, setTeamMembers] = useState(() => {
         const stored = localStorage.getItem('moonshine_team');
-        return stored ? JSON.parse(stored) : ['Me', 'Sarah', 'Mike'];
+        return stored ? JSON.parse(stored) : ['AD', 'Rohan', 'Akshay'];
     });
     const [showAddTeam, setShowAddTeam] = useState(false);
     const [newMemberName, setNewMemberName] = useState('');
@@ -34,7 +34,7 @@ export default function AddLeadForm({ onClose, initialData = null }) {
 
     const deleteTeamMember = (member, e) => {
         e.stopPropagation();
-        if (member === 'Me') return; // Cannot delete default
+        if (member === 'Me') return;
         if (confirm(`Remove ${member} from team?`)) {
             const updated = teamMembers.filter(m => m !== member);
             setTeamMembers(updated);
@@ -52,15 +52,41 @@ export default function AddLeadForm({ onClose, initialData = null }) {
         email: '',
         priority: 'Medium',
         status: 'New',
-        teamMember: 'Me', // Default
-        platform: 'Call', // Default platform
-        notes: '', // New Notes field
-        // Time picker state separate from ISO string for easier manipulation
+        teamMember: 'Me',
+        platform: 'Call',
+        notes: '',
         date: format(new Date(), 'yyyy-MM-dd'),
         hour: '10',
         minute: '00',
         ampm: 'AM'
     });
+
+    // --- Contact Picker ---
+    const pickContact = async () => {
+        try {
+            if (!('contacts' in navigator) || !navigator.contacts) {
+                alert("Contact picker not supported on this device/browser");
+                return;
+            }
+
+            const props = ['name', 'tel'];
+            const contacts = await navigator.contacts.select(props, { multiple: false });
+
+            if (contacts && contacts.length > 0) {
+                const contact = contacts[0];
+                setFormData(prev => ({
+                    ...prev,
+                    name: contact.name?.[0] || '',
+                    phone: contact.tel?.[0] || ''
+                }));
+            }
+        } catch (error) {
+            console.error("Contact picker error:", error);
+            if (error.name !== 'AbortError') {
+                alert("Could not access contacts");
+            }
+        }
+    };
 
     // --- Speech to Text ---
     const [isListening, setIsListening] = useState(false);
@@ -121,7 +147,6 @@ export default function AddLeadForm({ onClose, initialData = null }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Construct ISO date from custom picker
         let hour24 = parseInt(formData.hour);
         if (formData.ampm === 'PM' && hour24 !== 12) hour24 += 12;
         if (formData.ampm === 'AM' && hour24 === 12) hour24 = 0;
@@ -138,7 +163,7 @@ export default function AddLeadForm({ onClose, initialData = null }) {
             platform: formData.platform,
             notes: formData.notes,
             nextFollowUp: followUpDate.toISOString(),
-            updatedAt: new Date().toISOString() // Track updates
+            updatedAt: new Date().toISOString()
         };
 
         try {
@@ -157,14 +182,13 @@ export default function AddLeadForm({ onClose, initialData = null }) {
         }
     };
 
-    // Generate 5-minute intervals
     const minutes = Array.from({ length: 12 }, (_, i) => (i * 5).toString().padStart(2, '0'));
     const hours = Array.from({ length: 12 }, (_, i) => (i + 1).toString().padStart(2, '0'));
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in">
             <div className="glass-card w-full max-w-md max-h-[85vh] overflow-y-auto p-6 pb-20 relative bg-gray-900 border-blue-500/20 shadow-blue-900/20">
-                <button onClick={onClose} className="absolute top-4 right-4 text-white/60 hover:text-white">
+                <button onClick={onClose} className="absolute top-4 right-4 text-white/60 hover:text-white z-10">
                     <X size={24} />
                 </button>
 
@@ -174,7 +198,16 @@ export default function AddLeadForm({ onClose, initialData = null }) {
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <label className="block text-xs text-white/70 mb-1">Name *</label>
+                        <label className="block text-xs text-white/70 mb-1 flex justify-between items-center">
+                            Name *
+                            <button
+                                type="button"
+                                onClick={pickContact}
+                                className="text-blue-400 hover:text-blue-300 text-xs flex items-center gap-1"
+                            >
+                                <User size={12} /> Pick Contact
+                            </button>
+                        </label>
                         <GlassInput
                             required
                             name="name"
@@ -290,7 +323,6 @@ export default function AddLeadForm({ onClose, initialData = null }) {
                         </div>
                     </div>
 
-                    {/* Notes with Speech to Text */}
                     <div className="relative">
                         <label className="block text-xs text-white/70 mb-1 flex justify-between items-center">
                             Notes
@@ -311,7 +343,6 @@ export default function AddLeadForm({ onClose, initialData = null }) {
                         />
                     </div>
 
-                    {/* Custom Time Picker */}
                     <div>
                         <label className="block text-xs text-white/70 mb-1 flex items-center gap-2">
                             <Calendar size={12} /> Next Follow-up
@@ -335,18 +366,18 @@ export default function AddLeadForm({ onClose, initialData = null }) {
                     </div>
 
                     <div className="pt-4 pb-6 flex gap-3 sticky bottom-0 bg-gray-900/95 backdrop-blur-sm -mx-6 px-6 mt-6">
-    {initialData && (
-        <GlassButton type="button" onClick={handleDeleteLead} className="bg-red-600/20 hover:bg-red-600/40 text-red-200 border-red-500/30">
-            Delete
-        </GlassButton>
-    )}
-    <GlassButton type="button" onClick={onClose} variant="secondary" className="flex-1">
-        Cancel
-    </GlassButton>
-    <GlassButton type="submit" className="flex-1 bg-blue-600/20 hover:bg-blue-600/40 text-blue-100 border-blue-500/30">
-        Save Lead
-    </GlassButton>
-</div>
+                        {initialData && (
+                            <GlassButton type="button" onClick={handleDeleteLead} className="bg-red-600/20 hover:bg-red-600/40 text-red-200 border-red-500/30">
+                                Delete
+                            </GlassButton>
+                        )}
+                        <GlassButton type="button" onClick={onClose} variant="secondary" className="flex-1">
+                            Cancel
+                        </GlassButton>
+                        <GlassButton type="submit" className="flex-1 bg-blue-600/20 hover:bg-blue-600/40 text-blue-100 border-blue-500/30">
+                            Save Lead
+                        </GlassButton>
+                    </div>
                 </form>
             </div>
         </div>
