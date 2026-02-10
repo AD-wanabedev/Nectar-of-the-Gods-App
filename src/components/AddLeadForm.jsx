@@ -162,8 +162,8 @@ export default function AddLeadForm({ onClose, initialData = null }) {
     const hours = Array.from({ length: 12 }, (_, i) => (i + 1).toString().padStart(2, '0'));
 
     return (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-sm p-4 pb-20 animate-in fade-in slide-in-from-bottom-10">
-            <div className="glass-card w-full max-w-md max-h-[75vh] overflow-y-auto p-6 relative bg-gray-900 border-blue-500/20 shadow-blue-900/20">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in">
+            <div className="glass-card w-full max-w-md max-h-[85vh] overflow-y-auto p-6 pb-20 relative bg-gray-900 border-blue-500/20 shadow-blue-900/20">
                 <button onClick={onClose} className="absolute top-4 right-4 text-white/60 hover:text-white">
                     <X size={24} />
                 </button>
