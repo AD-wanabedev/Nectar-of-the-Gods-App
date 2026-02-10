@@ -4,11 +4,13 @@ import { db } from '../db';
 import GlassCard from '../components/ui/GlassCard';
 import GlassInput from '../components/ui/GlassInput';
 import GlassButton from '../components/ui/GlassButton';
-import { Search, FileText, Image as ImageIcon, ExternalLink, Share2, Upload, Link as LinkIcon, Trash2 } from 'lucide-react';
+import { Search, FileText, Image as ImageIcon, ExternalLink, Share2, Upload, Link as LinkIcon, Trash2, X } from 'lucide-react';
 
 export default function Library() {
-    const [activeTab, setActiveTab] = useState('All'); // Keeping 'All' just for view state if needed, but removing category filters as requested
+    const [activeTab, setActiveTab] = useState('All');
     const [searchTerm, setSearchTerm] = useState('');
+    const [showLinkModal, setShowLinkModal] = useState(false);
+    const [linkData, setLinkData] = useState({ title: '', url: '' });
     const fileInputRef = useRef(null);
 
     const items = useLiveQuery(() => db.collateral.toArray());
@@ -18,11 +20,10 @@ export default function Library() {
         if (!file) return;
 
         try {
-            // Store file as Blob in Dexie
             await db.collateral.add({
                 title: file.name,
-                type: file.type.startsWith('image/') ? 'Image' : 'PDF', // Simple type check
-                data: file, // Storing the blob directly
+                type: file.type.startsWith('image/') ? 'Image' : 'PDF',
+                data: file,
                 folder: 'Uploads',
                 createdAt: new Date().toISOString()
             });
@@ -32,19 +33,22 @@ export default function Library() {
         }
     };
 
-    const handleAddLink = async () => {
-        const title = prompt("Step 1: Enter a Name for this link:");
-        if (!title) return;
-        const url = prompt("Step 2: Enter the URL:");
-        if (!url) return;
+    const handleSaveLink = async () => {
+        if (!linkData.title || !linkData.url) {
+            alert("Please fill both fields");
+            return;
+        }
 
         await db.collateral.add({
-            title: title || url,
+            title: linkData.title,
             type: 'Link',
-            url: url,
+            url: linkData.url,
             folder: 'Links',
             createdAt: new Date().toISOString()
         });
+
+        setLinkData({ title: '', url: '' });
+        setShowLinkModal(false);
     };
 
     const handleDelete = (id) => {
@@ -71,7 +75,6 @@ export default function Library() {
                 alert("Sharing files not supported on this device/browser.");
             }
         } else {
-            // Fallback
             alert("Cannot share this item type directly.");
         }
     };
@@ -87,7 +90,7 @@ export default function Library() {
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50 z-10" size={16} />
                     <GlassInput
                         placeholder="Search..."
-                        className="pl-10 w-full"
+                        className="pl-10 w-full text-center"
                         value={searchTerm}
                         onChange={e => setSearchTerm(e.target.value)}
                     />
@@ -106,7 +109,7 @@ export default function Library() {
                 <GlassButton onClick={() => fileInputRef.current?.click()} className="flex-1 bg-blue-600/20 hover:bg-blue-600">
                     <Upload size={16} /> Upload
                 </GlassButton>
-                <GlassButton onClick={handleAddLink} className="flex-1 bg-blue-600/20 hover:bg-blue-600">
+                <GlassButton onClick={() => setShowLinkModal(true)} className="flex-1 bg-blue-600/20 hover:bg-blue-600">
                     <LinkIcon size={16} /> Save Link
                 </GlassButton>
             </div>
@@ -159,6 +162,49 @@ export default function Library() {
                     </div>
                 )}
             </div>
+
+            {/* Custom Link Modal */}
+            {showLinkModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 pb-20">
+                    <div className="glass-card w-full max-w-md p-6 relative bg-gray-900 border-blue-500/20">
+                        <button onClick={() => setShowLinkModal(false)} className="absolute top-4 right-4 text-white/60 hover:text-white">
+                            <X size={24} />
+                        </button>
+
+                        <h2 className="text-xl font-bold text-white mb-6">Save Link</h2>
+
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-xs text-white/70 mb-1">Name *</label>
+                                <GlassInput
+                                    placeholder="Ex: Product Catalog"
+                                    value={linkData.title}
+                                    onChange={e => setLinkData(prev => ({ ...prev, title: e.target.value }))}
+                                    autoFocus
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-xs text-white/70 mb-1">URL *</label>
+                                <GlassInput
+                                    placeholder="https://example.com"
+                                    value={linkData.url}
+                                    onChange={e => setLinkData(prev => ({ ...prev, url: e.target.value }))}
+                                />
+                            </div>
+
+                            <div className="flex gap-3 pt-4">
+                                <GlassButton onClick={() => setShowLinkModal(false)} variant="secondary" className="flex-1">
+                                    Cancel
+                                </GlassButton>
+                                <GlassButton onClick={handleSaveLink} className="flex-1 bg-blue-600/20 hover:bg-blue-600/40 text-blue-100 border-blue-500/30">
+                                    Save
+                                </GlassButton>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
