@@ -1,35 +1,58 @@
-import { useState, useRef } from 'react';
-import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '../db';
-import GlassCard from '../components/ui/GlassCard';
-import GlassInput from '../components/ui/GlassInput';
-import GlassButton from '../components/ui/GlassButton';
+import { useState, useEffect } from 'react';
+import { collateralDB } from '../db';
+import { storage } from '../firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { auth } from '../firebase';
+import GlassCard from './ui/GlassCard';
+import GlassInput from './ui/GlassInput';
+import GlassButton from './ui/GlassButton';
 import { Search, FileText, Image as ImageIcon, ExternalLink, Share2, Upload, Link as LinkIcon, Trash2, X } from 'lucide-react';
 
 export default function Library() {
-    const [activeTab, setActiveTab] = useState('All');
+    const [items, setItems] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [showLinkModal, setShowLinkModal] = useState(false);
     const [linkData, setLinkData] = useState({ title: '', url: '' });
-    const fileInputRef = useRef(null);
+    const [uploading, setUploading] = useState(false);
 
-    const items = useLiveQuery(() => db.collateral.toArray());
+    useEffect(() => {
+        loadItems();
+    }, []);
+
+    const loadItems = async () => {
+        try {
+            const data = await collateralDB.getAll();
+            setItems(data);
+        } catch (error) {
+            console.error("Failed to load items:", error);
+        }
+    };
 
     const handleFileUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
+        setUploading(true);
         try {
-            await db.collateral.add({
+            const userId = auth.currentUser.uid;
+            const storageRef = ref(storage, `users/${userId}/collateral/${Date.now()}_${file.name}`);
+            
+            await uploadBytes(storageRef, file);
+            const downloadURL = await getDownloadURL(storageRef);
+
+            await collateralDB.add({
                 title: file.name,
                 type: file.type.startsWith('image/') ? 'Image' : 'PDF',
-                data: file,
-                folder: 'Uploads',
-                createdAt: new Date().toISOString()
+                url: downloadURL,
+                folder: 'Uploads'
             });
+
+            loadItems();
         } catch (error) {
             console.error("Upload failed", error);
-            alert("Failed to save file. It might be too large.");
+            alert("Failed to upload file");
+        } finally {
+            setUploading(false);
         }
     };
 
@@ -39,49 +62,38 @@ export default function Library() {
             return;
         }
 
-        await db.collateral.add({
+        await collateralDB.add({
             title: linkData.title,
             type: 'Link',
             url: linkData.url,
-            folder: 'Links',
-            createdAt: new Date().toISOString()
+            folder: 'Links'
         });
 
         setLinkData({ title: '', url: '' });
         setShowLinkModal(false);
+        loadItems();
     };
 
-    const handleDelete = (id) => {
-        if (confirm("Delete this item?")) db.collateral.delete(id);
+    const handleDelete = async (id) => {
+        if (confirm("Delete this item?")) {
+            await collateralDB.delete(id);
+            loadItems();
+        }
     };
 
     const openItem = (item) => {
-        if (item.type === 'Link') {
-            window.open(item.url, '_blank', 'noopener,noreferrer');
-        } else if (item.data) {
-            const url = URL.createObjectURL(item.data);
-            window.open(url, '_blank');
-        }
+        window.open(item.url, '_blank', 'noopener,noreferrer');
     };
 
     const shareItem = (item) => {
-        if (item.type === 'Link' && navigator.share) {
+        if (navigator.share) {
             navigator.share({ title: item.title, url: item.url });
-        } else if (item.data && navigator.share) {
-            const file = new File([item.data], item.title, { type: item.data.type });
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                navigator.share({ files: [file], title: item.title });
-            } else {
-                alert("Sharing files not supported on this device/browser.");
-            }
-        } else {
-            alert("Cannot share this item type directly.");
         }
     };
 
-    const filteredItems = items?.filter(i =>
+    const filteredItems = items.filter(i =>
         i.title.toLowerCase().includes(searchTerm.toLowerCase())
-    ) || [];
+    );
 
     return (
         <div className="pb-28 pt-4 space-y-4">
@@ -97,24 +109,26 @@ export default function Library() {
                 </div>
             </div>
 
-            {/* Actions */}
             <div className="flex gap-2 mb-4">
                 <input
                     type="file"
                     className="hidden"
-                    ref={fileInputRef}
+                    id="file-upload"
                     onChange={handleFileUpload}
                     accept="image/*,application/pdf"
                 />
-                <GlassButton onClick={() => fileInputRef.current?.click()} className="flex-1 bg-blue-600/20 hover:bg-blue-600">
-                    <Upload size={16} /> Upload
+                <GlassButton 
+                    onClick={() => document.getElementById('file-upload').click()} 
+                    className="flex-1 bg-blue-600/20 hover:bg-blue-600"
+                    disabled={uploading}
+                >
+                    <Upload size={16} /> {uploading ? 'Uploading...' : 'Upload'}
                 </GlassButton>
                 <GlassButton onClick={() => setShowLinkModal(true)} className="flex-1 bg-blue-600/20 hover:bg-blue-600">
                     <LinkIcon size={16} /> Save Link
                 </GlassButton>
             </div>
 
-            {/* Grid */}
             <div className="grid grid-cols-2 gap-4">
                 {filteredItems.map(item => (
                     <GlassCard
@@ -132,13 +146,11 @@ export default function Library() {
                         <div className="flex-1 flex items-center justify-center pointer-events-none">
                             {item.type === 'PDF' ? <FileText size={40} className="text-red-400" /> :
                                 item.type === 'Image' ? (
-                                    item.data ? (
-                                        <img
-                                            src={URL.createObjectURL(item.data)}
-                                            alt={item.title}
-                                            className="w-full h-full object-cover rounded-lg opacity-80"
-                                        />
-                                    ) : <ImageIcon size={40} className="text-blue-400" />
+                                    <img
+                                        src={item.url}
+                                        alt={item.title}
+                                        className="w-full h-full object-cover rounded-lg opacity-80"
+                                    />
                                 ) :
                                     <ExternalLink size={40} className="text-green-400" />}
                         </div>
@@ -163,7 +175,6 @@ export default function Library() {
                 )}
             </div>
 
-            {/* Custom Link Modal */}
             {showLinkModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 pb-20">
                     <div className="glass-card w-full max-w-md p-6 relative bg-gray-900 border-blue-500/20">
@@ -207,4 +218,61 @@ export default function Library() {
             )}
         </div>
     );
+}
+```
+
+---
+
+## PART 6: Deploy & Test
+
+### Step 17: Push to GitHub
+
+1. Commit all your changes
+2. Push to GitHub
+3. Vercel will auto-deploy (wait 2-3 mins)
+
+### Step 18: Test on Both Devices
+
+1. **On PC**: Open your Vercel URL → Sign in with Google
+2. **Add a lead** on PC
+3. **On Phone**: Open same URL → Sign in with same Google account
+4. **You should see the same lead!** ✅
+
+---
+
+## PART 7: Secure Your Database (IMPORTANT!)
+
+Right now anyone can read/write your data. Let's fix that.
+
+### Step 19: Update Firestore Security Rules
+
+1. Go to Firebase Console → **Firestore Database**
+2. Click **Rules** tab
+3. Replace with:
+```
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
+```
+
+4. Click **Publish**
+
+### Step 20: Update Storage Security Rules
+
+1. Click **Storage** in left sidebar
+2. Click **Rules** tab
+3. Replace with:
+```
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /users/{userId}/{allPaths=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
 }
