@@ -91,6 +91,13 @@ export default function App() {
                 </div>
 
                 <div className="flex items-center gap-2">
+                    <button
+                        onClick={forceRefresh}
+                        className="p-2 mr-1 rounded-xl bg-white/5 border border-white/5 text-white/40 hover:text-blue-400 hover:bg-blue-400/10 transition-all focus:outline-none"
+                        title="Force Clear Cache & Refresh"
+                    >
+                        <RefreshCw size={16} />
+                    </button>
                     <GlassButton
                         onClick={handleSignOut}
                         className="bg-white/5 hover:bg-red-500/20 px-3 py-1.5 border-white/10 hover:border-red-500/30 group transition-all"
