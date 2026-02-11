@@ -1,15 +1,25 @@
-import { signInWithPopup, signOut } from 'firebase/auth';
+import { signInWithRedirect, getRedirectResult, signOut } from 'firebase/auth';
 import { auth, googleProvider } from '../firebase';
 import GlassButton from './ui/GlassButton';
 import { LogIn, LogOut, User } from 'lucide-react';
+import { useEffect } from 'react';
 
 export default function Auth({ user }) {
+
+    // Check for redirect result on mount
+    useEffect(() => {
+        getRedirectResult(auth).catch((error) => {
+            console.error("Redirect sign-in error:", error);
+            alert(`Failed to sign in: ${error.message}`);
+        });
+    }, []);
+
     const handleSignIn = async () => {
         try {
-            await signInWithPopup(auth, googleProvider);
+            await signInWithRedirect(auth, googleProvider);
         } catch (error) {
-            console.error("Sign in error:", error);
-            alert(`Failed to sign in: ${error.message}`);
+            console.error("Sign in initialization error:", error);
+            alert(`Failed to start sign in: ${error.message}`);
         }
     };
 
