@@ -7,12 +7,7 @@ import { useEffect } from 'react';
 export default function Auth({ user }) {
 
     // Check for redirect result on mount
-    useEffect(() => {
-        getRedirectResult(auth).catch((error) => {
-            console.error("Redirect sign-in error:", error);
-            alert(`Failed to sign in: ${error.message}`);
-        });
-    }, []);
+    // Redirect result is now handled in App.jsx
 
     const handleSignIn = async () => {
         try {
