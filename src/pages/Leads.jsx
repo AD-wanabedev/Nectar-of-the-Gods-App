@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { leadsDB } from '../db';
-import GlassCard from './ui/GlassCard';
-import GlassInput from './ui/GlassInput';
-import GlassButton from './ui/GlassButton';
-import AddLeadForm from './AddLeadForm';
+import GlassCard from '../components/ui/GlassCard';
+import GlassInput from '../components/ui/GlassInput';
+import GlassButton from '../components/ui/GlassButton';
+import AddLeadForm from '../components/AddLeadForm';
 import { Search, Plus, Filter, Phone, MoreHorizontal, Instagram, Mail, MessageCircle, FileDown, FileUp } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 

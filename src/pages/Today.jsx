@@ -3,14 +3,21 @@ import InspirationalQuote from '../components/InspirationalQuote';
 import GlassCard from '../components/ui/GlassCard';
 import GlassButton from '../components/ui/GlassButton';
 import { useNavigate } from 'react-router-dom';
-import { useLiveQuery } from 'dexie-react-hooks';
+import { useState, useEffect } from 'react';
 import { db } from '../db';
 import { format, isBefore, isToday, parseISO, startOfToday } from 'date-fns';
 
 export default function Today() {
     const navigate = useNavigate();
+    const [leads, setLeads] = useState([]);
 
-    const leads = useLiveQuery(() => db.leads.toArray()) || [];
+    useEffect(() => {
+        const fetchLeads = async () => {
+            const data = await db.leads.getAll();
+            setLeads(data);
+        };
+        fetchLeads();
+    }, []);
 
     const today = startOfToday();
 

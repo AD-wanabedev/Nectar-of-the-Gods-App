@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebase';
 import Auth from './components/Auth';
-import TodayPage from './components/TodayPage';
-import LeadsPage from './components/LeadsPage';
-import ProjectsPage from './components/ProjectsPage';
-import Library from './components/Library';
+import TodayPage from './pages/Today';
+import LeadsPage from './pages/Leads';
+import ProjectsPage from './pages/Projects';
+import Library from './pages/Library';
 import { Home, Users, Target, BookOpen } from 'lucide-react';
 
 export default function App() {
@@ -43,7 +43,7 @@ export default function App() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900">
             <Auth user={user} />
-            
+
             <main className="px-4 pt-4 pb-24">
                 {pages[currentPage]}
             </main>
@@ -60,11 +60,10 @@ export default function App() {
                         <button
                             key={id}
                             onClick={() => setCurrentPage(id)}
-                            className={`flex flex-col items-center gap-1 py-2 px-3 rounded-xl transition-all ${
-                                currentPage === id
+                            className={`flex flex-col items-center gap-1 py-2 px-3 rounded-xl transition-all ${currentPage === id
                                     ? 'bg-blue-600/20 text-blue-400'
                                     : 'text-white/50 hover:text-white/80 hover:bg-white/5'
-                            }`}
+                                }`}
                         >
                             <Icon size={20} />
                             <span className="text-[10px] font-medium">{label}</span>

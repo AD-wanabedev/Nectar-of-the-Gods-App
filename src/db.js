@@ -1,14 +1,14 @@
-import { 
-    collection, 
-    addDoc, 
-    updateDoc, 
-    deleteDoc, 
-    doc, 
-    getDocs, 
-    query, 
+import {
+    collection,
+    addDoc,
+    updateDoc,
+    deleteDoc,
+    doc,
+    getDocs,
+    query,
     where,
     orderBy,
-    Timestamp 
+    Timestamp
 } from 'firebase/firestore';
 import { db as firestore, auth } from './firebase';
 
@@ -94,8 +94,34 @@ export const collateralDB = {
 };
 
 // Legacy export for compatibility (temporary)
+// Tasks operations
+export const tasksDB = {
+    async getAll() {
+        const snapshot = await getDocs(getUserCollection('tasks'));
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    },
+
+    async add(data) {
+        const docRef = await addDoc(getUserCollection('tasks'), {
+            ...data,
+            createdAt: Timestamp.now()
+        });
+        return docRef.id;
+    },
+
+    async update(id, data) {
+        await updateDoc(doc(getUserCollection('tasks'), id), data);
+    },
+
+    async delete(id) {
+        await deleteDoc(doc(getUserCollection('tasks'), id));
+    }
+};
+
+// Legacy export for compatibility (temporary)
 export const db = {
     leads: leadsDB,
     projects: projectsDB,
+    tasks: tasksDB,
     collateral: collateralDB
 };

@@ -10,8 +10,21 @@ import { motion, AnimatePresence } from 'framer-motion';
 export default function Projects() {
     const [newProjectName, setNewProjectName] = useState('');
 
-    const projects = useLiveQuery(() => db.projects.toArray());
-    const tasks = useLiveQuery(() => db.tasks.toArray());
+    const [projectsData, setProjectsData] = useState([]);
+    const [tasksData, setTasksData] = useState([]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const p = await db.projects.getAll();
+            const t = await db.tasks.getAll();
+            setProjectsData(p);
+            setTasksData(t);
+        };
+        fetchData();
+    }, []);
+
+    const projects = projectsData;
+    const tasks = tasksData;
 
     const handleAddProject = async (e) => {
         e.preventDefault();

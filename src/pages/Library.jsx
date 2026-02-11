@@ -3,9 +3,9 @@ import { collateralDB } from '../db';
 import { storage } from '../firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { auth } from '../firebase';
-import GlassCard from './ui/GlassCard';
-import GlassInput from './ui/GlassInput';
-import GlassButton from './ui/GlassButton';
+import GlassCard from '../components/ui/GlassCard';
+import GlassInput from '../components/ui/GlassInput';
+import GlassButton from '../components/ui/GlassButton';
 import { Search, FileText, Image as ImageIcon, ExternalLink, Share2, Upload, Link as LinkIcon, Trash2, X } from 'lucide-react';
 
 export default function Library() {
@@ -36,7 +36,7 @@ export default function Library() {
         try {
             const userId = auth.currentUser.uid;
             const storageRef = ref(storage, `users/${userId}/collateral/${Date.now()}_${file.name}`);
-            
+
             await uploadBytes(storageRef, file);
             const downloadURL = await getDownloadURL(storageRef);
 
@@ -117,8 +117,8 @@ export default function Library() {
                     onChange={handleFileUpload}
                     accept="image/*,application/pdf"
                 />
-                <GlassButton 
-                    onClick={() => document.getElementById('file-upload').click()} 
+                <GlassButton
+                    onClick={() => document.getElementById('file-upload').click()}
                     className="flex-1 bg-blue-600/20 hover:bg-blue-600"
                     disabled={uploading}
                 >
@@ -219,60 +219,4 @@ export default function Library() {
         </div>
     );
 }
-```
 
----
-
-## PART 6: Deploy & Test
-
-### Step 17: Push to GitHub
-
-1. Commit all your changes
-2. Push to GitHub
-3. Vercel will auto-deploy (wait 2-3 mins)
-
-### Step 18: Test on Both Devices
-
-1. **On PC**: Open your Vercel URL → Sign in with Google
-2. **Add a lead** on PC
-3. **On Phone**: Open same URL → Sign in with same Google account
-4. **You should see the same lead!** ✅
-
----
-
-## PART 7: Secure Your Database (IMPORTANT!)
-
-Right now anyone can read/write your data. Let's fix that.
-
-### Step 19: Update Firestore Security Rules
-
-1. Go to Firebase Console → **Firestore Database**
-2. Click **Rules** tab
-3. Replace with:
-```
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /users/{userId}/{document=**} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
-  }
-}
-```
-
-4. Click **Publish**
-
-### Step 20: Update Storage Security Rules
-
-1. Click **Storage** in left sidebar
-2. Click **Rules** tab
-3. Replace with:
-```
-rules_version = '2';
-service firebase.storage {
-  match /b/{bucket}/o {
-    match /users/{userId}/{allPaths=**} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
-  }
-}

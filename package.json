@@ -14,6 +14,7 @@
     "date-fns": "^4.1.0",
     "dexie": "^4.3.0",
     "dexie-react-hooks": "^4.2.0",
+    "firebase": "^10.7.1",
     "framer-motion": "^12.33.0",
     "lucide-react": "^0.563.0",
     "react": "^19.2.4",
@@ -21,15 +22,6 @@
     "react-router-dom": "^7.13.0",
     "tailwind-merge": "^3.4.0"
   },
-  "dependencies": {
-  "react": "^18.2.0",
-  "react-dom": "^18.2.0",
-  "dexie": "^3.2.4",
-  "dexie-react-hooks": "^1.1.7",
-  "date-fns": "^2.30.0",
-  "lucide-react": "^0.263.0",
-  "firebase": "^10.7.1"  // ADD THIS LINE
-  }
   "devDependencies": {
     "@vitejs/plugin-react": "^5.1.3",
     "autoprefixer": "^10.4.24",
