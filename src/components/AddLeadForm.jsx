@@ -145,42 +145,39 @@ export default function AddLeadForm({ onClose, initialData = null }) {
     };
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
+    e.preventDefault();
 
-        let hour24 = parseInt(formData.hour);
-        if (formData.ampm === 'PM' && hour24 !== 12) hour24 += 12;
-        if (formData.ampm === 'AM' && hour24 === 12) hour24 = 0;
+    let hour24 = parseInt(formData.hour);
+    if (formData.ampm === 'PM' && hour24 !== 12) hour24 += 12;
+    if (formData.ampm === 'AM' && hour24 === 12) hour24 = 0;
 
-        const followUpDate = new Date(formData.date);
-        followUpDate.setHours(hour24, parseInt(formData.minute));
+    const followUpDate = new Date(formData.date);
+    followUpDate.setHours(hour24, parseInt(formData.minute));
 
-        const payload = {
-            name: formData.name,
-            phone: formData.phone,
-            priority: formData.priority,
-            status: formData.status,
-            teamMember: formData.teamMember,
-            platform: formData.platform,
-            notes: formData.notes,
-            nextFollowUp: followUpDate.toISOString(),
-            updatedAt: new Date().toISOString()
-        };
-
-        try {
-            if (initialData && initialData.id) {
-                await db.leads.update(initialData.id, payload);
-            } else {
-                await db.leads.add({
-                    ...payload,
-                    createdAt: new Date().toISOString(),
-                });
-            }
-            onClose();
-        } catch (error) {
-            console.error("Failed to save lead:", error);
-            alert("Error saving lead!");
-        }
+    const payload = {
+        name: formData.name,
+        phone: formData.phone,
+        email: formData.email || '',
+        priority: formData.priority,
+        status: formData.status,
+        teamMember: formData.teamMember,
+        platform: formData.platform,
+        notes: formData.notes,
+        nextFollowUp: followUpDate.toISOString()
     };
+
+    try {
+        if (initialData && initialData.id) {
+            await db.leads.update(initialData.id, payload);
+        } else {
+            await db.leads.add(payload);
+        }
+        onClose();
+    } catch (error) {
+        console.error("Failed to save lead:", error);
+        alert("Error saving lead!");
+    }
+};
 
     const minutes = Array.from({ length: 12 }, (_, i) => (i * 5).toString().padStart(2, '0'));
     const hours = Array.from({ length: 12 }, (_, i) => (i + 1).toString().padStart(2, '0'));
