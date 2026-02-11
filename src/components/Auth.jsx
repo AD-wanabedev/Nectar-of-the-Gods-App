@@ -1,4 +1,4 @@
-import { signInWithRedirect, getRedirectResult, signOut } from 'firebase/auth';
+import { signInWithPopup, signOut } from 'firebase/auth';
 import { auth, googleProvider } from '../firebase';
 import GlassButton from './ui/GlassButton';
 import { LogIn, LogOut, User } from 'lucide-react';
@@ -6,15 +6,14 @@ import { useEffect } from 'react';
 
 export default function Auth({ user }) {
 
-    // Check for redirect result on mount
     // Redirect result is now handled in App.jsx
 
     const handleSignIn = async () => {
         try {
-            await signInWithRedirect(auth, googleProvider);
+            await signInWithPopup(auth, googleProvider);
         } catch (error) {
             console.error("Sign in initialization error:", error);
-            alert(`Failed to start sign in: ${error.message}`);
+            alert(`Failed to sign in: ${error.message}`);
         }
     };
 

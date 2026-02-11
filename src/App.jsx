@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { onAuthStateChanged, getRedirectResult } from 'firebase/auth';
+import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebase';
 import Auth from './components/Auth';
 import TodayPage from './pages/Today';
@@ -12,36 +12,11 @@ export default function App() {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState('today');
-    const [debugLog, setDebugLog] = useState([]);
-
-    const addLog = (msg) => setDebugLog(prev => [...prev, `${new Date().toLocaleTimeString()}: ${msg}`]);
 
     useEffect(() => {
-        addLog("App mounted. Initializing Auth listeners...");
-
-        // Check for redirect result (completing the login flow)
-        getRedirectResult(auth)
-            .then((result) => {
-                if (result) {
-                    addLog(`Redirect Success! User: ${result.user.email}`);
-                } else {
-                    addLog("No redirect result found.");
-                }
-            })
-            .catch((error) => {
-                addLog(`Redirect Error: ${error.message}`);
-                console.error(error);
-            });
-
         // Listen for auth state changes
         const unsubscribe = onAuthStateChanged(auth, (user) => {
-            if (user) {
-                addLog(`Auth State Change: LOGGED IN as ${user.email}`);
-                setUser(user);
-            } else {
-                addLog("Auth State Change: LOGGED OUT (null)");
-                setUser(null);
-            }
+            setUser(user);
             setLoading(false);
         });
         return () => unsubscribe();
@@ -52,24 +27,12 @@ export default function App() {
             <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white gap-4">
                 <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
                 <div>Loading Moonshine...</div>
-                <div className="text-xs text-white/50 font-mono max-w-xs text-center">
-                    {debugLog[debugLog.length - 1]}
-                </div>
             </div>
         );
     }
 
     if (!user) {
-        return (
-            <>
-                <Auth user={user} />
-                {/* Debug Overlay */}
-                <div className="fixed bottom-0 left-0 right-0 bg-black/90 text-green-400 text-xs font-mono p-4 z-[100] h-32 overflow-y-auto border-t border-white/20">
-                    <div className="font-bold text-white mb-1">DEBUG LOG (Take visible screenshot if stuck):</div>
-                    {debugLog.map((log, i) => <div key={i}>{log}</div>)}
-                </div>
-            </>
-        );
+        return <Auth user={user} />;
     }
 
     const pages = {
