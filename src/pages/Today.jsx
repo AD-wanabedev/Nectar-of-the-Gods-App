@@ -13,8 +13,13 @@ export default function Today() {
 
     useEffect(() => {
         const fetchLeads = async () => {
-            const data = await db.leads.getAll();
-            setLeads(data);
+            try {
+                const data = await db.leads.getAll();
+                setLeads(data);
+            } catch (error) {
+                console.error("Error fetching leads:", error);
+                // alert("Error loading leads. Please check your connection.");
+            }
         };
         fetchLeads();
     }, []);
