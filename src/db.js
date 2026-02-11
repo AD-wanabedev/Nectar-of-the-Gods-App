@@ -1,15 +1,101 @@
-import Dexie from 'dexie';
+import { 
+    collection, 
+    addDoc, 
+    updateDoc, 
+    deleteDoc, 
+    doc, 
+    getDocs, 
+    query, 
+    where,
+    orderBy,
+    Timestamp 
+} from 'firebase/firestore';
+import { db as firestore, auth } from './firebase';
 
-export const db = new Dexie('MoonshineDatabase');
+// Helper to get user's collection path
+const getUserCollection = (collectionName) => {
+    const userId = auth.currentUser?.uid;
+    if (!userId) throw new Error('User not authenticated');
+    return collection(firestore, 'users', userId, collectionName);
+};
 
-db.version(1).stores({
-    leads: '++id, name, phone, priority, nextFollowUp, status, teamMember',
-    projects: '++id, name, status, priority',
-    tasks: '++id, projectId, title, isDone, dueDate',
-    collateral: '++id, title, type, folder, tags', // tags is array, indexed as multi-entry
-});
+// Leads operations
+export const leadsDB = {
+    async getAll() {
+        const q = query(getUserCollection('leads'), orderBy('createdAt', 'desc'));
+        const snapshot = await getDocs(q);
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    },
 
-export const resetDatabase = async () => {
-    await db.delete();
-    await db.open();
+    async add(data) {
+        const docRef = await addDoc(getUserCollection('leads'), {
+            ...data,
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now()
+        });
+        return docRef.id;
+    },
+
+    async update(id, data) {
+        const docRef = doc(getUserCollection('leads'), id);
+        await updateDoc(docRef, {
+            ...data,
+            updatedAt: Timestamp.now()
+        });
+    },
+
+    async delete(id) {
+        await deleteDoc(doc(getUserCollection('leads'), id));
+    }
+};
+
+// Projects operations
+export const projectsDB = {
+    async getAll() {
+        const snapshot = await getDocs(getUserCollection('projects'));
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    },
+
+    async add(data) {
+        const docRef = await addDoc(getUserCollection('projects'), {
+            ...data,
+            createdAt: Timestamp.now()
+        });
+        return docRef.id;
+    },
+
+    async update(id, data) {
+        await updateDoc(doc(getUserCollection('projects'), id), data);
+    },
+
+    async delete(id) {
+        await deleteDoc(doc(getUserCollection('projects'), id));
+    }
+};
+
+// Collateral operations (for Library)
+export const collateralDB = {
+    async getAll() {
+        const snapshot = await getDocs(getUserCollection('collateral'));
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    },
+
+    async add(data) {
+        const docRef = await addDoc(getUserCollection('collateral'), {
+            ...data,
+            createdAt: Timestamp.now()
+        });
+        return docRef.id;
+    },
+
+    async delete(id) {
+        await deleteDoc(doc(getUserCollection('collateral'), id));
+    }
+};
+
+// Legacy export for compatibility (temporary)
+export const db = {
+    leads: leadsDB,
+    projects: projectsDB,
+    collateral: collateralDB
 };
