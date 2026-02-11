@@ -7,13 +7,13 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       manifest: {
         name: 'Moonshine Lead Manager',
         short_name: 'Moonshine',
         description: 'Personal Lead & Project Management PWA',
-        theme_color: '#ffffff',
+        theme_color: '#000000', // Changed slightly to force update
         icons: [
           {
             src: 'pwa-192x192.png',
@@ -28,6 +28,7 @@ export default defineConfig({
         ]
       },
       workbox: {
+        cleanupOutdatedCaches: true,
         navigateFallbackDenylist: [/^\/__\/auth/, /^\/oauth\//]
       }
     })
