@@ -9,7 +9,7 @@ export default function Auth({ user }) {
             await signInWithPopup(auth, googleProvider);
         } catch (error) {
             console.error("Sign in error:", error);
-            alert("Failed to sign in. Please try again.");
+            alert(`Failed to sign in: ${error.message}`);
         }
     };
 
@@ -29,8 +29,8 @@ export default function Auth({ user }) {
                         <h1 className="text-3xl font-bold text-white mb-2">Moonshine Leads</h1>
                         <p className="text-white/60">Sign in to sync your leads across devices</p>
                     </div>
-                    <GlassButton 
-                        onClick={handleSignIn} 
+                    <GlassButton
+                        onClick={handleSignIn}
                         className="w-full bg-blue-600/20 hover:bg-blue-600/40 flex items-center justify-center gap-2"
                     >
                         <LogIn size={20} />
@@ -47,8 +47,8 @@ export default function Auth({ user }) {
                 <User size={16} />
                 {user.displayName || user.email}
             </div>
-            <GlassButton 
-                onClick={handleSignOut} 
+            <GlassButton
+                onClick={handleSignOut}
                 className="bg-red-600/20 hover:bg-red-600/40 px-3 py-2"
             >
                 <LogOut size={16} />
