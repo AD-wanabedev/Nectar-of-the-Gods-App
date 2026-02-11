@@ -1,8 +1,8 @@
-import { signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
+import { signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut } from 'firebase/auth';
 import { auth, googleProvider } from '../firebase';
 import GlassButton from './ui/GlassButton';
 import GlassInput from './ui/GlassInput';
-import { LogIn, LogOut, User, Mail, Lock } from 'lucide-react';
+import { LogIn, LogOut, User, Mail, Lock, RefreshCw } from 'lucide-react';
 import { useState } from 'react';
 
 export default function Auth({ user }) {
@@ -36,6 +36,20 @@ export default function Auth({ user }) {
         }
     };
 
+    const handleForgotPassword = async () => {
+        if (!email) {
+            alert("Please enter your email address first.");
+            return;
+        }
+        try {
+            await sendPasswordResetEmail(auth, email);
+            alert("Password reset email sent! Check your inbox.");
+        } catch (error) {
+            console.error("Reset password error:", error);
+            alert(`Error: ${error.message}`);
+        }
+    };
+
     const handleSignOut = async () => {
         try {
             await signOut(auth);
@@ -55,7 +69,7 @@ export default function Auth({ user }) {
                         </p>
                     </div>
 
-                    <form onSubmit={handleEmailAuth} className="space-y-4 mb-6">
+                    <form onSubmit={handleEmailAuth} className="space-y-4 mb-2">
                         <div>
                             <GlassInput
                                 type="email"
@@ -66,16 +80,30 @@ export default function Auth({ user }) {
                                 required
                             />
                         </div>
-                        <div>
-                            <GlassInput
-                                type="password"
-                                placeholder="Password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="pl-10"
-                                required
-                            />
-                        </div>
+                        {isLogin || (
+                            <div>
+                                <GlassInput
+                                    type="password"
+                                    placeholder="Password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="pl-10"
+                                    required
+                                />
+                            </div>
+                        )}
+                        {isLogin && (
+                            <div>
+                                <GlassInput
+                                    type="password"
+                                    placeholder="Password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="pl-10"
+                                    required
+                                />
+                            </div>
+                        )}
 
                         <GlassButton
                             type="submit"
@@ -92,6 +120,17 @@ export default function Auth({ user }) {
                             )}
                         </GlassButton>
                     </form>
+
+                    {isLogin && (
+                        <div className="text-right mb-4">
+                            <button
+                                onClick={handleForgotPassword}
+                                className="text-xs text-white/40 hover:text-white/60 transition-colors"
+                            >
+                                Forgot Password?
+                            </button>
+                        </div>
+                    )}
 
                     <div className="relative mb-6">
                         <div className="absolute inset-0 flex items-center">
