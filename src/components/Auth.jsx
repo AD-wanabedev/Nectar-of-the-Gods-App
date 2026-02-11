@@ -179,18 +179,5 @@ export default function Auth({ user }) {
         );
     }
 
-    return (
-        <div className="absolute top-4 right-4 z-40 flex items-center gap-3">
-            <div className="flex items-center gap-2 text-white/80 text-sm">
-                <User size={16} />
-                {user.displayName || user.email}
-            </div>
-            <GlassButton
-                onClick={handleSignOut}
-                className="bg-red-600/20 hover:bg-red-600/40 px-3 py-2"
-            >
-                <LogOut size={16} />
-            </GlassButton>
-        </div>
-    );
+    return null;
 }

@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth } from './firebase';
 import Auth from './components/Auth';
 import TodayPage from './pages/Today';
 import LeadsPage from './pages/Leads';
 import ProjectsPage from './pages/Projects';
 import Library from './pages/Library';
-import { Home, Users, Target, BookOpen } from 'lucide-react';
+import GlassButton from './components/ui/GlassButton';
+import { Home, Users, Target, BookOpen, LogOut, User as UserIcon, RefreshCw, Smartphone } from 'lucide-react';
 import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
 
 export default function App() {
@@ -23,6 +24,27 @@ export default function App() {
         });
         return () => unsubscribe();
     }, []);
+
+    const handleSignOut = async () => {
+        try {
+            await signOut(auth);
+        } catch (error) {
+            console.error("Sign out error:", error);
+        }
+    };
+
+    const forceRefresh = () => {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then((registrations) => {
+                for (let registration of registrations) {
+                    registration.unregister();
+                }
+                window.location.reload(true);
+            });
+        } else {
+            window.location.reload(true);
+        }
+    };
 
     if (loading) {
         return (
@@ -44,7 +66,6 @@ export default function App() {
         { id: 'library', path: '/library', icon: BookOpen, label: 'Library' }
     ];
 
-    // Determine current ID for active tab styling
     const getActiveId = () => {
         const path = location.pathname;
         if (path === '/') return 'today';
@@ -54,12 +75,38 @@ export default function App() {
     const activeId = getActiveId();
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900">
-            <Auth user={user} />
+        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white">
+            {/* Structured Header - Fixes overlapping items */}
+            <header className="sticky top-0 z-[100] w-full px-4 py-3 bg-black/50 backdrop-blur-xl border-b border-white/5 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-blue-600/20 flex items-center justify-center border border-blue-500/30">
+                        <UserIcon size={16} className="text-blue-400" />
+                    </div>
+                    <div className="flex flex-col">
+                        <span className="text-xs font-semibold text-white/90 truncate max-w-[120px] md:max-w-xs">
+                            {user.displayName || user.email?.split('@')[0]}
+                        </span>
+                        <span className="text-[10px] text-white/40 uppercase tracking-tighter">Authorized</span>
+                    </div>
+                </div>
 
-            <main className="px-4 pt-4 pb-24">
+                <div className="flex items-center gap-2">
+                    <GlassButton
+                        onClick={handleSignOut}
+                        className="bg-white/5 hover:bg-red-500/20 px-3 py-1.5 border-white/10 hover:border-red-500/30 group transition-all"
+                    >
+                        <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-bold uppercase hidden sm:inline text-white/60 group-hover:text-red-400">Logout</span>
+                            <LogOut size={14} className="text-white/40 group-hover:text-red-400 transition-colors" />
+                        </div>
+                    </GlassButton>
+                </div>
+            </header>
+
+            <main className="px-4 pt-4 pb-24 max-w-7xl mx-auto w-full">
                 <Routes>
                     <Route path="/" element={<TodayPage />} />
+                    {/* Only allow other pages on desktop or if specifically navigated to */}
                     <Route path="/leads" element={<LeadsPage />} />
                     <Route path="/projects" element={<ProjectsPage />} />
                     <Route path="/library" element={<Library />} />
@@ -67,15 +114,15 @@ export default function App() {
                 </Routes>
             </main>
 
-            {/* Bottom Navigation */}
-            <nav className="fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-lg border-t border-white/10 pb-safe z-50">
-                <div className="grid grid-cols-4 gap-1 px-2 py-2">
+            {/* Bottom Navigation - Hidden on mobile if simplified view requested, or just kept for desktop */}
+            <nav className="fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-lg border-t border-white/10 pb-safe z-50 md:flex hidden">
+                <div className="grid grid-cols-4 gap-1 px-2 py-2 w-full max-w-xl mx-auto">
                     {navItems.map(({ id, path, icon: Icon, label }) => (
                         <button
                             key={id}
                             onClick={() => navigate(path)}
                             className={`flex flex-col items-center gap-1 py-2 px-3 rounded-xl transition-all ${activeId === id
-                                ? 'bg-blue-600/20 text-blue-400'
+                                ? 'bg-blue-600/20 text-blue-400 border border-blue-500/20'
                                 : 'text-white/50 hover:text-white/80 hover:bg-white/5'
                                 }`}
                         >
@@ -85,6 +132,9 @@ export default function App() {
                     ))}
                 </div>
             </nav>
+
+            {/* Mobile Navigation - Only show if user wants it, but user asked for ONLY Today page on mobile */}
+            {/* We will hide the mobile nav entirely for now to satisfy "only Today page please" */}
         </div>
     );
 }

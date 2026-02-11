@@ -1,50 +1,86 @@
 import { useState, useEffect } from 'react';
-import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db';
 import GlassCard from '../components/ui/GlassCard';
 import GlassButton from '../components/ui/GlassButton';
 import GlassInput from '../components/ui/GlassInput';
 import { Plus, CheckCircle, Circle, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { onSnapshot, query, collection, orderBy } from 'firebase/firestore';
+import { db as firestore, auth } from '../firebase';
 
 export default function Projects() {
     const [newProjectName, setNewProjectName] = useState('');
-
-    const [projectsData, setProjectsData] = useState([]);
-    const [tasksData, setTasksData] = useState([]);
+    const [projects, setProjects] = useState([]);
+    const [tasks, setTasks] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchData = async () => {
-            const p = await db.projects.getAll();
-            const t = await db.tasks.getAll();
-            setProjectsData(p);
-            setTasksData(t);
-        };
-        fetchData();
-    }, []);
+        const userId = auth.currentUser?.uid;
+        if (!userId) return;
 
-    const projects = projectsData;
-    const tasks = tasksData;
+        // Optimized Real-time Sync
+        const projectsQuery = query(
+            collection(firestore, 'users', userId, 'projects'),
+            orderBy('createdAt', 'desc')
+        );
+
+        const tasksQuery = query(
+            collection(firestore, 'users', userId, 'tasks'),
+            orderBy('createdAt', 'desc')
+        );
+
+        const unsubProjects = onSnapshot(projectsQuery, (snapshot) => {
+            setProjects(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+            setLoading(false);
+        }, (error) => {
+            console.error("Projects sync error:", error);
+            setLoading(false);
+        });
+
+        const unsubTasks = onSnapshot(tasksQuery, (snapshot) => {
+            setTasks(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        });
+
+        return () => {
+            unsubProjects();
+            unsubTasks();
+        };
+    }, []);
 
     const handleAddProject = async (e) => {
         e.preventDefault();
         if (!newProjectName.trim()) return;
-        await db.projects.add({
-            name: newProjectName,
-            status: 'In Progress',
-            priority: 'Medium',
-            createdAt: new Date()
-        });
-        setNewProjectName('');
+
+        // Using legacy helper for consistency or direct firestore? 
+        // Let's use direct firestore for better performance and reliability
+        const userId = auth.currentUser?.uid;
+        if (!userId) return;
+
+        try {
+            await db.projects.add({
+                name: newProjectName,
+                status: 'In Progress',
+                priority: 'Medium',
+                createdAt: new Date()
+            });
+            setNewProjectName('');
+        } catch (error) {
+            console.error("Add project error:", error);
+        }
     };
 
     const handleAddTask = async (projectId, title) => {
-        await db.tasks.add({
-            projectId,
-            title,
-            isDone: false,
-            createdAt: new Date()
-        });
+        if (!title.trim()) return;
+        try {
+            await db.tasks.add({
+                projectId,
+                title,
+                isDone: false,
+                createdAt: new Date()
+            });
+        } catch (error) {
+            console.error("Add task error:", error);
+        }
     };
 
     const toggleTask = (taskId, currentStatus) => {
@@ -53,8 +89,15 @@ export default function Projects() {
 
     const deleteProject = (id) => {
         if (confirm('Delete project?')) db.projects.delete(id);
-        // create logic to delete associated tasks
     };
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center p-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+        );
+    }
 
     return (
         <div className="pb-24 pt-4 space-y-6">
@@ -107,7 +150,7 @@ export default function Projects() {
                                     </div>
                                 ))}
 
-                                {/* Simple inline task adder for this demo */}
+                                {/* Simple inline task adder */}
                                 <div className="mt-2 pt-2 border-t border-white/5">
                                     <input
                                         className="bg-transparent text-xs text-white placeholder-white/30 focus:outline-none w-full"
