@@ -1,19 +1,37 @@
-import { useState } from 'react';
-import { useLiveQuery } from 'dexie-react-hooks';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { db } from '../db';
-import GlassCard from '../components/ui/GlassCard';
-import GlassInput from '../components/ui/GlassInput';
-import GlassButton from '../components/ui/GlassButton';
-import AddLeadForm from '../components/AddLeadForm';
+import { leadsDB } from '../db';
+import GlassCard from './ui/GlassCard';
+import GlassInput from './ui/GlassInput';
+import GlassButton from './ui/GlassButton';
+import AddLeadForm from './AddLeadForm';
 import { Search, Plus, Filter, Phone, MoreHorizontal, Instagram, Mail, MessageCircle, FileDown, FileUp } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 
 export default function Leads() {
+    const [leads, setLeads] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [showAddForm, setShowAddForm] = useState(false);
     const [editingLead, setEditingLead] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [priorityFilter, setPriorityFilter] = useState('All');
+
+    useEffect(() => {
+        loadLeads();
+    }, []);
+
+    const loadLeads = async () => {
+        try {
+            setLoading(true);
+            const data = await leadsDB.getAll();
+            setLeads(data);
+        } catch (error) {
+            console.error("Failed to load leads:", error);
+            alert("Failed to load leads. Please refresh.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleEdit = (lead) => {
         setEditingLead(lead);
@@ -25,27 +43,16 @@ export default function Leads() {
         setShowAddForm(true);
     };
 
-    const leads = useLiveQuery(async () => {
-        let collection = db.leads.orderBy('nextFollowUp').reverse();
-
-        // Simple client-side filtering logic within the query builder if possible or post-fetch
-        // Dexie filtering is limited on non-indexed fields without 'filter'.
-        // Given small scale, fetching all and filtering in memory is fine, or refine indices.
-        // Let's filter in memory for simplicity with search.
-        const allLeads = await collection.toArray();
-
-        return allLeads.filter(lead => {
-            const matchesSearch = lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                lead.phone.includes(searchTerm);
-            const matchesPriority = priorityFilter === 'All' || lead.priority === priorityFilter;
-            return matchesSearch && matchesPriority;
-        });
-    }, [searchTerm, priorityFilter]);
+    const handleCloseForm = () => {
+        setShowAddForm(false);
+        setEditingLead(null);
+        loadLeads(); // Refresh data after adding/editing
+    };
 
     const exportCSV = () => {
         if (!leads || leads.length === 0) return alert("No leads to export.");
 
-        const headers = ["Name", "Phone", "Email", "Status", "Priority", "Assigned To", "Example Notes", "Next Follow Up"];
+        const headers = ["Name", "Phone", "Email", "Status", "Priority", "Assigned To", "Notes", "Next Follow Up"];
         const rows = leads.map(l => [
             l.name,
             l.phone,
@@ -59,7 +66,7 @@ export default function Leads() {
 
         const csvContent = [
             headers.join(","),
-            ...rows.map(r => r.map(c => `"${c}"`).join(","))
+            ...rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(","))
         ].join("\n");
 
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -78,41 +85,57 @@ export default function Leads() {
 
         const reader = new FileReader();
         reader.onload = async (event) => {
-            const text = event.target.result;
-            const rows = text.split("\n").slice(1); // Skip header
+            try {
+                const text = event.target.result;
+                const rows = text.split("\n").slice(1); // Skip header
 
-            let count = 0;
-            for (const row of rows) {
-                // Simple CSV parse (handling quotes roughly)
-                // NOTE: For robust parsing we'd use PapaParse, but this suffices for simple "Name,Phone" etc
-                const cols = row.split(",").map(c => c.replace(/^"|"$/g, '').trim());
-                if (cols.length < 2) continue; // Skip empty/invalid
+                let count = 0;
+                for (const row of rows) {
+                    const cols = row.split(",").map(c => c.replace(/^"|"$/g, '').trim());
+                    if (cols.length < 2) continue;
 
-                // Expected order: Name, Phone, Email, Status, Priority, Assigned To, Notes, FollowUp
-                const [name, phone, email, status, priority, teamMember, notes, nextFollowUp] = cols;
+                    const [name, phone, email, status, priority, teamMember, notes, nextFollowUp] = cols;
 
-                if (name) {
-                    await db.leads.add({
-                        name,
-                        phone: phone || '',
-                        email: email || '',
-                        status: status || 'New',
-                        priority: priority || 'Medium',
-                        teamMember: teamMember || 'Me',
-                        notes: notes || '',
-                        nextFollowUp: nextFollowUp || new Date().toISOString(),
-                        createdAt: new Date().toISOString(),
-                        platform: 'Call' // Default import platform
-                    });
-                    count++;
+                    if (name) {
+                        await leadsDB.add({
+                            name,
+                            phone: phone || '',
+                            email: email || '',
+                            status: status || 'New',
+                            priority: priority || 'Medium',
+                            teamMember: teamMember || 'Me',
+                            notes: notes || '',
+                            nextFollowUp: nextFollowUp || new Date().toISOString(),
+                            platform: 'Call'
+                        });
+                        count++;
+                    }
                 }
+                alert(`Imported ${count} leads successfully!`);
+                loadLeads(); // Refresh after import
+            } catch (error) {
+                console.error("Import failed:", error);
+                alert("Failed to import leads. Check CSV format.");
             }
-            alert(`Imported ${count} leads successfully!`);
         };
         reader.readAsText(file);
     };
 
-    if (!leads) return <div className="p-8 text-center text-white/50">Loading leads...</div>;
+    // Filter leads in memory
+    const filteredLeads = leads.filter(lead => {
+        const matchesSearch = lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            lead.phone.includes(searchTerm);
+        const matchesPriority = priorityFilter === 'All' || lead.priority === priorityFilter;
+        return matchesSearch && matchesPriority;
+    }).sort((a, b) => new Date(b.nextFollowUp) - new Date(a.nextFollowUp));
+
+    if (loading) {
+        return (
+            <div className="p-8 text-center text-white/50">
+                <div className="animate-pulse">Loading leads...</div>
+            </div>
+        );
+    }
 
     return (
         <div className="pb-24 pt-4 space-y-4">
@@ -140,6 +163,7 @@ export default function Leads() {
                     className="w-10 px-0"
                     variant={priorityFilter === 'All' ? 'secondary' : 'primary'}
                     onClick={() => setPriorityFilter(f => f === 'All' ? 'High' : f === 'High' ? 'Medium' : 'All')}
+                    title={`Filter: ${priorityFilter}`}
                 >
                     <Filter size={18} />
                 </GlassButton>
@@ -147,13 +171,13 @@ export default function Leads() {
 
             {/* Leads List */}
             <div className="space-y-3">
-                {leads.length === 0 ? (
+                {filteredLeads.length === 0 ? (
                     <div className="text-center py-10 text-white/40">
                         <p>No leads found.</p>
                         <p className="text-xs mt-1">Tap + to add one.</p>
                     </div>
                 ) : (
-                    leads.map(lead => (
+                    filteredLeads.map(lead => (
                         <GlassCard key={lead.id} onClick={() => handleEdit(lead)} className="active:scale-[0.99] cursor-pointer hover:bg-white/10 group">
                             <div className="flex justify-between items-start">
                                 <div className="flex gap-3">
@@ -212,7 +236,7 @@ export default function Leads() {
             {/* Add Lead Modal */}
             {showAddForm && (
                 <AddLeadForm
-                    onClose={() => setShowAddForm(false)}
+                    onClose={handleCloseForm}
                     initialData={editingLead}
                 />
             )}
