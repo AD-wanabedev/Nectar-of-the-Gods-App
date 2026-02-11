@@ -34,13 +34,13 @@ export default function AddLeadForm({ onClose, initialData = null }) {
 
     const deleteTeamMember = (member, e) => {
         e.stopPropagation();
-        if (member === 'Me') return;
+        if (member === 'AD') return; // Cannot delete default
         if (confirm(`Remove ${member} from team?`)) {
             const updated = teamMembers.filter(m => m !== member);
             setTeamMembers(updated);
             localStorage.setItem('moonshine_team', JSON.stringify(updated));
             if (formData.teamMember === member) {
-                setFormData(prev => ({ ...prev, teamMember: 'Me' }));
+                setFormData(prev => ({ ...prev, teamMember: 'AD' }));
             }
         }
     };
@@ -52,7 +52,7 @@ export default function AddLeadForm({ onClose, initialData = null }) {
         email: '',
         priority: 'Medium',
         status: 'New',
-        teamMember: 'Me',
+        teamMember: 'AD',
         platform: 'Call',
         notes: '',
         date: format(new Date(), 'yyyy-MM-dd'),
@@ -92,11 +92,31 @@ export default function AddLeadForm({ onClose, initialData = null }) {
     const [isListening, setIsListening] = useState(false);
 
     const startListening = () => {
-        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-            alert("Speech recognition is not supported in this browser. Try Chrome/Edge.");
+        // Check for API support
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        
+        if (!SpeechRecognition) {
+            alert("Speech recognition is not supported on this device/browser. Please use Chrome or Edge.");
             return;
         }
 
+        // Request microphone permission explicitly on mobile
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(() => {
+                    startRecognition();
+                })
+                .catch((error) => {
+                    console.error("Microphone permission denied:", error);
+                    alert("Please allow microphone access to use voice input. Check your browser settings.");
+                });
+        } else {
+            // Fallback for older browsers
+            startRecognition();
+        }
+    };
+
+    const startRecognition = () => {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         const recognition = new SpeechRecognition();
 
@@ -104,10 +124,14 @@ export default function AddLeadForm({ onClose, initialData = null }) {
         recognition.interimResults = false;
         recognition.lang = 'en-US';
 
-        recognition.onstart = () => setIsListening(true);
+        recognition.onstart = () => {
+            console.log("Speech recognition started");
+            setIsListening(true);
+        };
 
         recognition.onresult = (event) => {
             const transcript = event.results[0][0].transcript;
+            console.log("Transcript:", transcript);
             setFormData(prev => ({
                 ...prev,
                 notes: (prev.notes ? prev.notes + ' ' : '') + transcript
@@ -116,13 +140,33 @@ export default function AddLeadForm({ onClose, initialData = null }) {
         };
 
         recognition.onerror = (event) => {
-            console.error("Speech recognition error", event.error);
+            console.error("Speech recognition error:", event.error);
+            
+            if (event.error === 'not-allowed') {
+                alert("Microphone access denied. Go to your browser Settings → Site Settings → Microphone and allow access for this site.");
+            } else if (event.error === 'no-speech') {
+                alert("No speech detected. Please try again and speak clearly.");
+            } else if (event.error === 'aborted') {
+                // User cancelled, don't show error
+            } else {
+                alert(`Speech recognition error: ${event.error}. Make sure you're using HTTPS and Chrome/Edge browser.`);
+            }
+            
             setIsListening(false);
         };
 
-        recognition.onend = () => setIsListening(false);
+        recognition.onend = () => {
+            console.log("Speech recognition ended");
+            setIsListening(false);
+        };
 
-        recognition.start();
+        try {
+            recognition.start();
+        } catch (error) {
+            console.error("Failed to start recognition:", error);
+            alert("Failed to start voice input. Please try again.");
+            setIsListening(false);
+        }
     };
 
     useEffect(() => {
@@ -145,39 +189,39 @@ export default function AddLeadForm({ onClose, initialData = null }) {
     };
 
     const handleSubmit = async (e) => {
-    e.preventDefault();
+        e.preventDefault();
 
-    let hour24 = parseInt(formData.hour);
-    if (formData.ampm === 'PM' && hour24 !== 12) hour24 += 12;
-    if (formData.ampm === 'AM' && hour24 === 12) hour24 = 0;
+        let hour24 = parseInt(formData.hour);
+        if (formData.ampm === 'PM' && hour24 !== 12) hour24 += 12;
+        if (formData.ampm === 'AM' && hour24 === 12) hour24 = 0;
 
-    const followUpDate = new Date(formData.date);
-    followUpDate.setHours(hour24, parseInt(formData.minute));
+        const followUpDate = new Date(formData.date);
+        followUpDate.setHours(hour24, parseInt(formData.minute));
 
-    const payload = {
-        name: formData.name,
-        phone: formData.phone,
-        email: formData.email || '',
-        priority: formData.priority,
-        status: formData.status,
-        teamMember: formData.teamMember,
-        platform: formData.platform,
-        notes: formData.notes,
-        nextFollowUp: followUpDate.toISOString()
-    };
+        const payload = {
+            name: formData.name,
+            phone: formData.phone,
+            email: formData.email || '',
+            priority: formData.priority,
+            status: formData.status,
+            teamMember: formData.teamMember,
+            platform: formData.platform,
+            notes: formData.notes,
+            nextFollowUp: followUpDate.toISOString()
+        };
 
-    try {
-        if (initialData && initialData.id) {
-            await db.leads.update(initialData.id, payload);
-        } else {
-            await db.leads.add(payload);
+        try {
+            if (initialData && initialData.id) {
+                await db.leads.update(initialData.id, payload);
+            } else {
+                await db.leads.add(payload);
+            }
+            onClose();
+        } catch (error) {
+            console.error("Failed to save lead:", error);
+            alert("Error saving lead!");
         }
-        onClose();
-    } catch (error) {
-        console.error("Failed to save lead:", error);
-        alert("Error saving lead!");
-    }
-};
+    };
 
     const minutes = Array.from({ length: 12 }, (_, i) => (i * 5).toString().padStart(2, '0'));
     const hours = Array.from({ length: 12 }, (_, i) => (i + 1).toString().padStart(2, '0'));
@@ -306,7 +350,7 @@ export default function AddLeadForm({ onClose, initialData = null }) {
                                         ))}
                                     </select>
                                     <div className="flex flex-wrap gap-2">
-                                        {teamMembers.filter(m => m !== 'Me').map(m => (
+                                        {teamMembers.filter(m => m !== 'AD').map(m => (
                                             <span key={m} className="text-xs bg-white/10 px-2 py-1 rounded-full flex items-center gap-1 text-white/70">
                                                 {m}
                                                 <button type="button" onClick={(e) => deleteTeamMember(m, e)} className="text-white/40 hover:text-red-400">
