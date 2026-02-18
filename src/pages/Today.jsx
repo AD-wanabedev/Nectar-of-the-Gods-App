@@ -3,7 +3,7 @@ import InspirationalQuote from '../components/InspirationalQuote';
 import GlassCard from '../components/ui/GlassCard';
 import GlassButton from '../components/ui/GlassButton';
 import { useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { db } from '../db';
 import { format, isBefore, isToday, parseISO, startOfToday } from 'date-fns';
 
@@ -26,23 +26,27 @@ export default function Today() {
 
     const today = startOfToday();
 
-    // --- Metrics Calculations ---
-    const totalLeads = leads.length;
-    const revenue = leads.reduce((sum, l) => sum + (parseFloat(l.orderValue) || 0), 0);
-    const highPriorityCount = leads.filter(l => l.priority === 'High').length;
-    const salesCount = leads.filter(l => (parseFloat(l.orderValue) || 0) > 0).length;
+    // --- Metrics Calculations (Memoized for performance) ---
+    const metrics = useMemo(() => {
+        return {
+            totalLeads: leads.length,
+            revenue: leads.reduce((sum, l) => sum + (parseFloat(l.orderValue) || 0), 0),
+            highPriorityCount: leads.filter(l => l.priority === 'High').length,
+            salesCount: leads.filter(l => (parseFloat(l.orderValue) || 0) > 0).length
+        };
+    }, [leads]);
 
-    const overdueItems = leads.filter(l => {
+    const overdueItems = useMemo(() => leads.filter(l => {
         if (!l.nextFollowUp) return false;
         const date = parseISO(l.nextFollowUp);
         return isBefore(date, today) && l.status !== 'Closed';
-    });
+    }), [leads, today]);
 
-    const todayFollowUps = leads.filter(l => {
+    const todayFollowUps = useMemo(() => leads.filter(l => {
         if (!l.nextFollowUp) return false;
         const date = parseISO(l.nextFollowUp);
         return isToday(date) && l.status !== 'Closed';
-    });
+    }), [leads, today]);
 
     return (
         <div className="pb-24 pt-6 px-4">
@@ -55,7 +59,7 @@ export default function Today() {
                         <div className="p-2 rounded-full bg-blue-500/10 text-blue-400 mb-1">
                             <Users size={18} />
                         </div>
-                        <span className="text-2xl font-bold text-gray-900 dark:text-white">{totalLeads}</span>
+                        <span className="text-2xl font-bold text-gray-900 dark:text-white">{metrics.totalLeads}</span>
                         <span className="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400">Total Leads</span>
                     </GlassCard>
 
@@ -63,7 +67,7 @@ export default function Today() {
                         <div className="p-2 rounded-full bg-green-500/10 text-green-400 mb-1">
                             <DollarSign size={18} />
                         </div>
-                        <span className="text-2xl font-bold text-gray-900 dark:text-white">₹{revenue.toLocaleString()}</span>
+                        <span className="text-2xl font-bold text-gray-900 dark:text-white">₹{metrics.revenue.toLocaleString()}</span>
                         <span className="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400">Revenue</span>
                     </GlassCard>
 
@@ -71,7 +75,7 @@ export default function Today() {
                         <div className="p-2 rounded-full bg-red-500/10 text-red-400 mb-1">
                             <Star size={18} />
                         </div>
-                        <span className="text-2xl font-bold text-gray-900 dark:text-white">{highPriorityCount}</span>
+                        <span className="text-2xl font-bold text-gray-900 dark:text-white">{metrics.highPriorityCount}</span>
                         <span className="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400">High Priority</span>
                     </GlassCard>
 
@@ -79,7 +83,7 @@ export default function Today() {
                         <div className="p-2 rounded-full bg-brand-gold/10 text-brand-gold mb-1">
                             <ShoppingBag size={18} />
                         </div>
-                        <span className="text-2xl font-bold text-gray-900 dark:text-white">{salesCount}</span>
+                        <span className="text-2xl font-bold text-gray-900 dark:text-white">{metrics.salesCount}</span>
                         <span className="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400">Total Sales</span>
                     </GlassCard>
                 </div>
@@ -138,7 +142,7 @@ export default function Today() {
                             todayFollowUps.map((item) => (
                                 <GlassCard key={item.id} className="group p-0 relative overflow-hidden transition-all hover:border-brand-gold/30 hover:shadow-lg hover:shadow-brand-gold/5">
                                     <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${item.priority === 'High' ? 'bg-red-400' :
-                                            item.priority === 'Medium' ? 'bg-amber-400' : 'bg-blue-400'
+                                        item.priority === 'Medium' ? 'bg-amber-400' : 'bg-blue-400'
                                         }`} />
 
                                     <div className="flex items-center justify-between p-4 pl-6">
