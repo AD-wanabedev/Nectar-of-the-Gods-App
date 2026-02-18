@@ -5,7 +5,7 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import GlassCard from '../components/ui/GlassCard';
 import GlassButton from '../components/ui/GlassButton';
 import GlassInput from '../components/ui/GlassInput';
-import { FileText, Mic, Image as ImageIcon, Download, Calendar, Trash2, Save, Loader2 } from 'lucide-react';
+import { FileText, Mic, Image as ImageIcon, Download, Calendar, Trash2, Save, Loader2, X } from 'lucide-react';
 import { format, subDays, isSameDay } from 'date-fns';
 
 export default function Documentation() {
@@ -60,7 +60,7 @@ export default function Documentation() {
     const startListening = () => {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRecognition) {
-            alert("Speech recognition not supported in this browser.");
+            alert("Speech recognition is not supported in this browser. Please use Chrome, Edge, or Safari.");
             return;
         }
 
@@ -77,9 +77,20 @@ export default function Documentation() {
         recognition.onerror = (event) => {
             console.error("Speech error", event);
             setIsListening(false);
+            if (event.error === 'not-allowed') {
+                alert("Microphone access blocked. Please allow microphone permission in your browser settings.");
+            } else if (event.error === 'no-speech') {
+                alert("No speech detected. Please try again.");
+            } else {
+                alert(`Speech recognition error: ${event.error}`);
+            }
         };
 
-        recognition.start();
+        try {
+            recognition.start();
+        } catch (e) {
+            console.error("Recognition start error:", e);
+        }
     };
 
     // File Upload
