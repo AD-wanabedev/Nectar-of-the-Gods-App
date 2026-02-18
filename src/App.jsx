@@ -130,9 +130,9 @@ function AppContent() {
                     <Route path="/" element={<TodayPage />} />
                     <Route path="/leads" element={<LeadsPage />} />
                     <Route path="/projects" element={<ProjectsPage />} />
-                    <Route path="/sales" element={<SalesPage />} />
+                    <Route path="/sales" element={<Sales />} />
                     <Route path="/library" element={<Library />} />
-                    <Route path="/docs" element={<DocumentationPage />} />
+                    <Route path="/docs" element={<Documentation />} />
                     <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
             </main>
