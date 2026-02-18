@@ -274,9 +274,10 @@ export default function AddLeadForm({ onClose, initialData = null }) {
     const honeyOptions = [
         "Acacia Honey", "Mustard Honey", "Multifloral Honey", "Sidr Honey",
         "Smoked Honey", "Gondhoraj Honey", "Jeera Masala Honey", "Chilly Honey",
+        "Cinnamon Sidr Honey", "Mustard Ginger Honey", "Chilli Honey", "Coffee Honey",
         "Forest Honey", "Sundarban Honey", "Tribal Honey", "Ajwain Honey",
         "Niger Honey", "Dark - phondaghat Honey", "Natural (MFH) Kejriwal Honey",
-        "Network Honey"
+        "Network Honey", "Bee Hotels"
     ];
 
     return (
