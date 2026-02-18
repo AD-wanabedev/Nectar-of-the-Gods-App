@@ -158,6 +158,14 @@ export const documentationDB = {
         return docRef.id;
     },
 
+    async update(id, data) {
+        const docRef = doc(getUserCollection('documentation'), id);
+        await updateDoc(docRef, {
+            ...data,
+            updatedAt: Timestamp.now()
+        });
+    },
+
     async delete(id) {
         await deleteDoc(doc(getUserCollection('documentation'), id));
     }
