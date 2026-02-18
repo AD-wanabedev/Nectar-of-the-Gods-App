@@ -147,6 +147,11 @@ export default function Settings() {
                     </div>
                 </GlassCard>
             </section>
+            <div className="text-center mt-10">
+                <p className="text-xs text-brand-dark/30 dark:text-brand-white/30 font-mono">
+                    App Version: 2.1.0 (UI Polish & PWA Fix)
+                </p>
+            </div>
         </div>
     );
 }
