@@ -5,6 +5,8 @@ import { db } from '../db';
 import { X, Calendar, UserPlus, Mic, Instagram, Phone, Mail, MessageCircle, User, Check, Building2, ChevronDown, ChevronUp } from 'lucide-react';
 import { format } from 'date-fns';
 
+import { PlusCircle } from 'lucide-react';
+
 export default function AddLeadForm({ onClose, initialData = null }) {
     // --- Team Member Logic ---
     const [teamMembers, setTeamMembers] = useState(() => {
@@ -14,6 +16,28 @@ export default function AddLeadForm({ onClose, initialData = null }) {
     const [showAddTeam, setShowAddTeam] = useState(false);
     const [newMemberName, setNewMemberName] = useState('');
     const [showHoneyDropdown, setShowHoneyDropdown] = useState(false); // Toggle for honey dropdown
+
+    // --- Quick Sale Add Logic ---
+    const [isAddingSale, setIsAddingSale] = useState(false);
+    const [addAmount, setAddAmount] = useState('');
+
+    const handleAddSale = () => {
+        if (!addAmount || isNaN(parseFloat(addAmount))) return;
+
+        const currentTotal = parseFloat(formData.orderValue) || 0;
+        const addition = parseFloat(addAmount);
+        const newTotal = currentTotal + addition;
+
+        setFormData(prev => ({
+            ...prev,
+            orderValue: newTotal.toString(),
+            saleDate: format(new Date(), 'yyyy-MM-dd'), // Update sale date to today
+            notes: (prev.notes ? prev.notes + '\n' : '') + `[${format(new Date(), 'dd/MM')}] Added sale: ₹${addition}`
+        }));
+
+        setAddAmount('');
+        setIsAddingSale(false);
+    };
 
     const handleDeleteLead = async () => {
         if (!initialData?.id) return;
@@ -473,14 +497,45 @@ export default function AddLeadForm({ onClose, initialData = null }) {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-xs text-brand-white/70 mb-1">Order Value (₹)</label>
-                                <GlassInput
-                                    type="number"
-                                    name="orderValue"
-                                    placeholder="0.00"
-                                    value={formData.orderValue || ''}
-                                    onChange={handleChange}
-                                />
+                                <label className="block text-xs text-brand-white/70 mb-1 flex justify-between items-center">
+                                    Order Value (₹)
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsAddingSale(!isAddingSale)}
+                                        className="text-brand-gold hover:text-brand-peach text-xs flex items-center gap-1"
+                                    >
+                                        {isAddingSale ? <X size={12} /> : <PlusCircle size={12} />}
+                                        {isAddingSale ? 'Cancel' : 'Add Sale'}
+                                    </button>
+                                </label>
+                                {isAddingSale ? (
+                                    <div className="flex gap-2 animate-in fade-in slide-in-from-top-2">
+                                        <GlassInput
+                                            type="number"
+                                            placeholder="Amount"
+                                            value={addAmount}
+                                            onChange={e => setAddAmount(e.target.value)}
+                                            className="flex-1"
+                                            autoFocus
+                                        />
+                                        <GlassButton
+                                            type="button"
+                                            onClick={handleAddSale}
+                                            className="bg-green-600/20 text-green-400 hover:bg-green-600/40"
+                                            disabled={!addAmount}
+                                        >
+                                            <Check size={16} />
+                                        </GlassButton>
+                                    </div>
+                                ) : (
+                                    <GlassInput
+                                        type="number"
+                                        name="orderValue"
+                                        placeholder="0.00"
+                                        value={formData.orderValue || ''}
+                                        onChange={handleChange}
+                                    />
+                                )}
                             </div>
                             <div>
                                 <label className="block text-xs text-brand-white/70 mb-1">Sale Date</label>

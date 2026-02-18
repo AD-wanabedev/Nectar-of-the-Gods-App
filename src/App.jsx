@@ -6,8 +6,9 @@ import TodayPage from './pages/Today';
 import LeadsPage from './pages/Leads';
 import ProjectsPage from './pages/Projects';
 import Library from './pages/Library';
-import SalesPage from './pages/Sales';
-import DocumentationPage from './pages/Documentation';
+import Sales from './pages/Sales';
+import Documentation from './pages/Documentation';
+import NotificationManager from './components/NotificationManager';
 import GlassButton from './components/ui/GlassButton';
 import { Home, Users, Target, BookOpen, LogOut, User as UserIcon, RefreshCw, Smartphone, DollarSign, FileText, Sun, Moon } from 'lucide-react';
 import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
@@ -124,6 +125,7 @@ function AppContent() {
             </header>
 
             <main className="px-4 pt-4 pb-28 max-w-7xl mx-auto w-full">
+                <NotificationManager /> {/* Added NotificationManager here */}
                 <Routes>
                     <Route path="/" element={<TodayPage />} />
                     <Route path="/leads" element={<LeadsPage />} />

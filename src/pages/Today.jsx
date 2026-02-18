@@ -1,4 +1,4 @@
-import { Plus, Mic, Search, Phone, Calendar, Clock } from 'lucide-react';
+import { Plus, Mic, Search, Phone, Calendar, Clock, Users, DollarSign, Star, ShoppingBag } from 'lucide-react';
 import InspirationalQuote from '../components/InspirationalQuote';
 import GlassCard from '../components/ui/GlassCard';
 import GlassButton from '../components/ui/GlassButton';
@@ -26,12 +26,20 @@ export default function Today() {
 
     const today = startOfToday();
 
+    // --- Metrics Calculations ---
+    const totalLeads = leads.length;
+    const revenue = leads.reduce((sum, l) => sum + (parseFloat(l.orderValue) || 0), 0);
+    const highPriorityCount = leads.filter(l => l.priority === 'High').length;
+    const salesCount = leads.filter(l => (parseFloat(l.orderValue) || 0) > 0).length;
+
     const overdueItems = leads.filter(l => {
+        if (!l.nextFollowUp) return false;
         const date = parseISO(l.nextFollowUp);
         return isBefore(date, today) && l.status !== 'Closed';
     });
 
     const todayFollowUps = leads.filter(l => {
+        if (!l.nextFollowUp) return false;
         const date = parseISO(l.nextFollowUp);
         return isToday(date) && l.status !== 'Closed';
     });
@@ -41,6 +49,41 @@ export default function Today() {
             <InspirationalQuote />
 
             <div className="space-y-6">
+                {/* Key Metrics Grid */}
+                <div className="grid grid-cols-2 gap-3 mb-6">
+                    <GlassCard className="p-3 flex flex-col items-center justify-center gap-1 bg-brand-dark/5 dark:bg-white/5 border-brand-gold/20">
+                        <div className="p-2 rounded-full bg-blue-500/10 text-blue-400 mb-1">
+                            <Users size={18} />
+                        </div>
+                        <span className="text-2xl font-bold text-brand-dark dark:text-white">{totalLeads}</span>
+                        <span className="text-[10px] uppercase tracking-wider text-brand-dark/60 dark:text-white/60">Total Leads</span>
+                    </GlassCard>
+
+                    <GlassCard className="p-3 flex flex-col items-center justify-center gap-1 bg-brand-dark/5 dark:bg-white/5 border-brand-gold/20">
+                        <div className="p-2 rounded-full bg-green-500/10 text-green-400 mb-1">
+                            <DollarSign size={18} />
+                        </div>
+                        <span className="text-2xl font-bold text-brand-dark dark:text-white">₹{revenue.toLocaleString()}</span>
+                        <span className="text-[10px] uppercase tracking-wider text-brand-dark/60 dark:text-white/60">Revenue</span>
+                    </GlassCard>
+
+                    <GlassCard className="p-3 flex flex-col items-center justify-center gap-1 bg-brand-dark/5 dark:bg-white/5 border-brand-gold/20">
+                        <div className="p-2 rounded-full bg-red-500/10 text-red-400 mb-1">
+                            <Star size={18} />
+                        </div>
+                        <span className="text-2xl font-bold text-brand-dark dark:text-white">{highPriorityCount}</span>
+                        <span className="text-[10px] uppercase tracking-wider text-brand-dark/60 dark:text-white/60">High Priority</span>
+                    </GlassCard>
+
+                    <GlassCard className="p-3 flex flex-col items-center justify-center gap-1 bg-brand-dark/5 dark:bg-white/5 border-brand-gold/20">
+                        <div className="p-2 rounded-full bg-brand-gold/10 text-brand-gold mb-1">
+                            <ShoppingBag size={18} />
+                        </div>
+                        <span className="text-2xl font-bold text-brand-dark dark:text-white">{salesCount}</span>
+                        <span className="text-[10px] uppercase tracking-wider text-brand-dark/60 dark:text-white/60">Total Sales</span>
+                    </GlassCard>
+                </div>
+
                 {/* Quick Actions */}
                 <div className="flex gap-3 justify-center mb-6">
                     <GlassButton onClick={() => navigate('/leads')} className="rounded-full w-12 h-12 p-0 flex items-center justify-center bg-pink-500/20 hover:bg-pink-500/30 border-pink-500/30">
