@@ -179,23 +179,23 @@ export default function Sales() {
             <div className="space-y-3">
                 <h3 className="text-sm font-bold text-brand-dark dark:text-brand-white px-2 uppercase tracking-wide opacity-50">Recent Sales</h3>
                 {leads.slice(0, 5).map(sale => (
-                    <GlassCard key={sale.id} className="p-4 flex justify-between items-center group hover:bg-brand-dark/5 dark:hover:bg-brand-white/5 transition-colors">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-brand-gold/10 flex items-center justify-center text-brand-gold font-bold">
-                                ₹
+                    <GlassCard key={sale.id} className="p-4 flex justify-between items-center group hover:bg-brand-dark/5 dark:hover:bg-brand-white/5 transition-all border-brand-dark/5 dark:border-brand-white/10 hover:border-brand-gold/30">
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-full bg-brand-gold/10 flex items-center justify-center text-brand-gold font-bold shadow-sm">
+                                <span className="text-xl">₹</span>
                             </div>
-                            <div>
-                                <h4 className="font-bold text-brand-dark dark:text-brand-white text-sm">{sale.name}</h4>
-                                <p className="text-xs text-brand-dark/50 dark:text-brand-white/50">
+                            <div className="flex flex-col">
+                                <h4 className="font-bold text-brand-dark dark:text-brand-white text-base">{sale.name}</h4>
+                                <p className="text-xs text-brand-dark/70 dark:text-brand-white/70 font-medium">
                                     {sale.honeyTypes && sale.honeyTypes.length > 0
                                         ? sale.honeyTypes.join(', ')
                                         : (sale.honeyType || 'Product')}
                                 </p>
                             </div>
                         </div>
-                        <div className="text-right">
-                            <p className="font-bold text-brand-gold">₹{parseFloat(sale.orderValue).toLocaleString()}</p>
-                            <p className="text-[10px] text-brand-dark/30 dark:text-brand-white/30">
+                        <div className="text-right flex flex-col justify-center">
+                            <p className="font-bold text-brand-gold text-lg">₹{parseFloat(sale.orderValue).toLocaleString()}</p>
+                            <p className="text-xs text-brand-dark/60 dark:text-brand-white/60 font-medium">
                                 {sale.saleDate ? format(new Date(sale.saleDate), 'MMM d') : format(new Date(), 'MMM d')}
                             </p>
                         </div>
