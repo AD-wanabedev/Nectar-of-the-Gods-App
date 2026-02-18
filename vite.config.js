@@ -11,9 +11,10 @@ export default defineConfig({
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       manifest: {
         name: 'Nectar of the Gods',
-        short_name: 'Nectar',
-        description: 'Complete Lead, Sales, and Project Management for Honey Business',
-        theme_color: '#292929',
+        short_name: 'Nectar of the Gods',
+        description: 'Premium Honey Tracker & Sales Dashboard',
+        theme_color: '#a07b32',
+        background_color: '#292929',
         icons: [
           {
             src: 'vite.svg',
