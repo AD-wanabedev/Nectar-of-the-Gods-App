@@ -43,5 +43,11 @@ To make Google Drive and Sheets work, we configured:
 -   **Cause:** The website URL (e.g., localhost or vercel.app) is not listed in Google Cloud Console.
 -   **Fix:** Add the URI to "Authorized Javascript origins" and "Authorized redirect URIs" in the Cloud Console.
 
+## 5. Git Branches (Main vs Master)
+You might notice two branches: **`main`** and **`master`**.
+*   **Why?** Use of `master` was the standard for years, but the industry shifted to `main`. Your project likely started with `master` but we switched to `main` for modern standards.
+*   **Function:** Right now, they are **Identical Clones**.
+*   **Workflow:** We work on `main`. Every time we finish a task, we also copy (merge) it to `master` just to be safe, ensuring that whichever one Vercel looks for, it finds the latest code.
+
 ---
 *Generated from Developer Conversation on Feb 19, 2026*
