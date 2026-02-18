@@ -353,31 +353,40 @@ export default function Documentation() {
                 </div>
             </GlassCard>
 
-            {/* Entries List */}
-            <div className="space-y-4">
-                {entries.map(entry => (
+            {/* Entries Timeline */}
+            <div className="relative space-y-8 pl-4">
+                {/* Timeline Line */}
+                <div className="absolute left-[27px] top-6 bottom-0 w-0.5 bg-brand-gold/20"></div>
+
+                {entries.map((entry, index) => (
                     <div key={entry.id} className="relative group">
-                        <div className="absolute left-4 top-0 bottom-0 w-px bg-brand-dark/10 dark:bg-brand-white/10"></div>
-                        <div className="pl-10 relative">
-                            <div className="absolute left-[11px] top-1 w-2.5 h-2.5 rounded-full bg-brand-gold border-2 border-brand-light dark:border-brand-dark z-10"></div>
+                        {/* Timeline Dot */}
+                        <div className="absolute left-[19px] top-6 w-4 h-4 rounded-full bg-brand-dark dark:bg-brand-white border-4 border-brand-gold z-10"></div>
 
-                            <p className="text-xs text-brand-dark/40 dark:text-brand-white/40 mb-1 font-mono">
-                                {format(entry.createdAt?.toDate() || new Date(entry.date), 'h:mm a · MMM d')}
-                                {entry.isEdited && <span className="ml-2 italic opacity-50">(edited)</span>}
-                            </p>
+                        <div className="pl-12">
+                            {/* Date Header */}
+                            <div className="flex items-center gap-2 mb-2">
+                                <span className="text-xs font-bold text-brand-gold uppercase tracking-wider">
+                                    {format(entry.createdAt?.toDate() || new Date(entry.date), 'MMM d, yyyy')}
+                                </span>
+                                <span className="text-[10px] text-brand-dark/40 dark:text-brand-white/40">
+                                    {format(entry.createdAt?.toDate() || new Date(entry.date), 'h:mm a')}
+                                </span>
+                            </div>
 
-                            <GlassCard className="p-4 hover:border-brand-gold/20 transition-colors group relative">
-                                <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            {/* Content Card */}
+                            <GlassCard className="p-5 relative hover:border-brand-gold/30 transition-all border-brand-dark/5 dark:border-brand-white/5 bg-brand-white/50 dark:bg-black/20">
+                                <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                     <button
                                         onClick={() => handleEdit(entry)}
-                                        className="p-1.5 text-brand-dark/20 dark:text-brand-white/20 hover:text-brand-gold hover:bg-brand-gold/10 rounded transition-all"
+                                        className="p-1.5 text-brand-dark/40 dark:text-brand-white/40 hover:text-brand-gold transition-colors"
                                         title="Edit"
                                     >
                                         <Edit2 size={14} />
                                     </button>
                                     <button
                                         onClick={() => handleDelete(entry.id)}
-                                        className="p-1.5 text-brand-dark/20 dark:text-brand-white/20 hover:text-red-500 hover:bg-red-500/10 rounded transition-all"
+                                        className="p-1.5 text-brand-dark/40 dark:text-brand-white/40 hover:text-brand-gold transition-colors"
                                         title="Delete"
                                     >
                                         <Trash2 size={14} />
@@ -385,22 +394,16 @@ export default function Documentation() {
                                 </div>
 
                                 {entry.type === 'image' ? (
-                                    <div className="space-y-2">
-                                        <img src={entry.url} alt="Entry" className="max-h-60 rounded-lg border border-brand-dark/10 dark:border-brand-white/10" />
-                                        <p className="text-xs text-brand-dark/50 dark:text-brand-white/50">{entry.content}</p>
-                                    </div>
-                                ) : entry.type === 'video' ? (
-                                    <div className="space-y-2">
-                                        <video src={entry.url} controls className="max-h-60 rounded-lg border border-brand-dark/10 dark:border-brand-white/10" />
-                                        <p className="text-xs text-brand-dark/50 dark:text-brand-white/50">{entry.content}</p>
+                                    <div className="space-y-3">
+                                        <img src={entry.url} alt="Entry" className="max-h-80 rounded-lg border-2 border-brand-gold/10 shadow-sm" />
+                                        {entry.content && <p className="text-sm text-brand-dark/80 dark:text-brand-white/80 italic">"{entry.content}"</p>}
                                     </div>
                                 ) : (
-                                    // Render Markdown-ish images for text entries
-                                    <div className="text-brand-dark/90 dark:text-brand-white/90 whitespace-pre-wrap">
+                                    <div className="text-brand-dark/90 dark:text-brand-white/90 whitespace-pre-wrap leading-relaxed text-sm">
                                         {entry.content.split(/(!\[.*?\]\(.*?\))/g).map((part, i) => {
                                             const imgMatch = part.match(/!\[(.*?)\]\((.*?)\)/);
                                             if (imgMatch) {
-                                                return <img key={i} src={imgMatch[2]} alt={imgMatch[1]} className="max-h-60 rounded-lg border border-brand-dark/10 dark:border-brand-white/10 my-2" />;
+                                                return <img key={i} src={imgMatch[2]} alt={imgMatch[1]} className="max-h-80 rounded-lg border-2 border-brand-gold/10 my-3 shadow-sm" />;
                                             }
                                             return part;
                                         })}
@@ -410,9 +413,15 @@ export default function Documentation() {
                         </div>
                     </div>
                 ))}
+
                 {entries.length === 0 && !loading && (
-                    <div className="text-center py-10 text-brand-dark/30 dark:text-brand-white/30">
-                        Start your documentation journey.
+                    <div className="text-center py-20 pl-8">
+                        <div className="inline-flex p-4 rounded-full bg-brand-gold/10 text-brand-gold mb-4">
+                            <Sparkles size={32} />
+                        </div>
+                        <p className="text-brand-dark/40 dark:text-brand-white/40 font-script text-xl">
+                            The journey begins today...
+                        </p>
                     </div>
                 )}
             </div>

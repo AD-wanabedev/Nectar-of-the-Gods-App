@@ -37,7 +37,7 @@ export default function DrivePicker({ onPick, clientId, developerKey }) {
     return (
         <button
             onClick={handleOpenPicker}
-            className="group relative w-full overflow-hidden rounded-xl bg-brand-white/5 border border-brand-white/10 p-6 text-left transition-all hover:border-brand-gold/50 hover:bg-brand-white/10 hover:shadow-glass-hover"
+            className="group relative w-full overflow-hidden rounded-xl bg-brand-dark/5 dark:bg-brand-white/5 border border-brand-dark/10 dark:border-brand-white/10 p-6 text-left transition-all hover:border-brand-gold/50 hover:bg-brand-dark/10 dark:hover:bg-brand-white/10 hover:shadow-glass-hover"
         >
             <div className="absolute top-0 right-0 p-4 opacity-10 transition-opacity group-hover:opacity-20">
                 <Cloud size={100} className="text-brand-gold" />
@@ -52,10 +52,10 @@ export default function DrivePicker({ onPick, clientId, developerKey }) {
                 </div>
 
                 <div>
-                    <h3 className="text-lg font-bold text-brand-white group-hover:text-brand-gold transition-colors">
+                    <h3 className="text-lg font-bold text-brand-dark dark:text-brand-white group-hover:text-brand-gold transition-colors">
                         Google Drive
                     </h3>
-                    <p className="text-sm text-brand-white/50">
+                    <p className="text-sm text-brand-dark/50 dark:text-brand-white/50">
                         {status === 'error' ? 'Connection failed. Try again.' :
                             status === 'success' ? 'Files imported successfully!' :
                                 'Import documents, sheets, and images directly.'}
