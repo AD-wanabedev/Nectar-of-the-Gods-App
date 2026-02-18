@@ -5,7 +5,7 @@ import { TrendingUp, DollarSign, BarChart2, Calendar, ShoppingBag } from 'lucide
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 import { format, subDays, isSameDay } from 'date-fns';
 
-const COLORS = ['#a07b32', '#fdcca6', '#ea580c', '#2563eb', '#16a34a', '#d97706']; // Gold, Peach, Orange, Blue, Green, Amber
+const COLORS = ['#a07b32', '#fdcca6', '#c49a45', '#eeb085', '#8c6b2b', '#ffe4cc']; // Brand Gold, Brand Peach, Light Gold, Dark Peach, Dark Gold, Light Peach
 
 export default function Sales() {
     const [leads, setLeads] = useState([]);

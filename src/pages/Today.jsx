@@ -56,7 +56,7 @@ export default function Today() {
                 {/* Key Metrics Grid */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
                     <GlassCard className="p-3 flex flex-col items-center justify-center gap-1 bg-black/5 dark:bg-white/10 border-brand-gold/20">
-                        <div className="p-2 rounded-full bg-blue-500/10 text-blue-400 mb-1">
+                        <div className="p-2 rounded-full bg-brand-dark/10 dark:bg-brand-white/10 text-brand-dark dark:text-brand-white mb-1">
                             <Users size={18} />
                         </div>
                         <span className="text-2xl font-bold text-gray-900 dark:text-white">{metrics.totalLeads}</span>
@@ -64,7 +64,7 @@ export default function Today() {
                     </GlassCard>
 
                     <GlassCard className="p-3 flex flex-col items-center justify-center gap-1 bg-black/5 dark:bg-white/10 border-brand-gold/20">
-                        <div className="p-2 rounded-full bg-green-500/10 text-green-400 mb-1">
+                        <div className="p-2 rounded-full bg-brand-gold/10 text-brand-gold mb-1">
                             <DollarSign size={18} />
                         </div>
                         <span className="text-2xl font-bold text-gray-900 dark:text-white">₹{metrics.revenue.toLocaleString()}</span>
@@ -72,7 +72,7 @@ export default function Today() {
                     </GlassCard>
 
                     <GlassCard className="p-3 flex flex-col items-center justify-center gap-1 bg-black/5 dark:bg-white/10 border-brand-gold/20">
-                        <div className="p-2 rounded-full bg-red-500/10 text-red-400 mb-1">
+                        <div className="p-2 rounded-full bg-brand-peach/10 text-brand-peach mb-1">
                             <Star size={18} />
                         </div>
                         <span className="text-2xl font-bold text-gray-900 dark:text-white">{metrics.highPriorityCount}</span>
@@ -90,10 +90,10 @@ export default function Today() {
 
                 {/* Quick Actions */}
                 <div className="flex gap-3 justify-center mb-6">
-                    <GlassButton onClick={() => navigate('/leads')} className="rounded-full w-12 h-12 p-0 flex items-center justify-center bg-pink-500/20 hover:bg-pink-500/30 border-pink-500/30 text-pink-500">
+                    <GlassButton onClick={() => navigate('/leads')} className="rounded-full w-12 h-12 p-0 flex items-center justify-center bg-brand-gold/20 hover:bg-brand-gold/30 border-brand-gold/30 text-brand-gold">
                         <Plus size={24} />
                     </GlassButton>
-                    <GlassButton onClick={() => navigate('/leads')} className="rounded-full w-12 h-12 p-0 flex items-center justify-center bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-gray-700 dark:text-white">
+                    <GlassButton onClick={() => navigate('/leads')} className="rounded-full w-12 h-12 p-0 flex items-center justify-center bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-brand-dark dark:text-brand-white">
                         <Search size={20} />
                     </GlassButton>
                 </div>
