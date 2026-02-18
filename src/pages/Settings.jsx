@@ -60,7 +60,7 @@ export default function Settings() {
 
     return (
         <div className="pb-24 pt-6 px-4 space-y-8">
-            <h1 className="text-2xl font-bold text-brand-dark dark:text-brand-white">Settings & Privacy</h1>
+            <h1 className="text-2xl font-bold text-brand-dark dark:text-brand-white">Settings (v2.1)</h1>
 
             {/* Device Management */}
             <section className="space-y-4">
@@ -147,9 +147,39 @@ export default function Settings() {
                     </div>
                 </GlassCard>
             </section>
-            <div className="text-center mt-10">
+
+            {/* Troubleshooting */}
+            <section className="space-y-4 pt-4 border-t border-brand-dark/5 dark:border-white/5">
+                <h2 className="text-lg font-semibold text-brand-dark/80 dark:text-white/80 flex items-center gap-2">
+                    <Ban size={20} /> Troubleshooting
+                </h2>
+                <GlassCard className="p-4 flex justify-between items-center bg-red-500/5 border-red-500/10">
+                    <div>
+                        <p className="font-medium text-brand-dark dark:text-white text-sm">Force Update / Reset App</p>
+                        <p className="text-xs text-brand-dark/50 dark:text-white/50">Use this if features are missing or app feels slow.</p>
+                    </div>
+                    <GlassButton
+                        onClick={async () => {
+                            if (confirm("This will refresh the app and clear the cache. Continue?")) {
+                                if ('serviceWorker' in navigator) {
+                                    const registrations = await navigator.serviceWorker.getRegistrations();
+                                    for (let registration of registrations) {
+                                        await registration.unregister();
+                                    }
+                                }
+                                window.location.reload(true);
+                            }
+                        }}
+                        className="bg-red-500/10 text-red-500 hover:bg-red-500/20 text-xs"
+                    >
+                        Reset App
+                    </GlassButton>
+                </GlassCard>
+            </section>
+
+            <div className="text-center mt-6">
                 <p className="text-xs text-brand-dark/30 dark:text-brand-white/30 font-mono">
-                    App Version: 2.1.0 (UI Polish & PWA Fix)
+                    App Version: 2.1.1 (Force Refresh Added)
                 </p>
             </div>
         </div>
