@@ -77,7 +77,7 @@ export default function Settings() {
                                         <p className="font-medium text-brand-dark dark:text-white text-sm">
                                             {device.userAgent.includes('Mobile') ? 'Mobile Device' : 'Desktop/Laptop'}
                                         </p>
-                                        {isCurrent && <span className="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full">This Device</span>}
+                                        {isCurrent && <span className="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full">Current Device (Protected)</span>}
                                         {device.blocked && <span className="text-[10px] bg-red-500/20 text-red-400 px-2 py-0.5 rounded-full">BLOCKED</span>}
                                     </div>
                                     <p className="text-xs text-brand-dark/50 dark:text-white/50 truncate max-w-[200px]" title={device.userAgent}>
@@ -118,8 +118,31 @@ export default function Settings() {
                             placeholder="https://script.google.com/macros/s/..."
                             className="text-xs"
                         />
-                        <GlassButton onClick={saveSheetUrl} className="bg-brand-gold/20 text-brand-gold">
-                            {savingSheet ? <CheckCircle size={18} /> : <Save size={18} />}
+                        <GlassButton
+                            onClick={async () => {
+                                if (!sheetUrl.includes('script.google.com')) {
+                                    alert("Invalid URL. It must start with 'https://script.google.com/macros/s/'");
+                                    return;
+                                }
+                                setSavingSheet(true);
+                                try {
+                                    await fetch(sheetUrl, {
+                                        method: 'POST',
+                                        mode: 'no-cors',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ action: 'TEST', name: 'Test Connection', timestamp: new Date().toISOString() })
+                                    });
+                                    localStorage.setItem('nectar_sheet_url', sheetUrl);
+                                    alert("Test sent! Check your Google Sheet for a new row.");
+                                } catch (e) {
+                                    alert("Connection failed. Check the URL.");
+                                } finally {
+                                    setSavingSheet(false);
+                                }
+                            }}
+                            className="bg-brand-gold/20 text-brand-gold whitespace-nowrap"
+                        >
+                            {savingSheet ? <CheckCircle size={18} /> : "Test & Save"}
                         </GlassButton>
                     </div>
                 </GlassCard>
