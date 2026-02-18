@@ -59,8 +59,13 @@ export default function Sales() {
             }
 
             // Honey Distribution
-            const type = sale.honeyType || 'Unknown';
-            honeyCounts[type] = (honeyCounts[type] || 0) + 1;
+            const types = sale.honeyTypes && sale.honeyTypes.length > 0
+                ? sale.honeyTypes
+                : (sale.honeyType ? [sale.honeyType] : ['Unknown']);
+
+            types.forEach(type => {
+                honeyCounts[type] = (honeyCounts[type] || 0) + 1;
+            });
 
             // Daily Revenue (Last 7 days for chart)
             const dateKey = format(saleDate, 'MMM d');
@@ -77,7 +82,11 @@ export default function Sales() {
         const dData = Object.keys(dailyRevenue).map(key => ({
             name: key,
             revenue: dailyRevenue[key]
-        }));
+        })); // Ensure dates are sorted if needed, but for now object iteration order might be enough or need sort
+
+        // better sort dData by date if possible, but map doesn't guarantee order. 
+        // For simple chart, sorting dData by 'name' might fail if months cross. 
+        // Ideally we use timestamp keys then format. But keeping simple for now.
 
         setStats({
             totalRevenue: totalRev,
@@ -177,7 +186,11 @@ export default function Sales() {
                             </div>
                             <div>
                                 <h4 className="font-bold text-brand-white text-sm">{sale.name}</h4>
-                                <p className="text-xs text-brand-white/50">{sale.honeyType || 'Product'}</p>
+                                <p className="text-xs text-brand-white/50">
+                                    {sale.honeyTypes && sale.honeyTypes.length > 0
+                                        ? sale.honeyTypes.join(', ')
+                                        : (sale.honeyType || 'Product')}
+                                </p>
                             </div>
                         </div>
                         <div className="text-right">

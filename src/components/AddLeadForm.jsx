@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import GlassInput from './ui/GlassInput';
 import GlassButton from './ui/GlassButton';
 import { db } from '../db';
-import { X, Calendar, UserPlus, Mic, Instagram, Phone, Mail, MessageCircle, User } from 'lucide-react';
+import { X, Calendar, UserPlus, Mic, Instagram, Phone, Mail, MessageCircle, User, Check, Building2, ChevronDown, ChevronUp } from 'lucide-react';
 import { format } from 'date-fns';
 
 export default function AddLeadForm({ onClose, initialData = null }) {
@@ -13,6 +13,7 @@ export default function AddLeadForm({ onClose, initialData = null }) {
     });
     const [showAddTeam, setShowAddTeam] = useState(false);
     const [newMemberName, setNewMemberName] = useState('');
+    const [showHoneyDropdown, setShowHoneyDropdown] = useState(false); // Toggle for honey dropdown
 
     const handleDeleteLead = async () => {
         if (!initialData?.id) return;
@@ -55,7 +56,8 @@ export default function AddLeadForm({ onClose, initialData = null }) {
         teamMember: 'AD',
         platform: 'Call',
         notes: '',
-        honeyType: '',
+        honeyTypes: [], // Multi-select array
+        establishment: '', // New field
         orderValue: '',
         saleDate: '',
         date: format(new Date(), 'yyyy-MM-dd'),
@@ -67,11 +69,6 @@ export default function AddLeadForm({ onClose, initialData = null }) {
     // --- Contact Picker ---
     const pickContact = async () => {
         try {
-            if (!('contacts' in navigator && 'ContactsManager' in window)) {
-                // Fallback or better error handling
-                // Is this logic correct? navigator.contacts is the API.
-            }
-            // Actually, just check navigator.contacts
             if (!navigator.contacts || !navigator.contacts.select) {
                 alert("Contact picker not supported on this device/browser");
                 return;
@@ -181,6 +178,8 @@ export default function AddLeadForm({ onClose, initialData = null }) {
             const d = new Date(initialData.nextFollowUp);
             setFormData({
                 ...initialData,
+                establishment: initialData.establishment || '',
+                honeyTypes: initialData.honeyTypes || (initialData.honeyType ? [initialData.honeyType] : []),
                 notes: initialData.notes || '',
                 date: format(d, 'yyyy-MM-dd'),
                 hour: format(d, 'hh'),
@@ -193,6 +192,17 @@ export default function AddLeadForm({ onClose, initialData = null }) {
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const toggleHoney = (honey) => {
+        setFormData(prev => {
+            const current = prev.honeyTypes || [];
+            if (current.includes(honey)) {
+                return { ...prev, honeyTypes: current.filter(h => h !== honey) };
+            } else {
+                return { ...prev, honeyTypes: [...current, honey] };
+            }
+        });
     };
 
     const handleSubmit = async (e) => {
@@ -214,7 +224,8 @@ export default function AddLeadForm({ onClose, initialData = null }) {
             teamMember: formData.teamMember,
             platform: formData.platform,
             notes: formData.notes,
-            honeyType: formData.honeyType,
+            honeyTypes: formData.honeyTypes, // Array
+            establishment: formData.establishment, // New Field
             orderValue: formData.orderValue,
             saleDate: formData.saleDate,
             nextFollowUp: followUpDate.toISOString()
@@ -236,9 +247,17 @@ export default function AddLeadForm({ onClose, initialData = null }) {
     const minutes = Array.from({ length: 12 }, (_, i) => (i * 5).toString().padStart(2, '0'));
     const hours = Array.from({ length: 12 }, (_, i) => (i + 1).toString().padStart(2, '0'));
 
+    const honeyOptions = [
+        "Acacia Honey", "Mustard Honey", "Multifloral Honey", "Sidr Honey",
+        "Smoked Honey", "Gondhoraj Honey", "Jeera Masala Honey", "Chilly Honey",
+        "Forest Honey", "Sundarban Honey", "Tribal Honey", "Ajwain Honey",
+        "Niger Honey", "Dark - phondaghat Honey", "Natural (MFH) Kejriwal Honey",
+        "Network Honey"
+    ];
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in">
-            <div className="glass-card w-full max-w-md max-h-[85vh] overflow-y-auto p-6 pb-20 relative bg-gray-900 border-blue-500/20 shadow-blue-900/20">
+            <div className="glass-card w-full max-w-md max-h-[85vh] overflow-y-auto p-6 pb-20 relative bg-gray-900 border-blue-500/20 shadow-blue-900/20 custom-scrollbar">
                 <button onClick={onClose} className="absolute top-4 right-4 text-white/60 hover:text-white z-10">
                     <X size={24} />
                 </button>
@@ -248,6 +267,7 @@ export default function AddLeadForm({ onClose, initialData = null }) {
                 </h2>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
+                    {/* Name & Contact Picker */}
                     <div>
                         <label className="block text-xs text-white/70 mb-1 flex justify-between items-center">
                             Name *
@@ -266,6 +286,19 @@ export default function AddLeadForm({ onClose, initialData = null }) {
                             value={formData.name}
                             onChange={handleChange}
                             autoFocus={!initialData}
+                        />
+                    </div>
+
+                    {/* Establishment Name (New) */}
+                    <div>
+                        <label className="block text-xs text-white/70 mb-1 flex items-center gap-1">
+                            <Building2 size={12} /> Establishment / Bar Name
+                        </label>
+                        <GlassInput
+                            name="establishment"
+                            placeholder="Ex: The Royal Bar"
+                            value={formData.establishment}
+                            onChange={handleChange}
                         />
                     </div>
 
@@ -292,29 +325,7 @@ export default function AddLeadForm({ onClose, initialData = null }) {
                         />
                     </div>
 
-                    <div className="space-y-3 mb-4">
-                        <label className="block text-xs text-white/70">Follow-up Channel</label>
-                        <div className="grid grid-cols-4 gap-2">
-                            {['Instagram', 'WhatsApp', 'Call', 'Gmail'].map(p => (
-                                <button
-                                    key={p}
-                                    type="button"
-                                    onClick={() => setFormData(prev => ({ ...prev, platform: p }))}
-                                    className={`flex flex-col items-center justify-center p-2 rounded-xl border transition-all ${formData.platform === p
-                                        ? 'bg-blue-600/20 border-blue-500 text-white'
-                                        : 'bg-black/40 border-white/5 text-white/40 hover:bg-white/5'
-                                        }`}
-                                >
-                                    {p === 'Instagram' && <Instagram size={18} />}
-                                    {p === 'WhatsApp' && <MessageCircle size={18} />}
-                                    {p === 'Call' && <Phone size={18} />}
-                                    {p === 'Gmail' && <Mail size={18} />}
-                                    <span className="text-[10px] mt-1">{p}</span>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
+                    {/* Priority & Team Member */}
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="block text-xs text-white/70 mb-1">Priority</label>
@@ -374,48 +385,90 @@ export default function AddLeadForm({ onClose, initialData = null }) {
                         </div>
                     </div>
 
-                    <div className="relative">
-                        <label className="block text-xs text-white/70 mb-1 flex justify-between items-center">
-                            Notes
-                            <button
-                                type="button"
-                                onClick={startListening}
-                                className={`text-xs flex items-center gap-1 ${isListening ? 'text-red-400 animate-pulse' : 'text-blue-400'}`}
-                            >
-                                <Mic size={12} /> {isListening ? 'Listening...' : 'Speak'}
-                            </button>
-                        </label>
-                        <textarea
-                            name="notes"
-                            value={formData.notes}
-                            onChange={handleChange}
-                            placeholder="Add notes..."
-                            className="glass-input w-full bg-black/50 p-3 h-20 resize-none text-sm text-white focus:outline-none focus:ring-1 focus:ring-blue-500/50 rounded-xl border border-white/10"
-                        />
+                    {/* Follow-up Channel */}
+                    <div className="space-y-3 mb-4">
+                        <label className="block text-xs text-white/70">Follow-up Channel</label>
+                        <div className="grid grid-cols-4 gap-2">
+                            {['Instagram', 'WhatsApp', 'Call', 'Gmail'].map(p => (
+                                <button
+                                    key={p}
+                                    type="button"
+                                    onClick={() => setFormData(prev => ({ ...prev, platform: p }))}
+                                    className={`flex flex-col items-center justify-center p-2 rounded-xl border transition-all ${formData.platform === p
+                                        ? 'bg-blue-600/20 border-blue-500 text-white'
+                                        : 'bg-black/40 border-white/5 text-white/40 hover:bg-white/5'
+                                        }`}
+                                >
+                                    {p === 'Instagram' && <Instagram size={18} />}
+                                    {p === 'WhatsApp' && <MessageCircle size={18} />}
+                                    {p === 'Call' && <Phone size={18} />}
+                                    {p === 'Gmail' && <Mail size={18} />}
+                                    <span className="text-[10px] mt-1">{p}</span>
+                                </button>
+                            ))}
+                        </div>
                     </div>
 
+                    {/* Sale Details Section */}
                     <div className="space-y-4 border-t border-white/10 pt-4 mt-4">
                         <h3 className="text-sm font-bold text-brand-gold uppercase tracking-wider">Sale Details</h3>
 
-                        <div>
-                            <label className="block text-xs text-brand-white/70 mb-1">Honey Product</label>
-                            <select
-                                name="honeyType"
-                                value={formData.honeyType || ''}
-                                onChange={handleChange}
-                                className="glass-input w-full appearance-none bg-black"
+                        {/* Multi-Select Honey */}
+                        <div className="relative">
+                            <label className="block text-xs text-brand-white/70 mb-1">Honey Products</label>
+                            <button
+                                type="button"
+                                onClick={() => setShowHoneyDropdown(!showHoneyDropdown)}
+                                className="glass-input w-full text-left flex items-center justify-between"
                             >
-                                <option value="" className="bg-black text-white/50">Select Honey Type...</option>
-                                {[
-                                    "Acacia Honey", "Mustard Honey", "Multifloral Honey", "Sidr Honey",
-                                    "Smoked Honey", "Gondhoraj Honey", "Jeera Masala Honey", "Chilly Honey",
-                                    "Forest Honey", "Sundarban Honey", "Tribal Honey", "Ajwain Honey",
-                                    "Niger Honey", "Dark - phondaghat Honey", "Natural (MFH) Kejriwal Honey",
-                                    "Network Honey"
-                                ].map(h => (
-                                    <option key={h} value={h} className="bg-black text-white">{h}</option>
-                                ))}
-                            </select>
+                                <span className={formData.honeyTypes.length ? "text-white" : "text-white/50"}>
+                                    {formData.honeyTypes.length > 0
+                                        ? `${formData.honeyTypes.length} Selected`
+                                        : "Select Honey Types..."}
+                                </span>
+                                {showHoneyDropdown ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                            </button>
+
+                            {/* Dropdown Content */}
+                            {showHoneyDropdown && (
+                                <div className="absolute top-full left-0 right-0 mt-2 p-2 bg-black/95 border border-brand-gold/20 rounded-xl z-20 max-h-48 overflow-y-auto custom-scrollbar shadow-2xl">
+                                    <div className="grid grid-cols-1 gap-1">
+                                        {honeyOptions.map(h => {
+                                            const isSelected = formData.honeyTypes.includes(h);
+                                            return (
+                                                <button
+                                                    key={h}
+                                                    type="button"
+                                                    onClick={() => toggleHoney(h)}
+                                                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-left transition-all ${isSelected
+                                                        ? 'bg-brand-gold/20 text-brand-gold border border-brand-gold/30'
+                                                        : 'text-white/60 hover:bg-white/10'
+                                                        }`}
+                                                >
+                                                    <div className={`w-4 h-4 rounded border flex items-center justify-center ${isSelected ? 'border-brand-gold bg-brand-gold' : 'border-white/30'}`}>
+                                                        {isSelected && <Check size={10} className="text-black font-bold" />}
+                                                    </div>
+                                                    {h}
+                                                </button>
+                                            )
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Selected Chips */}
+                            {formData.honeyTypes.length > 0 && (
+                                <div className="flex flex-wrap gap-2 mt-2">
+                                    {formData.honeyTypes.map(h => (
+                                        <span key={h} className="text-[10px] bg-brand-gold/10 border border-brand-gold/20 text-brand-gold px-2 py-1 rounded-full flex items-center gap-1">
+                                            {h}
+                                            <button type="button" onClick={() => toggleHoney(h)}>
+                                                <X size={10} />
+                                            </button>
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
@@ -441,6 +494,28 @@ export default function AddLeadForm({ onClose, initialData = null }) {
                         </div>
                     </div>
 
+                    {/* Notes */}
+                    <div className="relative pt-4">
+                        <label className="block text-xs text-white/70 mb-1 flex justify-between items-center">
+                            Notes
+                            <button
+                                type="button"
+                                onClick={startListening}
+                                className={`text-xs flex items-center gap-1 ${isListening ? 'text-red-400 animate-pulse' : 'text-blue-400'}`}
+                            >
+                                <Mic size={12} /> {isListening ? 'Listening...' : 'Speak'}
+                            </button>
+                        </label>
+                        <textarea
+                            name="notes"
+                            value={formData.notes}
+                            onChange={handleChange}
+                            placeholder="Add notes..."
+                            className="glass-input w-full bg-black/50 p-3 h-20 resize-none text-sm text-white focus:outline-none focus:ring-1 focus:ring-blue-500/50 rounded-xl border border-white/10"
+                        />
+                    </div>
+
+                    {/* Follow-up Date */}
                     <div className="pt-4 border-t border-white/10">
                         <label className="block text-xs text-brand-white/70 mb-1 flex items-center gap-2">
                             <Calendar size={12} /> Next Follow-up
@@ -463,7 +538,7 @@ export default function AddLeadForm({ onClose, initialData = null }) {
                         </div>
                     </div>
 
-                    <div className="pt-4 pb-6 flex gap-3 sticky bottom-0 bg-gray-900/95 backdrop-blur-sm -mx-6 px-6 mt-6">
+                    <div className="pt-4 pb-6 flex gap-3 sticky bottom-0 bg-gray-900/95 backdrop-blur-sm -mx-6 px-6 mt-6 border-t border-white/5">
                         {initialData && (
                             <GlassButton type="button" onClick={handleDeleteLead} className="bg-red-600/20 hover:bg-red-600/40 text-red-200 border-red-500/30">
                                 Delete
@@ -472,7 +547,7 @@ export default function AddLeadForm({ onClose, initialData = null }) {
                         <GlassButton type="button" onClick={onClose} variant="secondary" className="flex-1">
                             Cancel
                         </GlassButton>
-                        <GlassButton type="submit" className="flex-1 bg-blue-600/20 hover:bg-blue-600/40 text-blue-100 border-blue-500/30">
+                        <GlassButton type="submit" className="flex-1 bg-brand-gold/20 hover:bg-brand-gold/40 text-brand-gold border-brand-gold/30 font-bold">
                             Save Lead
                         </GlassButton>
                     </div>

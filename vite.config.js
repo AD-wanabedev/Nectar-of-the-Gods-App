@@ -10,10 +10,10 @@ export default defineConfig({
       registerType: 'prompt',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       manifest: {
-        name: 'Moonshine Lead Manager',
-        short_name: 'Moonshine',
-        description: 'Personal Lead & Project Management PWA',
-        theme_color: '#000000', // Changed slightly to force update
+        name: 'Nectar of the Gods',
+        short_name: 'Nectar',
+        description: 'Complete Lead, Sales, and Project Management for Honey Business',
+        theme_color: '#292929',
         icons: [
           {
             src: 'pwa-192x192.png',

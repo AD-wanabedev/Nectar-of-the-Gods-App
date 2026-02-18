@@ -63,7 +63,7 @@ export default function Auth({ user }) {
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4">
                 <div className="glass-card max-w-md w-full p-8">
                     <div className="text-center mb-6">
-                        <h1 className="text-3xl font-bold text-white mb-2">Moonshine Leads</h1>
+                        <h1 className="text-3xl font-bold text-white mb-2">Nectar of the Gods</h1>
                         <p className="text-white/60">
                             {isLogin ? 'Sign in to access your dashboard' : 'Create an account to get started'}
                         </p>
