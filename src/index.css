@@ -11,12 +11,8 @@
 
 @layer utilities {
   .glass {
-
     /* Glass effect tuned for both modes - Higher contrast */
-    .glass {
-      /* Glass effect tuned for both modes - Higher contrast */
-      @apply bg-black/5 dark:bg-white/10 backdrop-blur-lg border border-black/10 dark:border-white/10 shadow-lg;
-    }
+    @apply bg-black/5 dark:bg-white/10 backdrop-blur-lg border border-black/10 dark:border-white/10 shadow-lg;
   }
 
   .glass-card {
