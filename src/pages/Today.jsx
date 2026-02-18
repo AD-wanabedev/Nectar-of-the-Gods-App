@@ -93,7 +93,7 @@ export default function Today() {
                     <GlassButton onClick={() => navigate('/leads')} className="rounded-full w-12 h-12 p-0 flex items-center justify-center bg-pink-500/20 hover:bg-pink-500/30 border-pink-500/30 text-pink-500">
                         <Plus size={24} />
                     </GlassButton>
-                    <GlassButton onClick={() => navigate('/leads')} className="rounded-full w-12 h-12 p-0 flex items-center justify-center bg-white/10 hover:bg-white/20 text-brand-dark dark:text-white">
+                    <GlassButton onClick={() => navigate('/leads')} className="rounded-full w-12 h-12 p-0 flex items-center justify-center bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-gray-700 dark:text-white">
                         <Search size={20} />
                     </GlassButton>
                 </div>
