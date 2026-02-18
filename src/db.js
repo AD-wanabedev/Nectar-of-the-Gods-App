@@ -19,6 +19,27 @@ const getUserCollection = (collectionName) => {
     return collection(firestore, 'users', userId, collectionName);
 };
 
+// Helper to sync with Google Sheets
+const syncToSheets = async (data, action) => {
+    const sheetUrl = localStorage.getItem('nectar_sheet_url');
+    if (!sheetUrl) return;
+
+    try {
+        // We use no-cors to avoid CORS errors with Google Apps Script
+        await fetch(sheetUrl, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ ...data, action, timestamp: new Date().toISOString() })
+        });
+        console.log("Synced to Sheets:", action);
+    } catch (error) {
+        console.error("Sheets sync error:", error);
+    }
+};
+
 // Leads operations
 export const leadsDB = {
     async getAll() {
@@ -33,6 +54,7 @@ export const leadsDB = {
             createdAt: Timestamp.now(),
             updatedAt: Timestamp.now()
         });
+        syncToSheets({ id: docRef.id, ...data }, 'ADD');
         return docRef.id;
     },
 
@@ -42,10 +64,12 @@ export const leadsDB = {
             ...data,
             updatedAt: Timestamp.now()
         });
+        syncToSheets({ id, ...data }, 'UPDATE');
     },
 
     async delete(id) {
         await deleteDoc(doc(getUserCollection('leads'), id));
+        syncToSheets({ id }, 'DELETE');
     }
 };
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { auth } from './firebase';
+import { doc, setDoc, onSnapshot } from 'firebase/firestore';
+import { auth, db } from './firebase';
 import Auth from './components/Auth';
 import TodayPage from './pages/Today';
 import LeadsPage from './pages/Leads';
@@ -8,9 +9,10 @@ import ProjectsPage from './pages/Projects';
 import Library from './pages/Library';
 import Sales from './pages/Sales';
 import Documentation from './pages/Documentation';
+import Settings from './pages/Settings';
 import NotificationManager from './components/NotificationManager';
 import GlassButton from './components/ui/GlassButton';
-import { Home, Users, Target, BookOpen, LogOut, User as UserIcon, RefreshCw, Smartphone, DollarSign, FileText, Sun, Moon } from 'lucide-react';
+import { Home, Users, Target, BookOpen, LogOut, User as UserIcon, RefreshCw, Smartphone, DollarSign, FileText, Sun, Moon, Settings as SettingsIcon } from 'lucide-react';
 import { Routes, Route, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { ThemeProvider, useTheme } from './components/ThemeContext';
 
@@ -23,9 +25,45 @@ function AppContent() {
 
     useEffect(() => {
         // Listen for auth state changes
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
             setUser(user);
             setLoading(false);
+
+            if (user) {
+                // --- Device Management Logic ---
+                try {
+                    // 1. Get or Create Device ID
+                    let deviceId = localStorage.getItem('nectar_device_id');
+                    if (!deviceId) {
+                        deviceId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+                        localStorage.setItem('nectar_device_id', deviceId);
+                    }
+
+                    // 2. Register/Update Device Session
+                    const deviceRef = doc(db, 'users', user.uid, 'devices', deviceId);
+                    const userAgent = navigator.userAgent;
+
+                    await setDoc(deviceRef, {
+                        deviceId,
+                        userAgent,
+                        lastActive: new Date().toISOString(),
+                        blocked: false // Default to allowed
+                    }, { merge: true });
+
+                    // 3. Listen for Block Status
+                    const unsubDevice = onSnapshot(deviceRef, (docSnap) => {
+                        if (docSnap.exists() && docSnap.data().blocked) {
+                            alert("This device has been blocked from accessing the account.");
+                            signOut(auth);
+                        }
+                    });
+
+                    // Cleanup listener on unmount or auth change
+                    return () => unsubDevice();
+                } catch (error) {
+                    console.error("Device tracking error:", error);
+                }
+            }
         });
         return () => unsubscribe();
     }, []);
@@ -112,6 +150,13 @@ function AppContent() {
                     >
                         <RefreshCw size={16} />
                     </button>
+                    <button
+                        onClick={() => navigate('/settings')}
+                        className="p-2 mr-1 rounded-xl bg-brand-dark/5 dark:bg-brand-white/5 border border-brand-dark/5 dark:border-brand-white/5 text-brand-dark/70 dark:text-brand-white/40 hover:text-brand-gold hover:bg-brand-gold/10 transition-all focus:outline-none"
+                        title="Settings"
+                    >
+                        <SettingsIcon size={16} />
+                    </button>
                     <GlassButton
                         onClick={handleSignOut}
                         className="bg-brand-dark/5 dark:bg-brand-white/5 hover:bg-red-500/20 px-3 py-1.5 border-brand-dark/10 dark:border-brand-white/10 hover:border-red-500/30 group transition-all"
@@ -133,6 +178,7 @@ function AppContent() {
                     <Route path="/sales" element={<Sales />} />
                     <Route path="/library" element={<Library />} />
                     <Route path="/docs" element={<Documentation />} />
+                    <Route path="/settings" element={<Settings />} />
                     <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
             </main>
