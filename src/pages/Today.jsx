@@ -50,7 +50,7 @@ export default function Today() {
 
             <div className="space-y-6">
                 {/* Key Metrics Grid */}
-                <div className="grid grid-cols-2 gap-3 mb-6">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
                     <GlassCard className="p-3 flex flex-col items-center justify-center gap-1 bg-brand-dark/5 dark:bg-white/5 border-brand-gold/20">
                         <div className="p-2 rounded-full bg-blue-500/10 text-blue-400 mb-1">
                             <Users size={18} />

@@ -35,11 +35,11 @@ export default function InspirationalQuote() {
                     transition={{ duration: 0.5 }}
                     className="text-center px-4"
                 >
-                    <Quote size={20} className="mx-auto mb-2 text-pink-300 opacity-80" />
-                    <p className="text-lg font-serif italic text-white/90 mb-1">
+                    <Quote size={20} className="mx-auto mb-2 text-brand-gold dark:text-pink-300 opacity-80" />
+                    <p className="text-lg font-serif italic text-brand-dark/90 dark:text-white/90 mb-1">
                         "{quotes[index].text}"
                     </p>
-                    <p className="text-xs text-white/60 uppercase tracking-widest">
+                    <p className="text-xs text-brand-dark/60 dark:text-white/60 uppercase tracking-widest">
                         — {quotes[index].author}
                     </p>
                 </motion.div>
