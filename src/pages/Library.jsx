@@ -118,10 +118,10 @@ export default function Library() {
         <div className="pb-28 pt-4 space-y-6">
             <div className="flex gap-2">
                 <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-white/50 z-10" size={16} />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-dark/50 dark:text-brand-white/50 z-10" size={16} />
                     <GlassInput
                         placeholder="Search assets..."
-                        className="pl-10 w-full text-center bg-brand-white/5 border-brand-white/10 focus:border-brand-gold/50"
+                        className="pl-10 w-full text-center bg-brand-dark/5 dark:bg-brand-white/5 border-brand-dark/10 dark:border-brand-white/10 focus:border-brand-gold/50 text-brand-dark dark:text-white"
                         value={searchTerm}
                         onChange={e => setSearchTerm(e.target.value)}
                     />
@@ -133,7 +133,7 @@ export default function Library() {
                 {/* Upload Card */}
                 <button
                     onClick={() => document.getElementById('file-upload').click()}
-                    className="group relative overflow-hidden rounded-xl bg-brand-white/5 border border-brand-white/10 p-6 text-left transition-all hover:border-brand-gold/50 hover:bg-brand-white/10 hover:shadow-glass-hover"
+                    className="group relative overflow-hidden rounded-xl bg-brand-dark/5 dark:bg-brand-white/5 border border-brand-dark/10 dark:border-brand-white/10 p-6 text-left transition-all hover:border-brand-gold/50 hover:bg-brand-dark/10 dark:hover:bg-brand-white/10 hover:shadow-glass-hover"
                 >
                     <input
                         type="file"
@@ -150,8 +150,8 @@ export default function Library() {
                             <Upload size={24} />
                         </div>
                         <div>
-                            <h3 className="text-lg font-bold text-brand-white group-hover:text-brand-gold transition-colors">Upload File</h3>
-                            <p className="text-sm text-brand-white/50">{uploading ? 'Uploading...' : 'Images & PDFs'}</p>
+                            <h3 className="text-lg font-bold text-brand-dark dark:text-brand-white group-hover:text-brand-gold transition-colors">Upload File</h3>
+                            <p className="text-sm text-brand-dark/50 dark:text-brand-white/50">{uploading ? 'Uploading...' : 'Images & PDFs'}</p>
                         </div>
                     </div>
                 </button>
@@ -166,7 +166,7 @@ export default function Library() {
                 {/* Link Card */}
                 <button
                     onClick={() => setShowLinkModal(true)}
-                    className="group relative overflow-hidden rounded-xl bg-brand-white/5 border border-brand-white/10 p-6 text-left transition-all hover:border-brand-gold/50 hover:bg-brand-white/10 hover:shadow-glass-hover"
+                    className="group relative overflow-hidden rounded-xl bg-brand-dark/5 dark:bg-brand-white/5 border border-brand-dark/10 dark:border-brand-white/10 p-6 text-left transition-all hover:border-brand-gold/50 hover:bg-brand-dark/10 dark:hover:bg-brand-white/10 hover:shadow-glass-hover"
                 >
                     <div className="absolute top-0 right-0 p-4 opacity-10 transition-opacity group-hover:opacity-20">
                         <LinkIcon size={100} className="text-brand-gold" />
@@ -176,25 +176,25 @@ export default function Library() {
                             <LinkIcon size={24} />
                         </div>
                         <div>
-                            <h3 className="text-lg font-bold text-brand-white group-hover:text-brand-gold transition-colors">Save Link</h3>
-                            <p className="text-sm text-brand-white/50">Bookmarks & URLs</p>
+                            <h3 className="text-lg font-bold text-brand-dark dark:text-brand-white group-hover:text-brand-gold transition-colors">Save Link</h3>
+                            <p className="text-sm text-brand-dark/50 dark:text-brand-white/50">Bookmarks & URLs</p>
                         </div>
                     </div>
                 </button>
             </div>
 
-            <h2 className="text-xl font-bold text-brand-white px-2">Your Library</h2>
+            <h2 className="text-xl font-bold text-brand-dark dark:text-brand-white px-2">Your Library</h2>
 
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 {filteredItems.map(item => (
                     <GlassCard
                         key={item.id}
                         onClick={() => openItem(item)}
-                        className="aspect-square flex flex-col justify-between p-4 group relative cursor-pointer hover:bg-brand-white/10 border-brand-white/5 hover:border-brand-gold/30"
+                        className="aspect-square flex flex-col justify-between p-4 group relative cursor-pointer hover:bg-brand-dark/5 dark:hover:bg-brand-white/10 border-brand-dark/5 dark:border-brand-white/5 hover:border-brand-gold/30"
                     >
                         <button
                             onClick={(e) => { e.stopPropagation(); handleDelete(item.id); }}
-                            className="absolute top-2 right-2 text-brand-white/20 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-2 z-20"
+                            className="absolute top-2 right-2 text-brand-dark/20 dark:text-brand-white/20 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-2 z-20"
                         >
                             <Trash2 size={16} />
                         </button>
@@ -208,16 +208,16 @@ export default function Library() {
                                         className="w-full h-full object-cover rounded-lg opacity-80 group-hover:opacity-100 transition-opacity"
                                     />
                                 ) :
-                                    <ExternalLink size={40} className="text-green-400 group-hover:scale-110 transition-transform duration-300" />}
+                                    <ExternalLink size={40} className="text-green-500 dark:text-green-400 group-hover:scale-110 transition-transform duration-300" />}
                         </div>
 
                         <div className="mt-3 pointer-events-none">
                             <div className="flex justify-between items-end">
                                 <div className="overflow-hidden">
-                                    <p className="text-brand-white font-medium text-sm leading-tight truncate">{item.title}</p>
-                                    <p className="text-brand-white/40 text-[10px] uppercase mt-1 tracking-wider">{item.type}</p>
+                                    <p className="text-brand-dark dark:text-brand-white font-medium text-sm leading-tight truncate">{item.title}</p>
+                                    <p className="text-brand-dark/40 dark:text-brand-white/40 text-[10px] uppercase mt-1 tracking-wider">{item.type}</p>
                                 </div>
-                                <div onClick={(e) => { e.stopPropagation(); shareItem(item); }} className="text-brand-white/60 hover:text-blue-400 cursor-pointer pointer-events-auto z-20">
+                                <div onClick={(e) => { e.stopPropagation(); shareItem(item); }} className="text-brand-dark/60 dark:text-brand-white/60 hover:text-blue-500 dark:hover:text-blue-400 cursor-pointer pointer-events-auto z-20">
                                     <Share2 size={16} />
                                 </div>
                             </div>
@@ -225,7 +225,7 @@ export default function Library() {
                     </GlassCard>
                 ))}
                 {filteredItems.length === 0 && (
-                    <div className="col-span-full text-center text-brand-white/40 py-20 text-sm italic">
+                    <div className="col-span-full text-center text-brand-dark/40 dark:text-brand-white/40 py-20 text-sm italic">
                         No items found. Import some assets above!
                     </div>
                 )}

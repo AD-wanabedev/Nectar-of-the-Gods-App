@@ -101,7 +101,7 @@ export default function Projects() {
 
     return (
         <div className="pb-24 pt-4 space-y-6">
-            <h2 className="text-xl font-bold text-white px-2">Projects</h2>
+            <h2 className="text-xl font-bold text-brand-dark dark:text-white px-2">Projects</h2>
 
             {/* Add Project */}
             <form onSubmit={handleAddProject} className="flex gap-2 px-1">
@@ -110,7 +110,7 @@ export default function Projects() {
                     value={newProjectName}
                     onChange={(e) => setNewProjectName(e.target.value)}
                 />
-                <GlassButton type="submit" disabled={!newProjectName} className="bg-blue-600/20 hover:bg-blue-600">
+                <GlassButton type="submit" disabled={!newProjectName} className="bg-blue-600/20 hover:bg-blue-600 text-blue-600 dark:text-blue-100">
                     <Plus />
                 </GlassButton>
             </form>
@@ -124,14 +124,14 @@ export default function Projects() {
                     return (
                         <GlassCard key={project.id} className="relative overflow-hidden h-full flex flex-col">
                             <div className="flex justify-between items-start mb-2">
-                                <h3 className="text-lg font-semibold text-white">{project.name}</h3>
-                                <button onClick={() => deleteProject(project.id)} className="text-white/30 hover:text-red-400">
+                                <h3 className="text-lg font-semibold text-brand-dark dark:text-white">{project.name}</h3>
+                                <button onClick={() => deleteProject(project.id)} className="text-brand-dark/50 dark:text-white/30 hover:text-red-500 dark:hover:text-red-400 transition-colors">
                                     <Trash2 size={16} />
                                 </button>
                             </div>
 
                             {/* Progress Bar */}
-                            <div className="h-1 w-full bg-white/10 rounded-full mb-4 overflow-hidden">
+                            <div className="h-1 w-full bg-brand-dark/10 dark:bg-white/10 rounded-full mb-4 overflow-hidden">
                                 <div
                                     className="h-full bg-gradient-to-r from-pink-500 to-purple-500 transition-all duration-500"
                                     style={{ width: `${progress}%` }}
@@ -143,17 +143,17 @@ export default function Projects() {
                                 {projectTasks.map(task => (
                                     <div key={task.id}
                                         onClick={() => toggleTask(task.id, task.isDone)}
-                                        className="flex items-center gap-2 cursor-pointer group text-sm text-white/80"
+                                        className="flex items-center gap-2 cursor-pointer group text-sm text-brand-dark/80 dark:text-white/80"
                                     >
-                                        {task.isDone ? <CheckCircle size={16} className="text-green-400" /> : <Circle size={16} className="text-white/40 group-hover:text-white" />}
-                                        <span className={task.isDone ? "line-through text-white/40" : ""}>{task.title}</span>
+                                        {task.isDone ? <CheckCircle size={16} className="text-green-500 dark:text-green-400" /> : <Circle size={16} className="text-brand-dark/40 dark:text-white/40 group-hover:text-brand-dark dark:group-hover:text-white" />}
+                                        <span className={task.isDone ? "line-through text-brand-dark/40 dark:text-white/40" : ""}>{task.title}</span>
                                     </div>
                                 ))}
 
                                 {/* Simple inline task adder */}
-                                <div className="mt-2 pt-2 border-t border-white/5">
+                                <div className="mt-2 pt-2 border-t border-brand-dark/5 dark:border-white/5">
                                     <input
-                                        className="bg-transparent text-xs text-white placeholder-white/30 focus:outline-none w-full"
+                                        className="bg-transparent text-xs text-brand-dark dark:text-white placeholder-brand-dark/30 dark:placeholder-white/30 focus:outline-none w-full"
                                         placeholder="+ Add task..."
                                         onKeyDown={(e) => {
                                             if (e.key === 'Enter') {
@@ -167,7 +167,7 @@ export default function Projects() {
                         </GlassCard>
                     );
                 })}
-                {projects?.length === 0 && <p className="text-center text-white/40 text-sm">No active projects.</p>}
+                {projects?.length === 0 && <p className="text-center text-brand-dark/40 dark:text-white/40 text-sm">No active projects.</p>}
             </div>
         </div>
     );

@@ -54,13 +54,13 @@ export default function Today() {
                 {/* Overdue Section */}
                 {overdueItems.length > 0 && (
                     <section>
-                        <h2 className="text-white/80 text-sm font-semibold mb-2 px-1">Overdue</h2>
+                        <h2 className="text-brand-dark/80 dark:text-white/80 text-sm font-semibold mb-2 px-1">Overdue</h2>
                         <div className="space-y-2">
                             {overdueItems.map(item => (
                                 <GlassCard key={item.id} className="bg-red-500/10 border-red-500/20 p-3 flex justify-between items-center">
                                     <div>
-                                        <p className="font-medium text-white">{item.name}</p>
-                                        <p className="text-xs text-white/60">Due: {format(parseISO(item.nextFollowUp), 'MMM d')}</p>
+                                        <p className="font-medium text-brand-dark dark:text-white">{item.name}</p>
+                                        <p className="text-xs text-brand-dark/60 dark:text-white/60">Due: {format(parseISO(item.nextFollowUp), 'MMM d')}</p>
                                     </div>
                                     <GlassButton variant="danger" className="p-2 h-8 w-8 rounded-full">
                                         <Phone size={14} />
@@ -73,10 +73,10 @@ export default function Today() {
 
                 {/* Today's Follow-ups */}
                 <section>
-                    <h2 className="text-white/80 text-sm font-semibold mb-2 px-1">Today's Focus</h2>
+                    <h2 className="text-brand-dark/80 dark:text-white/80 text-sm font-semibold mb-2 px-1">Today's Focus</h2>
                     <div className="space-y-3">
                         {todayFollowUps.length === 0 ? (
-                            <GlassCard className="p-4 text-center text-white/40 text-sm">
+                            <GlassCard className="p-4 text-center text-brand-dark/40 dark:text-white/40 text-sm">
                                 No follow-ups scheduled for today.
                                 <br />
                                 <span className="text-xs">Take a break or find a new lead!</span>
@@ -89,8 +89,8 @@ export default function Today() {
                                             item.priority === 'Medium' ? 'bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.5)]' : 'bg-blue-400'
                                             }`} />
                                         <div>
-                                            <h3 className="text-white font-medium">{item.name}</h3>
-                                            <div className="flex items-center gap-2 text-xs text-white/60">
+                                            <h3 className="text-brand-dark dark:text-white font-medium">{item.name}</h3>
+                                            <div className="flex items-center gap-2 text-xs text-brand-dark/60 dark:text-white/60">
                                                 <span className="flex items-center gap-1"><Clock size={10} /> {format(parseISO(item.nextFollowUp), 'h:mm a')}</span>
                                                 {/* <span>•</span> */}
                                                 {/* <span>{item.type}</span>  -- Type not in schema yet, assumed Call */}
@@ -108,9 +108,9 @@ export default function Today() {
 
                 {/* Upcoming Preview */}
                 <section>
-                    <h2 className="text-white/80 text-sm font-semibold mb-2 px-1">Upcoming</h2>
+                    <h2 className="text-brand-dark/80 dark:text-white/80 text-sm font-semibold mb-2 px-1">Upcoming</h2>
                     <GlassCard className="bg-blue-500/5 border-blue-500/10 py-6">
-                        <p className="text-center text-white/40 text-sm">Check "Leads" for future follow-ups</p>
+                        <p className="text-center text-brand-dark/40 dark:text-white/40 text-sm">Check "Leads" for future follow-ups</p>
                     </GlassCard>
                 </section>
             </div>

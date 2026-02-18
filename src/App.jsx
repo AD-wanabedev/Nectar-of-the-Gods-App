@@ -99,14 +99,14 @@ function AppContent() {
                 <div className="flex items-center gap-2">
                     <button
                         onClick={toggleTheme}
-                        className="p-2 rounded-xl bg-brand-dark/5 dark:bg-brand-white/5 border border-brand-dark/5 dark:border-brand-white/5 text-brand-dark/40 dark:text-brand-white/40 hover:text-brand-gold hover:bg-brand-gold/10 transition-all focus:outline-none"
+                        className="p-2 rounded-xl bg-brand-dark/5 dark:bg-brand-white/5 border border-brand-dark/5 dark:border-brand-white/5 text-brand-dark/70 dark:text-brand-white/40 hover:text-brand-gold hover:bg-brand-gold/10 transition-all focus:outline-none"
                         title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
                     >
                         {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
                     </button>
                     <button
                         onClick={forceRefresh}
-                        className="p-2 mr-1 rounded-xl bg-brand-dark/5 dark:bg-brand-white/5 border border-brand-dark/5 dark:border-brand-white/5 text-brand-dark/40 dark:text-brand-white/40 hover:text-brand-gold hover:bg-brand-gold/10 transition-all focus:outline-none"
+                        className="p-2 mr-1 rounded-xl bg-brand-dark/5 dark:bg-brand-white/5 border border-brand-dark/5 dark:border-brand-white/5 text-brand-dark/70 dark:text-brand-white/40 hover:text-brand-gold hover:bg-brand-gold/10 transition-all focus:outline-none"
                         title="Force Clear Cache & Refresh"
                     >
                         <RefreshCw size={16} />
@@ -144,7 +144,7 @@ function AppContent() {
                             onClick={() => navigate(path)}
                             className={`flex flex-col items-center justify-center gap-1 py-1.5 px-1 rounded-xl transition-all ${activeId === id
                                 ? 'text-brand-gold'
-                                : 'text-brand-dark/40 dark:text-brand-white/40 hover:text-brand-dark/80 dark:hover:text-brand-white/80'
+                                : 'text-brand-dark/70 dark:text-brand-white/40 hover:text-brand-dark dark:hover:text-brand-white/80'
                                 }`}
                         >
                             <Icon size={22} className={`transition-transform ${activeId === id ? 'scale-110' : ''}`} />

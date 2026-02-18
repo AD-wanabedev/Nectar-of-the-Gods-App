@@ -166,7 +166,7 @@ export default function Documentation() {
     return (
         <div className="pb-24 pt-4 space-y-6">
             <div className="flex justify-between items-center px-2">
-                <h1 className="text-2xl font-bold text-brand-white">Documentation</h1>
+                <h1 className="text-2xl font-bold text-brand-dark dark:text-brand-white">Documentation</h1>
                 <div className="flex gap-2">
                     <GlassButton onClick={generateWeeklyOverview} className="text-xs" title="Weekly Overview">
                         <Calendar size={16} />
@@ -183,20 +183,20 @@ export default function Documentation() {
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     placeholder="Log your work..."
-                    className="w-full h-32 bg-transparent text-brand-white placeholder-brand-white/30 resize-none focus:outline-none"
+                    className="w-full h-32 bg-transparent text-brand-dark dark:text-brand-white placeholder-brand-dark/30 dark:placeholder-brand-white/30 resize-none focus:outline-none"
                 />
                 <div className="flex justify-between items-center">
                     <div className="flex gap-2">
                         <button
                             onClick={startListening}
-                            className={`p-2 rounded-full transition-all ${isListening ? 'bg-red-500/20 text-red-400 animate-pulse' : 'bg-brand-white/5 text-brand-white/60 hover:text-brand-blue'}`}
+                            className={`p-2 rounded-full transition-all ${isListening ? 'bg-red-500/20 text-red-400 animate-pulse' : 'bg-brand-dark/5 dark:bg-brand-white/5 text-brand-dark/60 dark:text-brand-white/60 hover:text-brand-blue'}`}
                             title="Speech to Text"
                         >
                             <Mic size={20} />
                         </button>
                         <button
                             onClick={() => document.getElementById('doc-upload').click()}
-                            className="p-2 rounded-full bg-brand-white/5 text-brand-white/60 hover:text-brand-peach transition-all"
+                            className="p-2 rounded-full bg-brand-dark/5 dark:bg-brand-white/5 text-brand-dark/60 dark:text-brand-white/60 hover:text-brand-peach transition-all"
                             title="Upload Media"
                             disabled={uploading}
                         >
@@ -220,35 +220,35 @@ export default function Documentation() {
             <div className="space-y-4">
                 {entries.map(entry => (
                     <div key={entry.id} className="relative group">
-                        <div className="absolute left-4 top-0 bottom-0 w-px bg-brand-white/10"></div>
+                        <div className="absolute left-4 top-0 bottom-0 w-px bg-brand-dark/10 dark:bg-brand-white/10"></div>
                         <div className="pl-10 relative">
-                            <div className="absolute left-[11px] top-1 w-2.5 h-2.5 rounded-full bg-brand-gold border-2 border-brand-dark z-10"></div>
+                            <div className="absolute left-[11px] top-1 w-2.5 h-2.5 rounded-full bg-brand-gold border-2 border-brand-light dark:border-brand-dark z-10"></div>
 
-                            <p className="text-xs text-brand-white/40 mb-1 font-mono">
+                            <p className="text-xs text-brand-dark/40 dark:text-brand-white/40 mb-1 font-mono">
                                 {format(entry.createdAt?.toDate() || new Date(entry.date), 'h:mm a · MMM d')}
                             </p>
 
-                            <GlassCard className="p-4 hover:border-brand-white/20 transition-colors group">
+                            <GlassCard className="p-4 hover:border-brand-gold/20 transition-colors group">
                                 <button
                                     onClick={() => handleDelete(entry.id)}
-                                    className="absolute top-2 right-2 text-brand-white/10 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    className="absolute top-2 right-2 text-brand-dark/10 dark:text-brand-white/10 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
                                 >
                                     <Trash2 size={14} />
                                 </button>
 
                                 {entry.type === 'text' && (
-                                    <p className="text-brand-white/90 whitespace-pre-wrap">{entry.content}</p>
+                                    <p className="text-brand-dark/90 dark:text-brand-white/90 whitespace-pre-wrap">{entry.content}</p>
                                 )}
                                 {entry.type === 'image' && (
                                     <div className="space-y-2">
-                                        <img src={entry.url} alt="Entry" className="max-h-60 rounded-lg border border-brand-white/10" />
-                                        <p className="text-xs text-brand-white/50">{entry.content}</p>
+                                        <img src={entry.url} alt="Entry" className="max-h-60 rounded-lg border border-brand-dark/10 dark:border-brand-white/10" />
+                                        <p className="text-xs text-brand-dark/50 dark:text-brand-white/50">{entry.content}</p>
                                     </div>
                                 )}
                                 {entry.type === 'video' && (
                                     <div className="space-y-2">
-                                        <video src={entry.url} controls className="max-h-60 rounded-lg border border-brand-white/10" />
-                                        <p className="text-xs text-brand-white/50">{entry.content}</p>
+                                        <video src={entry.url} controls className="max-h-60 rounded-lg border border-brand-dark/10 dark:border-brand-white/10" />
+                                        <p className="text-xs text-brand-dark/50 dark:text-brand-white/50">{entry.content}</p>
                                     </div>
                                 )}
                             </GlassCard>
@@ -256,7 +256,7 @@ export default function Documentation() {
                     </div>
                 ))}
                 {entries.length === 0 && !loading && (
-                    <div className="text-center py-10 text-brand-white/30">
+                    <div className="text-center py-10 text-brand-dark/30 dark:text-brand-white/30">
                         Start your documentation journey.
                     </div>
                 )}
@@ -267,7 +267,7 @@ export default function Documentation() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4">
                     <div className="glass-card w-full max-w-md p-6 relative flex flex-col max-h-[80vh]">
                         <button onClick={() => setShowOverview(false)} className="absolute top-4 right-4 text-brand-white/60 hover:text-brand-white">
-                            <Trash2 size={24} className="rotate-45" /> {/* Using Trash2 as close icon temporarily or just use explicit X */}
+                            <X size={24} />
                         </button>
                         <h2 className="text-xl font-bold text-brand-white mb-4">Weekly Snapshot</h2>
                         <pre className="flex-1 overflow-auto whitespace-pre-wrap text-brand-white/80 font-mono text-sm bg-black/50 p-4 rounded-lg">

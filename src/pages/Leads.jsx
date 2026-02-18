@@ -142,7 +142,7 @@ export default function Leads() {
             {/* Search & Filter Header */}
             <div className="flex gap-2">
                 <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50" size={16} />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-dark/50 dark:text-white/50" size={16} />
                     <GlassInput
                         placeholder="Search leads..."
                         className="pl-10 text-center"
@@ -150,12 +150,12 @@ export default function Leads() {
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
-                <GlassButton onClick={exportCSV} className="w-10 px-0 bg-green-600/20 hover:bg-green-600" title="Export CSV">
+                <GlassButton onClick={exportCSV} className="w-10 px-0 bg-green-600/20 hover:bg-green-600 text-green-700 dark:text-green-100" title="Export CSV">
                     <FileDown size={18} />
                 </GlassButton>
                 <label className="cursor-pointer">
                     <input type="file" accept=".csv" className="hidden" onChange={handleImportCSV} />
-                    <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-blue-600/20 hover:bg-blue-600 border border-white/10 text-white transition-all">
+                    <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-blue-600/20 hover:bg-blue-600 border border-brand-dark/10 dark:border-white/10 text-blue-700 dark:text-blue-100 hover:text-white transition-all">
                         <FileUp size={18} />
                     </div>
                 </label>
@@ -172,22 +172,22 @@ export default function Leads() {
             {/* Leads List */}
             <div className="space-y-3">
                 {filteredLeads.length === 0 ? (
-                    <div className="text-center py-10 text-white/40">
+                    <div className="text-center py-10 text-brand-dark/40 dark:text-white/40">
                         <p>No leads found.</p>
                         <p className="text-xs mt-1">Tap + to add one.</p>
                     </div>
                 ) : (
                     filteredLeads.map(lead => (
-                        <GlassCard key={lead.id} onClick={() => handleEdit(lead)} className="active:scale-[0.99] cursor-pointer hover:bg-white/10 group">
+                        <GlassCard key={lead.id} onClick={() => handleEdit(lead)} className="active:scale-[0.99] cursor-pointer hover:bg-brand-dark/5 dark:hover:bg-white/10 group">
                             <div className="flex justify-between items-start">
                                 <div className="flex gap-3">
                                     <div className={`w-1 self-stretch rounded-full ${lead.priority === 'High' ? 'bg-red-400' :
                                         lead.priority === 'Medium' ? 'bg-amber-400' : 'bg-blue-400'
                                         }`} />
                                     <div>
-                                        <h3 className="font-semibold text-white text-lg flex items-center gap-2">
+                                        <h3 className="font-semibold text-brand-dark dark:text-white text-lg flex items-center gap-2">
                                             {lead.name}
-                                            <span className="text-white/40">
+                                            <span className="text-brand-dark/40 dark:text-white/40">
                                                 {lead.platform === 'Instagram' && <Instagram size={14} />}
                                                 {lead.platform === 'WhatsApp' && <MessageCircle size={14} />}
                                                 {lead.platform === 'Gmail' && <Mail size={14} />}
@@ -195,26 +195,26 @@ export default function Leads() {
                                             </span>
                                         </h3>
                                         <div className="flex flex-col gap-1 mt-1">
-                                            <p className="text-white/60 text-sm flex items-center gap-1">
+                                            <p className="text-brand-dark/60 dark:text-white/60 text-sm flex items-center gap-1">
                                                 <Phone size={12} /> {lead.phone}
                                             </p>
                                             {lead.teamMember && lead.teamMember !== 'Me' && (
-                                                <p className="text-white/50 text-xs">
-                                                    Assigned to: <span className="text-blue-300">{lead.teamMember}</span>
+                                                <p className="text-brand-dark/50 dark:text-white/50 text-xs">
+                                                    Assigned to: <span className="text-blue-500 dark:text-blue-300">{lead.teamMember}</span>
                                                 </p>
                                             )}
                                         </div>
                                         <div className="mt-2 flex gap-2">
-                                            <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-white/80 border border-white/5">
+                                            <span className="text-xs px-2 py-0.5 rounded-full bg-brand-dark/10 dark:bg-white/10 text-brand-dark/80 dark:text-white/80 border border-brand-dark/5 dark:border-white/5">
                                                 {lead.status}
                                             </span>
-                                            <span className="text-xs px-2 py-0.5 rounded-full bg-white/5 text-white/60">
+                                            <span className="text-xs px-2 py-0.5 rounded-full bg-brand-dark/5 dark:bg-white/5 text-brand-dark/60 dark:text-white/60">
                                                 Due: {format(parseISO(lead.nextFollowUp), 'MMM d, h:mm a')}
                                             </span>
                                         </div>
                                     </div>
                                 </div>
-                                <button className="text-white/40 p-2 hover:text-white">
+                                <button className="text-brand-dark/40 dark:text-white/40 p-2 hover:text-brand-dark dark:hover:text-white">
                                     <MoreHorizontal size={20} />
                                 </button>
                             </div>

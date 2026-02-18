@@ -98,29 +98,29 @@ export default function Sales() {
         setDailyData(dData);
     };
 
-    if (loading) return <div className="p-8 text-center text-brand-white/50 animate-pulse">Loading Sales Data...</div>;
+    if (loading) return <div className="p-8 text-center text-brand-dark/50 dark:text-brand-white/50 animate-pulse">Loading Sales Data...</div>;
 
     return (
         <div className="pb-24 pt-4 space-y-6">
-            <h1 className="text-2xl font-bold text-brand-white px-2">Sales Dashboard</h1>
+            <h1 className="text-2xl font-bold text-brand-dark dark:text-brand-white px-2">Sales Dashboard</h1>
 
             {/* Key Metrics */}
             <div className="grid grid-cols-2 gap-4">
                 <GlassCard className="p-4 flex flex-col items-center justify-center border-brand-gold/20">
-                    <p className="text-brand-white/40 text-xs uppercase tracking-wider mb-1">Total Revenue</p>
+                    <p className="text-brand-dark/40 dark:text-brand-white/40 text-xs uppercase tracking-wider mb-1">Total Revenue</p>
                     <h2 className="text-2xl font-bold text-brand-gold">₹{stats.totalRevenue.toLocaleString()}</h2>
                 </GlassCard>
-                <GlassCard className="p-4 flex flex-col items-center justify-center border-brand-white/5">
-                    <p className="text-brand-white/40 text-xs uppercase tracking-wider mb-1">Weekly Revenue</p>
+                <GlassCard className="p-4 flex flex-col items-center justify-center border-brand-dark/5 dark:border-brand-white/5">
+                    <p className="text-brand-dark/40 dark:text-brand-white/40 text-xs uppercase tracking-wider mb-1">Weekly Revenue</p>
                     <h2 className="text-xl font-bold text-brand-peach">₹{stats.weeklyRevenue.toLocaleString()}</h2>
                 </GlassCard>
-                <GlassCard className="p-4 flex flex-col items-center justify-center border-brand-white/5">
-                    <p className="text-brand-white/40 text-xs uppercase tracking-wider mb-1">Total Orders</p>
-                    <h2 className="text-xl font-bold text-brand-white">{stats.totalSales}</h2>
+                <GlassCard className="p-4 flex flex-col items-center justify-center border-brand-dark/5 dark:border-brand-white/5">
+                    <p className="text-brand-dark/40 dark:text-brand-white/40 text-xs uppercase tracking-wider mb-1">Total Orders</p>
+                    <h2 className="text-xl font-bold text-brand-dark dark:text-brand-white">{stats.totalSales}</h2>
                 </GlassCard>
-                <GlassCard className="p-4 flex flex-col items-center justify-center border-brand-white/5">
-                    <p className="text-brand-white/40 text-xs uppercase tracking-wider mb-1">Avg. Order</p>
-                    <h2 className="text-xl font-bold text-brand-white">₹{Math.round(stats.averageOrderValue).toLocaleString()}</h2>
+                <GlassCard className="p-4 flex flex-col items-center justify-center border-brand-dark/5 dark:border-brand-white/5">
+                    <p className="text-brand-dark/40 dark:text-brand-white/40 text-xs uppercase tracking-wider mb-1">Avg. Order</p>
+                    <h2 className="text-xl font-bold text-brand-dark dark:text-brand-white">₹{Math.round(stats.averageOrderValue).toLocaleString()}</h2>
                 </GlassCard>
             </div>
 
@@ -128,7 +128,7 @@ export default function Sales() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Honey Distribution */}
                 <GlassCard className="p-6 h-[300px]">
-                    <h3 className="text-sm font-bold text-brand-white mb-4 flex items-center gap-2">
+                    <h3 className="text-sm font-bold text-brand-dark dark:text-brand-white mb-4 flex items-center gap-2">
                         <ShoppingBag size={16} className="text-brand-gold" /> Top Products
                     </h3>
                     <ResponsiveContainer width="100%" height="100%">
@@ -150,20 +150,20 @@ export default function Sales() {
                                 contentStyle={{ backgroundColor: '#292929', borderColor: '#a07b32', borderRadius: '8px' }}
                                 itemStyle={{ color: '#f6f2e9' }}
                             />
-                            <Legend />
+                            <Legend wrapperStyle={{ color: '#a07b32' }} />
                         </PieChart>
                     </ResponsiveContainer>
                 </GlassCard>
 
                 {/* Daily Revenue Trend */}
                 <GlassCard className="p-6 h-[300px]">
-                    <h3 className="text-sm font-bold text-brand-white mb-4 flex items-center gap-2">
+                    <h3 className="text-sm font-bold text-brand-dark dark:text-brand-white mb-4 flex items-center gap-2">
                         <TrendingUp size={16} className="text-brand-peach" /> Revenue Trend
                     </h3>
                     <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={dailyData}>
-                            <XAxis dataKey="name" stroke="#ffffff50" fontSize={12} tickLine={false} axisLine={false} />
-                            <YAxis stroke="#ffffff50" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `₹${value}`} />
+                            <XAxis dataKey="name" stroke="#a07b32" fontSize={12} tickLine={false} axisLine={false} />
+                            <YAxis stroke="#a07b32" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `₹${value}`} />
                             <Tooltip
                                 cursor={{ fill: '#ffffff10' }}
                                 contentStyle={{ backgroundColor: '#292929', borderColor: '#a07b32', borderRadius: '8px' }}
@@ -177,16 +177,16 @@ export default function Sales() {
 
             {/* Recent Sales List */}
             <div className="space-y-3">
-                <h3 className="text-sm font-bold text-brand-white px-2 uppercase tracking-wide opacity-50">Recent Sales</h3>
+                <h3 className="text-sm font-bold text-brand-dark dark:text-brand-white px-2 uppercase tracking-wide opacity-50">Recent Sales</h3>
                 {leads.slice(0, 5).map(sale => (
-                    <GlassCard key={sale.id} className="p-4 flex justify-between items-center group hover:bg-brand-white/5 transition-colors">
+                    <GlassCard key={sale.id} className="p-4 flex justify-between items-center group hover:bg-brand-dark/5 dark:hover:bg-brand-white/5 transition-colors">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full bg-brand-gold/10 flex items-center justify-center text-brand-gold font-bold">
                                 ₹
                             </div>
                             <div>
-                                <h4 className="font-bold text-brand-white text-sm">{sale.name}</h4>
-                                <p className="text-xs text-brand-white/50">
+                                <h4 className="font-bold text-brand-dark dark:text-brand-white text-sm">{sale.name}</h4>
+                                <p className="text-xs text-brand-dark/50 dark:text-brand-white/50">
                                     {sale.honeyTypes && sale.honeyTypes.length > 0
                                         ? sale.honeyTypes.join(', ')
                                         : (sale.honeyType || 'Product')}
@@ -195,14 +195,14 @@ export default function Sales() {
                         </div>
                         <div className="text-right">
                             <p className="font-bold text-brand-gold">₹{parseFloat(sale.orderValue).toLocaleString()}</p>
-                            <p className="text-[10px] text-brand-white/30">
+                            <p className="text-[10px] text-brand-dark/30 dark:text-brand-white/30">
                                 {sale.saleDate ? format(new Date(sale.saleDate), 'MMM d') : format(new Date(), 'MMM d')}
                             </p>
                         </div>
                     </GlassCard>
                 ))}
                 {leads.length === 0 && (
-                    <div className="text-center py-10 text-brand-white/30 italic">
+                    <div className="text-center py-10 text-brand-dark/30 dark:text-brand-white/30 italic">
                         No sales recorded yet.
                     </div>
                 )}
