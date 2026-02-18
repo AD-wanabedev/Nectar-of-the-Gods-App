@@ -1,4 +1,4 @@
-import { Plus, Mic, Search, Phone, Calendar, Clock, Users, DollarSign, Star, ShoppingBag } from 'lucide-react';
+import { Plus, Mic, Search, Phone, Calendar, Clock, Users, DollarSign, Star, ShoppingBag, Edit2 } from 'lucide-react';
 import InspirationalQuote from '../components/InspirationalQuote';
 import GlassCard from '../components/ui/GlassCard';
 import GlassButton from '../components/ui/GlassButton';
@@ -98,16 +98,26 @@ export default function Today() {
                 {overdueItems.length > 0 && (
                     <section>
                         <h2 className="text-brand-dark/80 dark:text-white/80 text-sm font-semibold mb-2 px-1">Overdue</h2>
-                        <div className="space-y-2">
+                        <div className="space-y-3">
                             {overdueItems.map(item => (
-                                <GlassCard key={item.id} className="bg-red-500/10 border-red-500/20 p-3 flex justify-between items-center">
-                                    <div>
-                                        <p className="font-medium text-brand-dark dark:text-white">{item.name}</p>
-                                        <p className="text-xs text-brand-dark/60 dark:text-white/60">Due: {format(parseISO(item.nextFollowUp), 'MMM d')}</p>
+                                <GlassCard key={item.id} className="relative overflow-hidden group hover:border-red-500/30 transition-all p-0">
+                                    <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-red-500" />
+                                    <div className="flex items-center justify-between p-3 pl-5">
+                                        <div className="flex flex-col gap-0.5">
+                                            <h3 className="text-base font-bold text-brand-dark dark:text-white">{item.name}</h3>
+                                            <p className="text-xs text-red-500 font-medium flex items-center gap-1">
+                                                Due: {format(parseISO(item.nextFollowUp), 'MMM d')}
+                                            </p>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <GlassButton
+                                                onClick={() => navigate(`/leads`)} // Ideally open edit modal
+                                                className="p-2 h-9 w-9 rounded-full bg-white/10 text-brand-dark/60 dark:text-white/60 hover:bg-red-500/20 hover:text-red-500"
+                                            >
+                                                <Edit2 size={16} />
+                                            </GlassButton>
+                                        </div>
                                     </div>
-                                    <GlassButton variant="danger" className="p-2 h-8 w-8 rounded-full">
-                                        <Phone size={14} />
-                                    </GlassButton>
                                 </GlassCard>
                             ))}
                         </div>
@@ -119,30 +129,53 @@ export default function Today() {
                     <h2 className="text-brand-dark/80 dark:text-white/80 text-sm font-semibold mb-2 px-1">Today's Focus</h2>
                     <div className="space-y-3">
                         {todayFollowUps.length === 0 ? (
-                            <GlassCard className="p-4 text-center text-brand-dark/40 dark:text-white/40 text-sm">
+                            <GlassCard className="p-6 text-center text-brand-dark/40 dark:text-white/40 text-sm border-dashed">
                                 No follow-ups scheduled for today.
                                 <br />
-                                <span className="text-xs">Take a break or find a new lead!</span>
+                                <span className="text-xs opacity-70">Enjoy the calm or find a new lead!</span>
                             </GlassCard>
                         ) : (
                             todayFollowUps.map((item) => (
-                                <GlassCard key={item.id} className="flex flex-row items-center justify-between p-3 active:scale-98">
-                                    <div className="flex items-center gap-3">
-                                        <div className={`w-2 h-10 rounded-full ${item.priority === 'High' ? 'bg-red-400 shadow-[0_0_10px_rgba(248,113,113,0.5)]' :
-                                            item.priority === 'Medium' ? 'bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.5)]' : 'bg-blue-400'
-                                            }`} />
-                                        <div>
-                                            <h3 className="text-brand-dark dark:text-white font-medium">{item.name}</h3>
-                                            <div className="flex items-center gap-2 text-xs text-brand-dark/60 dark:text-white/60">
-                                                <span className="flex items-center gap-1"><Clock size={10} /> {format(parseISO(item.nextFollowUp), 'h:mm a')}</span>
-                                                {/* <span>•</span> */}
-                                                {/* <span>{item.type}</span>  -- Type not in schema yet, assumed Call */}
+                                <GlassCard key={item.id} className="group p-0 relative overflow-hidden transition-all hover:border-brand-gold/30 hover:shadow-lg hover:shadow-brand-gold/5">
+                                    <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${item.priority === 'High' ? 'bg-red-400' :
+                                            item.priority === 'Medium' ? 'bg-amber-400' : 'bg-blue-400'
+                                        }`} />
+
+                                    <div className="flex items-center justify-between p-3 pl-5">
+                                        <div className="flex flex-col gap-1 overflow-hidden">
+                                            <h3 className="text-base font-bold text-brand-dark dark:text-white truncate pr-2">
+                                                {item.name}
+                                            </h3>
+
+                                            <div className="flex items-center gap-3 text-xs text-brand-dark/60 dark:text-white/60">
+                                                <span className="flex items-center gap-1 font-medium text-brand-dark/80 dark:text-white/80">
+                                                    <Clock size={12} className="text-brand-gold" />
+                                                    {format(parseISO(item.nextFollowUp), 'h:mm a')}
+                                                </span>
+                                                {item.phone && (
+                                                    <span className="flex items-center gap-1 opacity-70">
+                                                        <Phone size={10} /> {item.phone}
+                                                    </span>
+                                                )}
                                             </div>
+
+                                            {item.honeyTypes && item.honeyTypes.length > 0 && (
+                                                <div className="flex flex-wrap gap-1 mt-1">
+                                                    <span className="inline-flex px-1.5 py-0.5 rounded text-[10px] font-medium bg-brand-dark/5 dark:bg-white/10 text-brand-dark/70 dark:text-white/70 border border-brand-dark/5 dark:border-white/5">
+                                                        {Array.isArray(item.honeyTypes) ? item.honeyTypes[0] : item.honeyTypes}
+                                                        {Array.isArray(item.honeyTypes) && item.honeyTypes.length > 1 && ` +${item.honeyTypes.length - 1}`}
+                                                    </span>
+                                                </div>
+                                            )}
                                         </div>
+
+                                        <GlassButton
+                                            onClick={(e) => { e.stopPropagation(); navigate(`/leads`); }}
+                                            className="p-2 h-9 w-9 flex-shrink-0 rounded-full bg-brand-dark/5 dark:bg-white/5 border border-brand-dark/5 dark:border-white/5 text-brand-dark/40 dark:text-white/40 group-hover:text-brand-gold group-hover:border-brand-gold/20 transition-all"
+                                        >
+                                            <Edit2 size={16} />
+                                        </GlassButton>
                                     </div>
-                                    {/* <GlassButton variant="secondary" className="p-2 rounded-full h-8 w-8 !bg-white/10">
-                                        <Phone size={14} />
-                                    </GlassButton> */}
                                 </GlassCard>
                             ))
                         )}
