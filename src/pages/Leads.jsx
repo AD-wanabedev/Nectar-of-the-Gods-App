@@ -1,12 +1,128 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useMotionValue, useTransform } from 'framer-motion';
 import { leadsDB } from '../db';
 import GlassCard from '../components/ui/GlassCard';
 import GlassInput from '../components/ui/GlassInput';
 import GlassButton from '../components/ui/GlassButton';
+import FloatingActionButton from '../components/ui/FloatingActionButton';
 import AddLeadForm from '../components/AddLeadForm';
-import { Search, Plus, Filter, Phone, MoreHorizontal, Instagram, Mail, MessageCircle, FileDown, FileUp, Building2 } from 'lucide-react';
+import { Search, Plus, Filter, Phone, MoreHorizontal, Instagram, Mail, MessageCircle, FileDown, FileUp, Building2, Trash2, Check } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
+
+const SwipeableLeadCard = ({ lead, onEdit, onDelete, onCall }) => {
+    const x = useMotionValue(0);
+    const background = useTransform(x, [-100, 0, 100], ["rgba(239, 68, 68, 0.2)", "rgba(0,0,0,0)", "rgba(34, 197, 94, 0.2)"]);
+    const opacityRight = useTransform(x, [50, 100], [0, 1]);
+    const opacityLeft = useTransform(x, [-50, -100], [0, 1]);
+
+    const handleDragEnd = (_, info) => {
+        if (info.offset.x > 100) {
+            onCall(lead);
+        } else if (info.offset.x < -100) {
+            onDelete(lead);
+        }
+    };
+
+    return (
+        <motion.div style={{ background }} className="relative rounded-2xl overflow-hidden mb-3">
+            {/* Left Action (Call) */}
+            <motion.div style={{ opacity: opacityRight }} className="absolute inset-y-0 left-0 w-20 flex items-center justify-center bg-green-500/20 text-green-500">
+                <Phone size={24} />
+            </motion.div>
+
+            {/* Right Action (Delete) */}
+            <motion.div style={{ opacity: opacityLeft }} className="absolute inset-y-0 right-0 w-20 flex items-center justify-center bg-red-500/20 text-red-500">
+                <Trash2 size={24} />
+            </motion.div>
+
+            <motion.div
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                onDragEnd={handleDragEnd}
+                className="relative z-10"
+                whileDrag={{ scale: 1.02 }}
+            >
+                <GlassCard onClick={() => onEdit(lead)} className="active:scale-[0.99] cursor-pointer hover:bg-brand-dark/5 dark:hover:bg-white/10 group relative overflow-hidden !m-0 !rounded-none !bg-transparent border-0 shadow-none">
+                    {/* Priority Indicator Strip */}
+                    <div className={`absolute left-0 top-0 bottom-0 w-1 ${lead.priority === 'High' ? 'bg-red-500' :
+                        lead.priority === 'Medium' ? 'bg-amber-500' : 'bg-blue-500'
+                        }`} />
+
+                    <div className="pl-3 flex justify-between items-start">
+                        <div className="flex-1">
+                            {/* Header: Name/Platform */}
+                            <div className="flex items-center gap-2 mb-1">
+                                <h3 className="font-bold text-brand-dark dark:text-white text-lg leading-tight">
+                                    {lead.name}
+                                </h3>
+                                <span className="text-brand-dark/40 dark:text-white/40">
+                                    {lead.platform === 'Instagram' && <Instagram size={14} />}
+                                    {lead.platform === 'WhatsApp' && <MessageCircle size={14} />}
+                                    {lead.platform === 'Gmail' && <Mail size={14} />}
+                                    {(lead.platform === 'Call' || !lead.platform) && <Phone size={14} />}
+                                </span>
+                            </div>
+
+                            {/* Establishment Name */}
+                            {lead.establishment && (
+                                <p className="text-brand-dark/70 dark:text-white/70 text-sm font-medium flex items-center gap-1 mb-1">
+                                    <Building2 size={12} className="text-brand-gold" /> {lead.establishment}
+                                </p>
+                            )}
+
+                            {/* Type Badges */}
+                            <div className="flex flex-wrap gap-1 my-1.5">
+                                {lead.leadType && (
+                                    <span className="text-[10px] px-2 py-0.5 rounded bg-blue-500/10 text-blue-500 border border-blue-500/20 font-medium">
+                                        {lead.leadType}
+                                    </span>
+                                )}
+                                {lead.leadSubType && (
+                                    <span className="text-[10px] px-2 py-0.5 rounded bg-purple-500/10 text-purple-500 border border-purple-500/20 font-medium">
+                                        {lead.leadSubType}
+                                    </span>
+                                )}
+                                <span className="text-[10px] px-2 py-0.5 rounded bg-brand-dark/5 dark:bg-white/5 text-brand-dark/60 dark:text-white/60 uppercase tracking-wide">
+                                    {lead.status}
+                                </span>
+                            </div>
+
+                            {/* Contact Details */}
+                            <div className="flex flex-col gap-1 mt-2">
+                                {lead.phone && (
+                                    <p className="text-brand-dark/60 dark:text-white/60 text-xs flex items-center gap-1.5">
+                                        <Phone size={10} /> {lead.phone}
+                                    </p>
+                                )}
+                                {lead.email && (
+                                    <p className="text-brand-dark/60 dark:text-white/60 text-xs flex items-center gap-1.5">
+                                        <Mail size={10} /> {lead.email}
+                                    </p>
+                                )}
+                            </div>
+
+                            {/* Footer: Assigned & Due */}
+                            <div className="flex items-center gap-3 mt-3 pt-2 border-t border-brand-dark/5 dark:border-white/5">
+                                {lead.teamMember && lead.teamMember !== 'Me' && (
+                                    <p className="text-brand-dark/50 dark:text-white/50 text-[10px]">
+                                        Assigned: <span className="text-brand-gold">{lead.teamMember}</span>
+                                    </p>
+                                )}
+                                <p className="text-brand-dark/50 dark:text-white/50 text-[10px] ml-auto">
+                                    Follow-up: {format(parseISO(lead.nextFollowUp), 'MMM d, h:mm a')}
+                                </p>
+                            </div>
+                        </div>
+
+                        <button onClick={(e) => { e.stopPropagation(); onDelete(lead); }} className="text-brand-dark/40 dark:text-white/40 p-2 -mr-2 -mt-1 hover:text-red-500 transition-colors">
+                            <Trash2 size={20} />
+                        </button>
+                    </div>
+                </GlassCard>
+            </motion.div>
+        </motion.div>
+    );
+};
 
 export default function Leads() {
     const [leads, setLeads] = useState([]);
@@ -41,6 +157,23 @@ export default function Leads() {
     const handleAdd = () => {
         setEditingLead(null);
         setShowAddForm(true);
+    };
+
+    const handleDelete = async (lead) => {
+        if (window.confirm(`Are you sure you want to delete ${lead.name}?`)) {
+            try {
+                await leadsDB.delete(lead.id);
+                loadLeads(true); // Silent refresh
+            } catch (error) {
+                console.error("Failed to delete lead:", error);
+                alert("Failed to delete lead.");
+            }
+        }
+    };
+
+    const handleCall = (lead) => {
+        if (!lead.phone) return alert("No phone number for this lead.");
+        window.location.href = `tel:${lead.phone}`;
     };
 
     const handleCloseForm = () => {
@@ -133,6 +266,10 @@ export default function Leads() {
         reader.readAsText(file);
     };
 
+    const triggerImport = () => {
+        document.getElementById('csv-import-input').click();
+    };
+
     // Filter leads in memory
     const filteredLeads = leads.filter(lead => {
         const term = searchTerm.toLowerCase();
@@ -167,12 +304,10 @@ export default function Leads() {
                 <GlassButton onClick={exportCSV} className="w-10 h-10 p-0 rounded-full flex items-center justify-center text-brand-dark dark:text-brand-white hover:text-brand-gold hover:bg-brand-gold/10 transition-colors" title="Export CSV">
                     <FileDown size={24} />
                 </GlassButton>
-                <label className="cursor-pointer">
-                    <input type="file" accept=".csv" className="hidden" onChange={handleImportCSV} />
-                    <div className="w-10 h-10 flex items-center justify-center rounded-full glass-btn text-brand-dark dark:text-brand-white hover:text-brand-gold hover:bg-brand-gold/10 transition-colors">
-                        <FileUp size={24} />
-                    </div>
-                </label>
+
+                {/* Hidden Import Input */}
+                <input id="csv-import-input" type="file" accept=".csv" className="hidden" onChange={handleImportCSV} />
+
                 <GlassButton
                     className={`w-10 h-10 p-0 rounded-full flex items-center justify-center transition-all ${priorityFilter !== 'All' ? 'bg-brand-gold/20 text-brand-gold border-brand-gold/50' : 'text-brand-dark dark:text-brand-white hover:text-brand-gold hover:bg-brand-gold/10'}`}
                     onClick={() => setPriorityFilter(f => f === 'All' ? 'High' : f === 'High' ? 'Medium' : 'All')}
@@ -191,96 +326,19 @@ export default function Leads() {
                     </div>
                 ) : (
                     filteredLeads.map(lead => (
-                        <GlassCard key={lead.id} onClick={() => handleEdit(lead)} className="active:scale-[0.99] cursor-pointer hover:bg-brand-dark/5 dark:hover:bg-white/10 group relative overflow-hidden">
-                            {/* Priority Indicator Strip */}
-                            <div className={`absolute left-0 top-0 bottom-0 w-1 ${lead.priority === 'High' ? 'bg-red-500' :
-                                lead.priority === 'Medium' ? 'bg-amber-500' : 'bg-blue-500'
-                                }`} />
-
-                            <div className="pl-3 flex justify-between items-start">
-                                <div className="flex-1">
-                                    {/* Header: Name/Platform */}
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <h3 className="font-bold text-brand-dark dark:text-white text-lg leading-tight">
-                                            {lead.name}
-                                        </h3>
-                                        <span className="text-brand-dark/40 dark:text-white/40">
-                                            {lead.platform === 'Instagram' && <Instagram size={14} />}
-                                            {lead.platform === 'WhatsApp' && <MessageCircle size={14} />}
-                                            {lead.platform === 'Gmail' && <Mail size={14} />}
-                                            {(lead.platform === 'Call' || !lead.platform) && <Phone size={14} />}
-                                        </span>
-                                    </div>
-
-                                    {/* Establishment Name */}
-                                    {lead.establishment && (
-                                        <p className="text-brand-dark/70 dark:text-white/70 text-sm font-medium flex items-center gap-1 mb-1">
-                                            <Building2 size={12} className="text-brand-gold" /> {lead.establishment}
-                                        </p>
-                                    )}
-
-                                    {/* Type Badges */}
-                                    <div className="flex flex-wrap gap-1 my-1.5">
-                                        {lead.leadType && (
-                                            <span className="text-[10px] px-2 py-0.5 rounded bg-blue-500/10 text-blue-500 border border-blue-500/20 font-medium">
-                                                {lead.leadType}
-                                            </span>
-                                        )}
-                                        {lead.leadSubType && (
-                                            <span className="text-[10px] px-2 py-0.5 rounded bg-purple-500/10 text-purple-500 border border-purple-500/20 font-medium">
-                                                {lead.leadSubType}
-                                            </span>
-                                        )}
-                                        <span className="text-[10px] px-2 py-0.5 rounded bg-brand-dark/5 dark:bg-white/5 text-brand-dark/60 dark:text-white/60 uppercase tracking-wide">
-                                            {lead.status}
-                                        </span>
-                                    </div>
-
-                                    {/* Contact Details */}
-                                    <div className="flex flex-col gap-1 mt-2">
-                                        {lead.phone && (
-                                            <p className="text-brand-dark/60 dark:text-white/60 text-xs flex items-center gap-1.5">
-                                                <Phone size={10} /> {lead.phone}
-                                            </p>
-                                        )}
-                                        {lead.email && (
-                                            <p className="text-brand-dark/60 dark:text-white/60 text-xs flex items-center gap-1.5">
-                                                <Mail size={10} /> {lead.email}
-                                            </p>
-                                        )}
-                                    </div>
-
-                                    {/* Footer: Assigned & Due */}
-                                    <div className="flex items-center gap-3 mt-3 pt-2 border-t border-brand-dark/5 dark:border-white/5">
-                                        {lead.teamMember && lead.teamMember !== 'Me' && (
-                                            <p className="text-brand-dark/50 dark:text-white/50 text-[10px]">
-                                                Assigned: <span className="text-brand-gold">{lead.teamMember}</span>
-                                            </p>
-                                        )}
-                                        <p className="text-brand-dark/50 dark:text-white/50 text-[10px] ml-auto">
-                                            Follow-up: {format(parseISO(lead.nextFollowUp), 'MMM d, h:mm a')}
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <button className="text-brand-dark/40 dark:text-white/40 p-2 -mr-2 -mt-1 hover:text-brand-dark dark:hover:text-white">
-                                    <MoreHorizontal size={20} />
-                                </button>
-                            </div>
-                        </GlassCard>
+                        <SwipeableLeadCard
+                            key={lead.id}
+                            lead={lead}
+                            onEdit={handleEdit}
+                            onDelete={handleDelete}
+                            onCall={handleCall}
+                        />
                     ))
                 )}
             </div>
 
             {/* FAB */}
-            <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={handleAdd}
-                className="fixed right-6 bottom-32 w-14 h-14 rounded-full bg-blue-600 text-white shadow-lg shadow-blue-500/40 flex items-center justify-center z-40 border border-white/20 backdrop-blur-md"
-            >
-                <Plus size={28} />
-            </motion.button>
+            <FloatingActionButton onAddLead={handleAdd} onImport={triggerImport} />
 
             {/* Add Lead Modal */}
             {
