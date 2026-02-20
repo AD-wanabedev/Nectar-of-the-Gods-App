@@ -20,11 +20,5 @@ const app = initializeApp(firebaseConfig);
 // Initialize services
 export const db = getFirestore(app);
 export const auth = getAuth(app);
-// Ensure persistence is set to local
-import { setPersistence, browserLocalPersistence } from 'firebase/auth';
-setPersistence(auth, browserLocalPersistence).catch((error) => {
-  console.error("Persistence error:", error);
-});
-
 export const googleProvider = new GoogleAuthProvider();
 export const storage = getStorage(app);

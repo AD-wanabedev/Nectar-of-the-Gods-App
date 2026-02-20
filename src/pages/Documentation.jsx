@@ -111,8 +111,9 @@ export default function Documentation() {
             // If it was empty, it becomes an image entry effectively but we store as text with MD link for flexibility.
             setContent(prev => prev + `\n![Image](${downloadURL})\n`);
         } catch (error) {
-            console.error("Paste upload failed:", error);
-            alert("Failed to upload pasted image.");
+            console.error("Upload failed details:", error);
+            console.error("Storage Config:", storage.app.options.storageBucket);
+            alert(`Failed to upload: ${error.message}`);
         } finally {
             setUploading(false);
         }

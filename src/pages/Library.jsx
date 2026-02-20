@@ -68,8 +68,9 @@ export default function Library() {
 
             loadItems();
         } catch (error) {
-            console.error("Upload failed", error);
-            alert("Failed to upload file");
+            console.error("Upload failed details:", error);
+            console.error("Storage Config:", storage.app.options.storageBucket);
+            alert(`Failed to upload: ${error.message}`);
         } finally {
             setUploading(false);
         }
