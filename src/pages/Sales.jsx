@@ -44,9 +44,18 @@ export default function Sales() {
         let totalRev = 0;
         let weeklyRev = 0;
         const honeyCounts = {};
-        const dailyRevenue = {};
+        const monthlyRevenue = {};
 
-        const weekAgo = subDays(new Date(), 7);
+        const now = new Date();
+        const startOfCurrentYear = new Date(now.getFullYear(), 0, 1);
+        const weekAgo = subDays(now, 7);
+
+        // Initialize all months to 0 to ensure continuous chart
+        for (let i = 0; i < 12; i++) {
+            const d = new Date(now.getFullYear(), i, 1);
+            const key = format(d, 'yyyy-MM');
+            monthlyRevenue[key] = 0;
+        }
 
         sales.forEach(sale => {
             const val = parseFloat(sale.orderValue) || 0;
@@ -67,10 +76,13 @@ export default function Sales() {
                 honeyCounts[type] = (honeyCounts[type] || 0) + 1;
             });
 
-            // Daily Revenue (Last 7 days for chart)
-            // Use sortable date key
-            const sortableDateKey = format(saleDate, 'yyyy-MM-dd');
-            dailyRevenue[sortableDateKey] = (dailyRevenue[sortableDateKey] || 0) + val;
+            // Monthly Revenue (Current Year)
+            if (saleDate >= startOfCurrentYear) {
+                const key = format(saleDate, 'yyyy-MM');
+                if (monthlyRevenue[key] !== undefined) {
+                    monthlyRevenue[key] += val;
+                }
+            }
         });
 
         // Format Honey Data for Chart
@@ -79,10 +91,10 @@ export default function Sales() {
             value: honeyCounts[key]
         })).sort((a, b) => b.value - a.value).slice(0, 5); // Top 5
 
-        // Format Daily Data - Sort by Key (Date) then Format Name
-        const dData = Object.keys(dailyRevenue).sort().map(key => ({
-            name: format(parseISO(key), 'MMM d'),
-            revenue: dailyRevenue[key]
+        // Format Monthly Data
+        const dData = Object.keys(monthlyRevenue).sort().map(key => ({
+            name: format(parseISO(key + '-01'), 'MMM'),
+            revenue: monthlyRevenue[key]
         }));
 
         setStats({

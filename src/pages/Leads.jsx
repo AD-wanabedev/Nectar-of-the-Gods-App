@@ -156,7 +156,7 @@ export default function Leads() {
             {/* Search & Filter Header */}
             <div className="flex gap-2">
                 <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-dark/50 dark:text-white/50" size={18} />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-dark/50 dark:text-white/50" size={24} />
                     <GlassInput
                         placeholder="Search name, phone, establishment..."
                         className="pl-10 text-center"
@@ -164,14 +164,13 @@ export default function Leads() {
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
-                {/* ... (Buttons kept same, already updated in previous step) ... */}
                 <GlassButton onClick={exportCSV} className="w-10 h-10 p-0 rounded-full flex items-center justify-center text-brand-dark dark:text-brand-white hover:text-brand-gold hover:bg-brand-gold/10 transition-colors" title="Export CSV">
-                    <FileDown size={22} />
+                    <FileDown size={24} />
                 </GlassButton>
                 <label className="cursor-pointer">
                     <input type="file" accept=".csv" className="hidden" onChange={handleImportCSV} />
                     <div className="w-10 h-10 flex items-center justify-center rounded-full glass-btn text-brand-dark dark:text-brand-white hover:text-brand-gold hover:bg-brand-gold/10 transition-colors">
-                        <FileUp size={22} />
+                        <FileUp size={24} />
                     </div>
                 </label>
                 <GlassButton
@@ -179,7 +178,7 @@ export default function Leads() {
                     onClick={() => setPriorityFilter(f => f === 'All' ? 'High' : f === 'High' ? 'Medium' : 'All')}
                     title={`Filter: ${priorityFilter}`}
                 >
-                    <Filter size={22} />
+                    <Filter size={24} />
                 </GlassButton>
             </div>
 
@@ -284,12 +283,14 @@ export default function Leads() {
             </motion.button>
 
             {/* Add Lead Modal */}
-            {showAddForm && (
-                <AddLeadForm
-                    onClose={handleCloseForm}
-                    initialData={editingLead}
-                />
-            )}
-        </div>
+            {
+                showAddForm && (
+                    <AddLeadForm
+                        onClose={handleCloseForm}
+                        initialData={editingLead}
+                    />
+                )
+            }
+        </div >
     );
 }
