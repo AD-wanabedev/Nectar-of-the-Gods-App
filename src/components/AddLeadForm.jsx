@@ -622,4 +622,3 @@ export default function AddLeadForm({ onClose, initialData = null }) {
         </div>
     );
 }
-}
