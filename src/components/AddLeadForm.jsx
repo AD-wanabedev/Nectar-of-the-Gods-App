@@ -226,7 +226,7 @@ export default function AddLeadForm({ onClose, initialData = null }) {
     ];
 
     const leadTypes = ["B2C", "B2B", "Collaborator"];
-    const b2bSubTypes = ["Restaurant", "Cafe", "Bar", "Hotel", "Airline", "White Labelling"];
+    const b2bSubTypes = ["Restaurant", "Cafe", "Bar", "Hotel", "Airline", "White Labelling", "Retail"];
     const collaboratorSubTypes = ["Promoter", "Influencer", "Bar Consultant"];
 
     return (
