@@ -5,8 +5,8 @@ import { TrendingUp, DollarSign, BarChart2, Calendar, ShoppingBag } from 'lucide
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 import { format, subDays, isSameDay, parseISO } from 'date-fns';
 
-// Onyx & Platinum Palette
-const COLORS = ['#E5E7EB', '#9CA3AF', '#6B7280', '#D1D5DB', '#F3F4F6', '#FFFFFF']; // Platinum, Silver, Dark Silver, Light Silver, White Silver, White
+// Brand Palette (Gold & Peach)
+const COLORS = ['#a07b32', '#fdcca6', '#c49a45', '#eeb085', '#8c6b2b', '#ffe4cc']; // Brand Gold, Brand Peach, Light Gold, Dark Peach, Dark Gold, Light Peach
 
 export default function Sales() {
     const [leads, setLeads] = useState([]);
@@ -157,7 +157,7 @@ export default function Sales() {
                                 ))}
                             </Pie>
                             <Tooltip
-                                contentStyle={{ backgroundColor: '#050505', borderColor: '#374151', borderRadius: '8px', color: '#fff' }}
+                                contentStyle={{ backgroundColor: '#292929', borderColor: '#a07b32', borderRadius: '8px', color: '#f6f2e9' }}
                                 itemStyle={{ color: '#f6f2e9' }}
                             />
                             <Legend
@@ -176,14 +176,14 @@ export default function Sales() {
                     </h3>
                     <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={dailyData}>
-                            <XAxis dataKey="name" stroke="#9CA3AF" fontSize={12} tickLine={false} axisLine={false} />
-                            <YAxis stroke="#9CA3AF" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `₹${value}`} />
+                            <XAxis dataKey="name" stroke="#a07b32" fontSize={12} tickLine={false} axisLine={false} />
+                            <YAxis stroke="#a07b32" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `₹${value}`} />
                             <Tooltip
                                 cursor={{ fill: '#ffffff10' }}
-                                contentStyle={{ backgroundColor: '#050505', borderColor: '#374151', borderRadius: '8px', color: '#fff' }}
+                                contentStyle={{ backgroundColor: '#292929', borderColor: '#a07b32', borderRadius: '8px', color: '#f6f2e9' }}
                                 itemStyle={{ color: '#f6f2e9' }}
                             />
-                            <Bar dataKey="revenue" fill="#E5E7EB" radius={[4, 4, 0, 0]} />
+                            <Bar dataKey="revenue" fill="#a07b32" radius={[4, 4, 0, 0]} />
                         </BarChart>
                     </ResponsiveContainer>
                 </GlassCard>

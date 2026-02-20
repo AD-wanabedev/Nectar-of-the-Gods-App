@@ -76,7 +76,7 @@ export default function Today() {
         <div className="pb-24 pt-6 px-4">
             <header className="mb-6">
                 <h1 className="text-3xl font-light text-gray-900 dark:text-white">
-                    {greeting}, <span className="font-bold text-brand-platinum">Angad</span>
+                    {greeting}, <span className="font-bold text-brand-gold">Angad</span>
                 </h1>
                 <p className="text-brand-dark/60 dark:text-white/60 text-sm mt-1">
                     Here is your daily briefing.
@@ -93,7 +93,7 @@ export default function Today() {
                         value={`₹${(metrics.revenue / 1000).toFixed(1)}k`}
                         label="Revenue"
                         icon={TrendingUp}
-                        color="text-brand-platinum"
+                        color="text-brand-gold"
                     />
                     <GoalRing
                         progress={metrics.callsProgress}
@@ -156,7 +156,7 @@ export default function Today() {
                             </GlassCard>
                         ) : (
                             todayFollowUps.map((item) => (
-                                <GlassCard key={item.id} className="group p-0 relative overflow-hidden transition-all hover:border-brand-platinum/30 hover:shadow-lg hover:shadow-brand-platinum/5">
+                                <GlassCard key={item.id} className="group p-0 relative overflow-hidden transition-all hover:border-brand-gold/30 hover:shadow-lg hover:shadow-brand-gold/5">
                                     <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${item.priority === 'High' ? 'bg-red-400' :
                                         item.priority === 'Medium' ? 'bg-amber-400' : 'bg-blue-400'
                                         }`} />
@@ -169,7 +169,7 @@ export default function Today() {
 
                                             <div className="flex items-center gap-3 text-xs text-gray-600 dark:text-gray-300">
                                                 <span className="flex items-center gap-1 font-medium">
-                                                    <Clock size={12} className="text-brand-platinum" />
+                                                    <Clock size={12} className="text-brand-gold" />
                                                     {format(parseISO(item.nextFollowUp), 'h:mm a')}
                                                 </span>
                                                 {item.phone && (
@@ -191,7 +191,7 @@ export default function Today() {
 
                                         <GlassButton
                                             onClick={(e) => { e.stopPropagation(); navigate(`/leads`); }}
-                                            className="p-2 h-9 w-9 flex-shrink-0 rounded-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5 text-gray-400 dark:text-gray-500 group-hover:text-brand-platinum group-hover:border-brand-platinum/20 transition-all"
+                                            className="p-2 h-9 w-9 flex-shrink-0 rounded-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5 text-gray-400 dark:text-gray-500 group-hover:text-brand-gold group-hover:border-brand-gold/20 transition-all"
                                         >
                                             <Edit2 size={16} />
                                         </GlassButton>

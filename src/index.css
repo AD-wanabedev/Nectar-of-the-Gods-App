@@ -15,17 +15,31 @@
 
 @layer base {
   body {
-    @apply bg-brand-dark min-h-screen text-brand-white font-sans antialiased selection:bg-brand-platinum selection:text-brand-dark transition-colors duration-500 md:text-lg;
+    @apply bg-brand-dark min-h-screen text-brand-white font-sans antialiased selection:bg-brand-gold selection:text-brand-dark transition-colors duration-500 md:text-lg;
   }
 }
 
 @layer utilities {
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-brand-dark/50 hover:bg-brand-gold/50 rounded-full transition-colors;
+  }
+
   .glass {
-    @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-xl;
+    @apply bg-brand-dark/30 backdrop-blur-md border border-white/10;
   }
 
   .glass-card {
-    @apply glass rounded-2xl p-5 transition-all duration-300 hover:border-brand-platinum/30 hover:shadow-2xl hover:shadow-brand-platinum/5 hover:-translate-y-1 relative overflow-hidden;
+    @apply bg-brand-dark/40 backdrop-blur-xl border border-white/5 shadow-glass-card rounded-2xl p-5 transition-all duration-300 hover:border-brand-gold/30 hover:shadow-2xl hover:shadow-brand-gold/5 hover:-translate-y-1 relative overflow-hidden;
   }
 
   /* Shimmer effect for cards */
@@ -39,15 +53,15 @@
   }
 
   .glass-input {
-    @apply bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-brand-platinum/20 focus:border-transparent transition-all;
+    @apply bg-brand-dark/30 border border-white/10 text-brand-white placeholder-white/30 rounded-xl px-4 py-3 focus:outline-none focus:border-brand-gold/50 focus:ring-1 focus:ring-brand-gold/50 transition-all duration-300;
   }
 
   .glass-btn {
-    @apply flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-medium transition-all duration-300 bg-transparent border border-black/5 dark:border-white/10 text-gray-900 dark:text-white hover:bg-black/10 dark:hover:bg-white/10 hover:text-brand-dark dark:hover:text-white hover:border-transparent active:scale-95;
+    @apply flex items-center justify-center gap-2 px-4 py-2 rounded-xl font-medium transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed !bg-transparent !shadow-none hover:bg-white/10 text-brand-white;
   }
 
   .glass-btn-primary {
-    @apply flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold transition-all duration-300 bg-brand-platinum text-brand-dark shadow-lg shadow-brand-platinum/10 hover:shadow-brand-platinum/20 hover:scale-105 active:scale-95;
+    @apply flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold transition-all duration-300 bg-brand-gold text-brand-dark shadow-lg shadow-brand-gold/20 hover:shadow-xl hover:shadow-brand-gold/30 hover:scale-105 active:scale-95;
   }
 
   .glass-nav {
