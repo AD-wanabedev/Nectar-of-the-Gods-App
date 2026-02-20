@@ -238,16 +238,16 @@ export default function AddLeadForm({ onClose, initialData = null }) {
     }, []);
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in" onClick={onClose}>
+        <div className="fixed inset-0 z-50 md:flex md:items-center md:justify-center bg-black/80 backdrop-blur-sm md:p-4 animate-in fade-in" onClick={onClose}>
             <div
                 onClick={(e) => e.stopPropagation()}
-                className="glass-card w-full max-w-md max-h-[90dvh] overflow-y-auto overscroll-contain p-6 relative bg-brand-dark border-blue-500/20 shadow-blue-900/20 custom-scrollbar"
+                className="glass-card fixed inset-0 w-full h-full rounded-none md:relative md:inset-auto md:w-full md:max-w-md md:max-h-[85vh] md:rounded-2xl !overflow-y-auto p-6 pb-32 md:pb-6 bg-brand-dark border-0 md:border md:border-blue-500/20 shadow-none md:shadow-blue-900/20 custom-scrollbar"
             >
-                <button onClick={onClose} className="absolute top-4 right-4 text-white/60 hover:text-white z-10">
+                <button onClick={onClose} className="absolute top-4 right-4 text-white/60 hover:text-white z-10 bg-black/50 p-2 rounded-full md:bg-transparent md:p-0">
                     <X size={24} />
                 </button>
 
-                <h2 className="text-xl font-bold text-white mb-6">
+                <h2 className="text-xl font-bold text-white mb-6 pt-2 md:pt-0">
                     {initialData ? 'Edit Lead' : 'New Lead'}
                 </h2>
 
