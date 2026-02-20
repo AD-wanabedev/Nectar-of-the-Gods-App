@@ -5,6 +5,7 @@ export default function GlassButton({ children, className, variant = 'primary', 
     const variants = {
         primary: "glass-btn-primary",
         secondary: "glass-btn",
+        custom: "", // No default styles, fully controlled by className
         danger: "bg-red-500/20 hover:bg-red-500/30 text-red-100 border border-red-500/30 backdrop-blur-md",
         success: "bg-green-500/20 hover:bg-green-500/30 text-green-100 border border-green-500/30 backdrop-blur-md",
     };

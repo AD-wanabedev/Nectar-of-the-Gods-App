@@ -296,26 +296,41 @@ export default function Leads() {
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-dark/50 dark:text-white/50" size={24} />
                     <GlassInput
                         placeholder="Search..."
-                        className="pl-10"
+                        className="pl-10 text-center"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
-                <GlassButton onClick={exportCSV} className="w-12 h-12 p-0 rounded-full flex items-center justify-center text-brand-dark dark:text-brand-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors" title="Export CSV">
+
+                {/* Export Button - Transparent */}
+                <GlassButton
+                    onClick={exportCSV}
+                    className="w-12 h-12 p-0 rounded-full flex items-center justify-center bg-transparent border-transparent text-brand-dark dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors shadow-none"
+                    title="Export CSV"
+                    variant="custom" // Use custom to avoid default glass styles if needed, or just override
+                >
                     <FileDown size={28} />
                 </GlassButton>
 
-                <GlassButton onClick={triggerImport} className="w-12 h-12 p-0 rounded-full flex items-center justify-center text-brand-dark dark:text-brand-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors" title="Import CSV">
+                {/* Import Button - Transparent */}
+                <GlassButton
+                    onClick={triggerImport}
+                    className="w-12 h-12 p-0 rounded-full flex items-center justify-center bg-transparent border-transparent text-brand-dark dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors shadow-none"
+                    title="Import CSV"
+                    variant="custom"
+                >
                     <FileUp size={28} />
                 </GlassButton>
 
                 {/* Hidden Import Input */}
                 <input id="csv-import-input" type="file" accept=".csv" className="hidden" onChange={handleImportCSV} />
 
+                {/* Filter Button - Transparent (Inactive) / Highlighted (Active) */}
                 <GlassButton
-                    className={`w-12 h-12 p-0 rounded-full flex items-center justify-center transition-all ${priorityFilter !== 'All' ? 'bg-brand-dark dark:bg-white text-white dark:text-brand-dark shadow-md' : 'text-brand-dark dark:text-brand-white hover:bg-black/5 dark:hover:bg-white/10'}`}
+                    className={`w-12 h-12 p-0 rounded-full flex items-center justify-center transition-all shadow-none ${priorityFilter !== 'All' ? 'bg-brand-dark dark:bg-white text-white dark:text-brand-dark' : 'bg-transparent border-transparent text-brand-dark dark:text-white hover:bg-black/5 dark:hover:bg-white/10'}`}
                     onClick={() => setPriorityFilter(f => f === 'All' ? 'High' : f === 'High' ? 'Medium' : 'All')}
                     title={`Filter: ${priorityFilter}`}
+                    variant="custom"
                 >
                     <Filter size={28} />
                 </GlassButton>
