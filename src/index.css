@@ -3,9 +3,9 @@
 @tailwind utilities;
 
 :root {
-  /* Glass OS 2.0 Palette */
-  --color-gold: 212 175 55;
-  /* Metallic Gold */
+  /* Glass OS 2.0 Palette - REVERTED to Classic */
+  --color-gold: 160 123 50;
+  /* Metric Gold (Darker) */
   --color-amber: 255 191 0;
   /* Deep Amber */
   --color-obsidian: 12 12 14;
@@ -15,7 +15,7 @@
 
 @layer base {
   body {
-    @apply bg-brand-white dark:bg-[#0a0a0c] min-h-screen text-brand-dark dark:text-white font-sans antialiased selection:bg-[#D4AF37] selection:text-black transition-colors duration-500;
+    @apply bg-brand-white dark:bg-[#0a0a0c] min-h-screen text-brand-dark dark:text-white font-sans antialiased selection:bg-brand-gold selection:text-black transition-colors duration-500;
   }
 }
 
@@ -25,7 +25,7 @@
   }
 
   .glass-card {
-    @apply glass rounded-2xl p-5 transition-all duration-300 hover:border-[#D4AF37]/30 hover:shadow-2xl hover:-translate-y-1 relative overflow-hidden;
+    @apply glass rounded-2xl p-5 transition-all duration-300 hover:border-brand-gold/30 hover:shadow-2xl hover:-translate-y-1 relative overflow-hidden;
   }
 
   /* Shimmer effect for cards */
@@ -39,15 +39,15 @@
   }
 
   .glass-input {
-    @apply bg-white/5 dark:bg-black/20 border border-black/5 dark:border-white/10 rounded-xl px-4 py-3 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50 focus:border-transparent transition-all;
+    @apply bg-white/5 dark:bg-black/20 border border-black/5 dark:border-white/10 rounded-xl px-4 py-3 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-brand-gold/50 focus:border-transparent transition-all;
   }
 
   .glass-btn {
-    @apply flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-medium transition-all duration-300 bg-white/10 dark:bg-white/5 border border-black/5 dark:border-white/10 text-gray-900 dark:text-white hover:bg-[#D4AF37] hover:text-black hover:border-transparent active:scale-95;
+    @apply flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-medium transition-all duration-300 bg-white/10 dark:bg-white/5 border border-black/5 dark:border-white/10 text-gray-900 dark:text-white hover:bg-brand-gold hover:text-black hover:border-transparent active:scale-95;
   }
 
   .glass-btn-primary {
-    @apply flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold transition-all duration-300 bg-gradient-to-r from-[#C59D24] to-[#DBB43C] text-black shadow-lg shadow-orange-500/10 hover:shadow-orange-500/20 hover:scale-105 active:scale-95;
+    @apply flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold transition-all duration-300 bg-brand-gold text-white shadow-lg shadow-brand-gold/10 hover:shadow-brand-gold/20 hover:scale-105 active:scale-95;
   }
 
   .glass-nav {

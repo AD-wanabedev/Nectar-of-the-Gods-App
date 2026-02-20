@@ -32,19 +32,19 @@ export default function Layout() {
                         >
                             {/* Active State Glow - Behind the icon */}
                             {isActive && (
-                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-user-gold/20 rounded-full blur-md animate-pulse" />
+                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-brand-gold/20 rounded-full blur-md animate-pulse" />
                             )}
 
                             <div className={clsx(
                                 "transition-all duration-300 transform",
-                                isActive ? "text-[#D4AF37] scale-110 -translate-y-1 drop-shadow-[0_0_10px_rgba(212,175,55,0.5)]" : "text-white/40 hover:text-white group-hover:scale-105"
+                                isActive ? "text-brand-gold scale-110 -translate-y-1 drop-shadow-[0_0_10px_rgba(160,123,50,0.5)]" : "text-white/40 hover:text-white group-hover:scale-105"
                             )}>
                                 <Icon size={28} strokeWidth={isActive ? 2.5 : 2} />
                             </div>
 
                             <span className={clsx(
                                 "text-[10px] mt-1 transition-all duration-300 font-medium tracking-wide",
-                                isActive ? "text-[#D4AF37] opacity-100" : "text-white/40 opacity-0 group-hover:opacity-100"
+                                isActive ? "text-brand-gold opacity-100" : "text-white/40 opacity-0 group-hover:opacity-100"
                             )}>
                                 {label}
                             </span>
