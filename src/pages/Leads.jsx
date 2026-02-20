@@ -20,9 +20,9 @@ export default function Leads() {
         loadLeads();
     }, []);
 
-    const loadLeads = async () => {
+    const loadLeads = async (isRefetch = false) => {
         try {
-            setLoading(true);
+            if (!isRefetch && leads.length === 0) setLoading(true);
             const data = await leadsDB.getAll();
             setLeads(data);
         } catch (error) {
@@ -46,7 +46,7 @@ export default function Leads() {
     const handleCloseForm = () => {
         setShowAddForm(false);
         setEditingLead(null);
-        loadLeads(); // Refresh data after adding/editing
+        loadLeads(true); // Refresh data silently to keep scroll position
     };
 
     const exportCSV = () => {

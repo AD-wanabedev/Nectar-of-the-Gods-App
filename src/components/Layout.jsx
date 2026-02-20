@@ -36,7 +36,7 @@ export default function Layout() {
                     );
                 })}
                 <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] text-white/20 pointer-events-none">
-                    v1.5
+                    v1.6
                 </div>
             </nav>
         </div>
