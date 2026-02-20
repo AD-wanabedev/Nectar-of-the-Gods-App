@@ -2,47 +2,106 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* Glass OS 2.0 Palette */
+  --color-gold: 212 175 55;
+  /* Metallic Gold */
+  --color-amber: 255 191 0;
+  /* Deep Amber */
+  --color-obsidian: 12 12 14;
+  /* Darkest Black/Blue */
+  --color-glass-border: 255 255 255;
+}
+
 @layer base {
   body {
-    /* Brand Dark Background (Dark Mode), Brand White Background (Light Mode) */
-    @apply bg-brand-white dark:bg-brand-dark min-h-screen text-brand-dark dark:text-brand-white font-sans antialiased selection:bg-brand-gold selection:text-brand-dark transition-colors duration-300;
+    @apply bg-brand-white dark:bg-[#0a0a0c] min-h-screen text-brand-dark dark:text-white font-sans antialiased selection:bg-[#D4AF37] selection:text-black transition-colors duration-500;
   }
 }
 
 @layer utilities {
   .glass {
-    /* Glass effect tuned for both modes - Higher contrast */
-    @apply bg-black/5 dark:bg-white/10 backdrop-blur-lg border border-black/10 dark:border-white/10 shadow-lg;
+    @apply bg-white/10 dark:bg-[#1a1a1c]/60 backdrop-blur-xl border border-white/20 dark:border-white/5 shadow-xl;
   }
 
   .glass-card {
-    /* Gold border on hover */
-    @apply glass rounded-xl p-4 transition-all duration-300 hover:border-brand-gold/50 hover:shadow-glass-hover;
+    @apply glass rounded-2xl p-5 transition-all duration-300 hover:border-[#D4AF37]/30 hover:shadow-2xl hover:-translate-y-1 relative overflow-hidden;
+  }
+
+  /* Shimmer effect for cards */
+  .glass-card::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/0 translate-x-[-150%] transition-transform duration-700;
+  }
+
+  .glass-card:hover::before {
+    @apply translate-x-[150%];
   }
 
   .glass-input {
-    /* Gold focus state */
-    @apply bg-brand-dark/5 dark:bg-brand-white/5 border border-brand-dark/10 dark:border-brand-white/10 rounded-lg px-4 py-2 text-brand-dark dark:text-brand-white placeholder-brand-dark/30 dark:placeholder-brand-white/30 focus:outline-none focus:ring-1 focus:ring-brand-gold focus:border-brand-gold transition-all;
+    @apply bg-white/5 dark:bg-black/20 border border-black/5 dark:border-white/10 rounded-xl px-4 py-3 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50 focus:border-transparent transition-all;
   }
 
   .glass-btn {
-    /* Gold button style */
-    @apply bg-brand-dark/5 dark:bg-brand-white/10 hover:bg-brand-gold hover:text-brand-dark active:scale-95 transition-all text-brand-dark dark:text-brand-white font-medium rounded-lg px-4 py-2 backdrop-blur-sm border border-brand-dark/5 dark:border-brand-white/5;
+    @apply flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-medium transition-all duration-300 bg-white/10 dark:bg-white/5 border border-black/5 dark:border-white/10 text-gray-900 dark:text-white hover:bg-[#D4AF37] hover:text-black hover:border-transparent active:scale-95;
   }
 
   .glass-btn-primary {
-    @apply bg-brand-gold text-brand-dark hover:bg-brand-peach hover:scale-[1.02] active:scale-95 transition-all font-bold rounded-lg px-4 py-2 shadow-lg shadow-brand-gold/20;
+    @apply flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold transition-all duration-300 bg-gradient-to-r from-[#D4AF37] to-[#FFBF00] text-black shadow-lg shadow-orange-500/20 hover:shadow-orange-500/40 hover:scale-105 active:scale-95;
   }
 
   .glass-nav {
-    /* Bottom nav with dark/light transparency */
-    @apply fixed bottom-0 left-0 right-0 bg-brand-white/90 dark:bg-brand-dark/90 backdrop-blur-xl border-t border-brand-dark/10 dark:border-brand-white/10 flex justify-around items-center z-50;
-    height: auto;
-    padding-top: 0.75rem;
-    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 1rem));
+    @apply fixed bottom-0 left-0 right-0 z-50 px-6 pb-6 pt-4 bg-white/80 dark:bg-[#0c0c0e]/80 backdrop-blur-2xl border-t border-white/20 dark:border-white/5 flex justify-around items-center;
+    padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0));
   }
 
-  /* Scrollbar hiding */
+  /* Animations */
+  @keyframes float {
+
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes blob {
+    0% {
+      transform: translate(0px, 0px) scale(1);
+    }
+
+    33% {
+      transform: translate(30px, -50px) scale(1.1);
+    }
+
+    66% {
+      transform: translate(-20px, 20px) scale(0.9);
+    }
+
+    100% {
+      transform: translate(0px, 0px) scale(1);
+    }
+  }
+
+  .animate-blob {
+    animation: blob 10s infinite;
+  }
+
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+
   .scrollbar-none::-webkit-scrollbar {
     display: none;
   }
