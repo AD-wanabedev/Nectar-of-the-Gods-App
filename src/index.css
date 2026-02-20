@@ -47,7 +47,7 @@
   }
 
   .glass-btn-primary {
-    @apply flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold transition-all duration-300 bg-gradient-to-r from-[#D4AF37] to-[#FFBF00] text-black shadow-lg shadow-orange-500/20 hover:shadow-orange-500/40 hover:scale-105 active:scale-95;
+    @apply flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-bold transition-all duration-300 bg-gradient-to-r from-[#C59D24] to-[#DBB43C] text-black shadow-lg shadow-orange-500/10 hover:shadow-orange-500/20 hover:scale-105 active:scale-95;
   }
 
   .glass-nav {

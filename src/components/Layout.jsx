@@ -39,7 +39,7 @@ export default function Layout() {
                                 "transition-all duration-300 transform",
                                 isActive ? "text-[#D4AF37] scale-110 -translate-y-1 drop-shadow-[0_0_10px_rgba(212,175,55,0.5)]" : "text-white/40 hover:text-white group-hover:scale-105"
                             )}>
-                                <Icon size={24} strokeWidth={isActive ? 2.5 : 2} />
+                                <Icon size={28} strokeWidth={isActive ? 2.5 : 2} />
                             </div>
 
                             <span className={clsx(

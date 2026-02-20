@@ -163,7 +163,7 @@ function AppContent() {
                     >
                         <div className="flex items-center gap-2">
                             <span className="text-[10px] font-bold uppercase hidden sm:inline text-brand-dark/60 dark:text-brand-white/60 group-hover:text-red-400">Logout</span>
-                            <LogOut size={14} className="text-brand-dark/40 dark:text-brand-white/40 group-hover:text-red-400 transition-colors" />
+                            <LogOut size={18} className="text-brand-dark/40 dark:text-brand-white/40 group-hover:text-red-400 transition-colors" />
                         </div>
                     </GlassButton>
                 </div>

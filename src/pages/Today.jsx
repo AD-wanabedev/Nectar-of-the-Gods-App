@@ -105,12 +105,12 @@ export default function Today() {
                 </div>
 
                 {/* Quick Actions */}
-                <div className="flex gap-3 justify-center">
-                    <GlassButton onClick={() => navigate('/leads')} className="rounded-full w-12 h-12 p-0 flex items-center justify-center bg-brand-gold/20 hover:bg-brand-gold/30 border border-brand-gold/30 text-brand-gold shadow-lg shadow-brand-gold/10">
-                        <Plus size={24} />
+                <div className="flex gap-4 justify-center">
+                    <GlassButton onClick={() => navigate('/leads')} className="rounded-full w-16 h-16 p-0 flex items-center justify-center bg-brand-gold/20 hover:bg-brand-gold/30 border border-brand-gold/30 text-brand-gold shadow-lg shadow-brand-gold/10">
+                        <Plus size={32} strokeWidth={2.5} />
                     </GlassButton>
-                    <GlassButton onClick={() => navigate('/leads')} className="rounded-full w-12 h-12 p-0 flex items-center justify-center bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-brand-dark dark:text-brand-white border border-white/10">
-                        <Search size={20} />
+                    <GlassButton onClick={() => navigate('/leads')} className="rounded-full w-16 h-16 p-0 flex items-center justify-center bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-brand-dark dark:text-brand-white border border-white/10">
+                        <Search size={28} strokeWidth={2.5} />
                     </GlassButton>
                 </div>
 
