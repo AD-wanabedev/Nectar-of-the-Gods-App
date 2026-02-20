@@ -231,7 +231,7 @@ export default function AddLeadForm({ onClose, initialData = null }) {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in">
-            <div className="glass-card w-full max-w-md max-h-[85vh] overflow-y-auto p-6 pb-20 relative bg-gray-900 border-blue-500/20 shadow-blue-900/20 custom-scrollbar">
+            <div className="glass-card w-full max-w-md max-h-[90dvh] overflow-y-auto p-6 relative bg-brand-dark border-blue-500/20 shadow-blue-900/20 custom-scrollbar">
                 <button onClick={onClose} className="absolute top-4 right-4 text-white/60 hover:text-white z-10">
                     <X size={24} />
                 </button>
@@ -585,7 +585,7 @@ export default function AddLeadForm({ onClose, initialData = null }) {
                         </div>
                     </div>
 
-                    <div className="pt-4 pb-6 flex gap-3 sticky bottom-0 bg-gray-900/95 backdrop-blur-sm -mx-6 px-6 mt-6 border-t border-white/5">
+                    <div className="pt-6 flex gap-3 mt-8 border-t border-white/5">
                         {initialData && (
                             <GlassButton type="button" onClick={handleDeleteLead} className="bg-red-600/20 hover:bg-red-600/40 text-red-200 border-red-500/30">
                                 Delete
