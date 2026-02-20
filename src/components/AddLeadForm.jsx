@@ -229,9 +229,20 @@ export default function AddLeadForm({ onClose, initialData = null }) {
     const b2bSubTypes = ["Restaurant", "Cafe", "Bar", "Hotel", "Airline", "White Labelling", "Retail"];
     const collaboratorSubTypes = ["Promoter", "Influencer", "Bar Consultant"];
 
+    // Lock body scroll when modal is open
+    useEffect(() => {
+        document.body.style.overflow = 'hidden';
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, []);
+
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in">
-            <div className="glass-card w-full max-w-md max-h-[90dvh] overflow-y-auto p-6 relative bg-brand-dark border-blue-500/20 shadow-blue-900/20 custom-scrollbar">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in" onClick={onClose}>
+            <div
+                onClick={(e) => e.stopPropagation()}
+                className="glass-card w-full max-w-md max-h-[90dvh] overflow-y-auto overscroll-contain p-6 relative bg-brand-dark border-blue-500/20 shadow-blue-900/20 custom-scrollbar"
+            >
                 <button onClick={onClose} className="absolute top-4 right-4 text-white/60 hover:text-white z-10">
                     <X size={24} />
                 </button>
