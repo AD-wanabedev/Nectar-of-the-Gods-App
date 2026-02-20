@@ -192,23 +192,27 @@ export default function Sales() {
             <div className="space-y-4">
                 <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100 uppercase tracking-wide">Recent Sales</h3>
                 {leads.slice(0, 5).map(sale => (
-                    <GlassCard key={sale.id} className="p-5 flex justify-between items-center group hover:bg-black/5 dark:hover:bg-white/10 transition-all border-black/5 dark:border-white/10 hover:border-brand-gold/30">
-                        <div className="flex items-center gap-5">
-                            <div className="w-12 h-12 rounded-full bg-brand-gold/20 flex items-center justify-center text-brand-gold font-bold shadow-sm shrink-0">
-                                <span className="text-xl">₹</span>
+                    <GlassCard key={sale.id} className="p-4 flex flex-row justify-between items-center group hover:bg-black/5 dark:hover:bg-white/10 transition-all border-black/5 dark:border-white/10 hover:border-brand-gold/30 w-full">
+                        <div className="flex items-center gap-4 flex-1 min-w-0">
+                            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-brand-gold/10 flex items-center justify-center text-brand-gold font-bold shadow-sm shrink-0 border border-brand-gold/20">
+                                <span className="text-lg sm:text-xl">₹</span>
                             </div>
-                            <div className="flex flex-col gap-0.5">
-                                <h4 className="font-bold text-gray-900 dark:text-white text-base leading-tight">{sale.name}</h4>
-                                <p className="text-xs text-gray-600 dark:text-gray-400 font-medium">
+                            <div className="flex flex-col gap-0.5 overflow-hidden">
+                                <h4 className="font-bold text-gray-900 dark:text-white text-sm sm:text-base leading-tight truncate pr-2">
+                                    {sale.name}
+                                </h4>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 font-medium truncate">
                                     {sale.honeyTypes && sale.honeyTypes.length > 0
                                         ? sale.honeyTypes.join(', ')
                                         : (sale.honeyType || 'Product')}
                                 </p>
                             </div>
                         </div>
-                        <div className="text-right flex flex-col justify-center h-12 shrink-0">
-                            <p className="font-bold text-brand-gold text-lg leading-tight">₹{parseFloat(sale.orderValue).toLocaleString()}</p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mt-0.5">
+                        <div className="text-right flex flex-col justify-center shrink-0 pl-2">
+                            <p className="font-bold text-brand-gold text-base sm:text-lg leading-tight">
+                                ₹{parseFloat(sale.orderValue).toLocaleString()}
+                            </p>
+                            <p className="text-[10px] sm:text-xs text-gray-400 dark:text-gray-500 font-medium mt-0.5">
                                 {sale.saleDate ? format(new Date(sale.saleDate), 'MMM d') : format(new Date(), 'MMM d')}
                             </p>
                         </div>
