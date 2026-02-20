@@ -92,7 +92,60 @@ export default function AddLeadForm({ onClose, initialData = null }) {
         ampm: 'AM'
     });
 
-    // ... (keep contact picker & speech logic)
+    // Contact Picker Logic
+    const pickContact = async () => {
+        if ('contacts' in navigator && 'ContactsManager' in window) {
+            try {
+                const props = ['name', 'tel'];
+                const opts = { multiple: false };
+                const contacts = await navigator.contacts.select(props, opts);
+                if (contacts.length) {
+                    const { name, tel } = contacts[0];
+                    setFormData(prev => ({
+                        ...prev,
+                        name: name?.[0] || prev.name,
+                        phone: tel?.[0] || prev.phone
+                    }));
+                }
+            } catch (ex) {
+                console.error("Contact picker failed:", ex);
+            }
+        } else {
+            alert("Contact Picker not supported on this device.");
+        }
+    };
+
+    // Speech Recognition Logic
+    const [isListening, setIsListening] = useState(false);
+    const recognitionRef = useRef(null);
+
+    const startListening = () => {
+        if (!('webkitSpeechRecognition' in window)) {
+            alert("Voice input not supported in this browser.");
+            return;
+        }
+
+        if (isListening) {
+            recognitionRef.current?.stop();
+            setIsListening(false);
+            return;
+        }
+
+        const recognition = new window.webkitSpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+
+        recognition.onstart = () => setIsListening(true);
+        recognition.onend = () => setIsListening(false);
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            setFormData(prev => ({ ...prev, notes: (prev.notes ? prev.notes + ' ' : '') + transcript }));
+        };
+
+        recognitionRef.current = recognition;
+        recognition.start();
+    };
 
     useEffect(() => {
         if (initialData) {
