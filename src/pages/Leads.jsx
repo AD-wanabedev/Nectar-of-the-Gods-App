@@ -301,11 +301,11 @@ export default function Leads() {
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
-                <GlassButton onClick={exportCSV} className="w-12 h-12 p-0 rounded-full flex items-center justify-center text-brand-dark dark:text-brand-white hover:text-brand-gold hover:bg-brand-gold/10 transition-colors" title="Export CSV">
+                <GlassButton onClick={exportCSV} className="w-12 h-12 p-0 rounded-full flex items-center justify-center text-brand-dark dark:text-brand-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors" title="Export CSV">
                     <FileDown size={28} />
                 </GlassButton>
 
-                <GlassButton onClick={triggerImport} className="w-12 h-12 p-0 rounded-full flex items-center justify-center text-brand-dark dark:text-brand-white hover:text-brand-gold hover:bg-brand-gold/10 transition-colors" title="Import CSV">
+                <GlassButton onClick={triggerImport} className="w-12 h-12 p-0 rounded-full flex items-center justify-center text-brand-dark dark:text-brand-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors" title="Import CSV">
                     <FileUp size={28} />
                 </GlassButton>
 
@@ -313,7 +313,7 @@ export default function Leads() {
                 <input id="csv-import-input" type="file" accept=".csv" className="hidden" onChange={handleImportCSV} />
 
                 <GlassButton
-                    className={`w-12 h-12 p-0 rounded-full flex items-center justify-center transition-all ${priorityFilter !== 'All' ? 'text-brand-gold border-brand-gold border' : 'text-brand-dark dark:text-brand-white hover:text-brand-gold hover:bg-brand-gold/10'}`}
+                    className={`w-12 h-12 p-0 rounded-full flex items-center justify-center transition-all ${priorityFilter !== 'All' ? 'bg-brand-dark dark:bg-white text-white dark:text-brand-dark shadow-md' : 'text-brand-dark dark:text-brand-white hover:bg-black/5 dark:hover:bg-white/10'}`}
                     onClick={() => setPriorityFilter(f => f === 'All' ? 'High' : f === 'High' ? 'Medium' : 'All')}
                     title={`Filter: ${priorityFilter}`}
                 >

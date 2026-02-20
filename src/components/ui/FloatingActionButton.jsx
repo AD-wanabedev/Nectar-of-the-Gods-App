@@ -34,7 +34,7 @@ export default function FloatingActionButton({ onAddLead, onImport }) {
                                 <span className="text-white text-xs font-medium px-2 py-1 bg-black/50 backdrop-blur-md rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
                                     {item.label}
                                 </span>
-                                <div className="w-12 h-12 rounded-full glass-btn bg-brand-dark/80 backdrop-blur-xl border border-white/10 flex items-center justify-center shadow-lg hover:bg-brand-gold hover:text-brand-dark transition-colors">
+                                <div className="w-12 h-12 rounded-full glass-btn bg-brand-dark/80 backdrop-blur-xl border border-white/10 flex items-center justify-center shadow-lg hover:bg-brand-dark dark:hover:bg-white hover:text-white dark:hover:text-brand-dark transition-colors">
                                     <item.icon size={20} />
                                 </div>
                             </motion.button>
@@ -49,7 +49,7 @@ export default function FloatingActionButton({ onAddLead, onImport }) {
                 whileTap={{ scale: 0.9 }}
                 className={clsx(
                     "w-14 h-14 rounded-full flex items-center justify-center shadow-2xl pointer-events-auto",
-                    "bg-gradient-to-tr from-brand-gold to-brand-amber text-brand-dark border border-white/20",
+                    "bg-brand-dark dark:bg-white text-white dark:text-brand-dark border border-white/20",
                     "hover:scale-105 transition-all duration-300"
                 )}
             >
