@@ -329,7 +329,6 @@ export default function AddLeadForm({ onClose, initialData = null }) {
                             onChange={handleChange}
                         />
                     </div>
-// ... (rest of form)
 
                     <div>
                         <label className="block text-xs text-white/70 mb-1">Email</label>
