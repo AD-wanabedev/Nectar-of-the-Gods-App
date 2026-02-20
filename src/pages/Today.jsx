@@ -1,11 +1,12 @@
-import { Plus, Mic, Search, Phone, Calendar, Clock, Users, DollarSign, Star, ShoppingBag, Edit2 } from 'lucide-react';
+import { Plus, Mic, Search, Phone, Calendar, Clock, Users, DollarSign, Star, ShoppingBag, Edit2, TrendingUp } from 'lucide-react';
 import InspirationalQuote from '../components/InspirationalQuote';
 import GlassCard from '../components/ui/GlassCard';
 import GlassButton from '../components/ui/GlassButton';
+import GoalRing from '../components/ui/GoalRing';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect, useMemo } from 'react';
 import { db } from '../db';
-import { format, isBefore, isToday, parseISO, startOfToday } from 'date-fns';
+import { format, isBefore, isToday, parseISO, startOfToday, getHours } from 'date-fns';
 
 export default function Today() {
     const navigate = useNavigate();
@@ -18,21 +19,44 @@ export default function Today() {
                 setLeads(data);
             } catch (error) {
                 console.error("Error fetching leads:", error);
-                // alert("Error loading leads. Please check your connection.");
             }
         };
         fetchLeads();
     }, []);
 
     const today = startOfToday();
+    const currentHour = getHours(new Date());
+
+    const greeting = useMemo(() => {
+        if (currentHour < 12) return "Good Morning";
+        if (currentHour < 18) return "Good Afternoon";
+        return "Good Evening";
+    }, [currentHour]);
 
     // --- Metrics Calculations (Memoized for performance) ---
     const metrics = useMemo(() => {
+        const totalLeads = leads.length;
+        const revenue = leads.reduce((sum, l) => sum + (parseFloat(l.orderValue) || 0), 0);
+        const highPriorityCount = leads.filter(l => l.priority === 'High').length;
+        const salesCount = leads.filter(l => (parseFloat(l.orderValue) || 0) > 0).length;
+
+        // Goals (Mock targets for visualization)
+        const revenueGoal = 50000;
+        const revenueProgress = Math.min((revenue / revenueGoal) * 100, 100);
+
+        const callsMade = leads.filter(l => l.platform === 'Call').length; // Mock metric
+        const callsGoal = 10;
+        const callsProgress = Math.min((callsMade / callsGoal) * 100, 100);
+
         return {
-            totalLeads: leads.length,
-            revenue: leads.reduce((sum, l) => sum + (parseFloat(l.orderValue) || 0), 0),
-            highPriorityCount: leads.filter(l => l.priority === 'High').length,
-            salesCount: leads.filter(l => (parseFloat(l.orderValue) || 0) > 0).length
+            totalLeads,
+            revenue,
+            highPriorityCount,
+            salesCount,
+            revenueGoal,
+            revenueProgress,
+            callsMade,
+            callsProgress
         };
     }, [leads]);
 
@@ -50,50 +74,42 @@ export default function Today() {
 
     return (
         <div className="pb-24 pt-6 px-4">
+            <header className="mb-6">
+                <h1 className="text-3xl font-light text-gray-900 dark:text-white">
+                    {greeting}, <span className="font-bold text-brand-gold">Angad</span>
+                </h1>
+                <p className="text-brand-dark/60 dark:text-white/60 text-sm mt-1">
+                    Here is your daily briefing.
+                </p>
+            </header>
+
             <InspirationalQuote />
 
-            <div className="space-y-6">
-                {/* Key Metrics Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-                    <GlassCard className="p-3 flex flex-col items-center justify-center gap-1 bg-black/5 dark:bg-white/10 border-brand-gold/20">
-                        <div className="p-2 rounded-full bg-brand-dark/10 dark:bg-brand-white/10 text-brand-dark dark:text-brand-white mb-1">
-                            <Users size={18} />
-                        </div>
-                        <span className="text-2xl font-bold text-gray-900 dark:text-white">{metrics.totalLeads}</span>
-                        <span className="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400">Total Leads</span>
-                    </GlassCard>
-
-                    <GlassCard className="p-3 flex flex-col items-center justify-center gap-1 bg-black/5 dark:bg-white/10 border-brand-gold/20">
-                        <div className="p-2 rounded-full bg-brand-gold/10 text-brand-gold mb-1">
-                            <DollarSign size={18} />
-                        </div>
-                        <span className="text-2xl font-bold text-gray-900 dark:text-white">₹{metrics.revenue.toLocaleString()}</span>
-                        <span className="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400">Revenue</span>
-                    </GlassCard>
-
-                    <GlassCard className="p-3 flex flex-col items-center justify-center gap-1 bg-black/5 dark:bg-white/10 border-brand-gold/20">
-                        <div className="p-2 rounded-full bg-brand-peach/10 text-brand-peach mb-1">
-                            <Star size={18} />
-                        </div>
-                        <span className="text-2xl font-bold text-gray-900 dark:text-white">{metrics.highPriorityCount}</span>
-                        <span className="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400">High Priority</span>
-                    </GlassCard>
-
-                    <GlassCard className="p-3 flex flex-col items-center justify-center gap-1 bg-black/5 dark:bg-white/10 border-brand-gold/20">
-                        <div className="p-2 rounded-full bg-brand-gold/10 text-brand-gold mb-1">
-                            <ShoppingBag size={18} />
-                        </div>
-                        <span className="text-2xl font-bold text-gray-900 dark:text-white">{metrics.salesCount}</span>
-                        <span className="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400">Total Sales</span>
-                    </GlassCard>
+            <div className="space-y-8 mt-6">
+                {/* Goal Rings - The Cockpit */}
+                <div className="flex items-center justify-around">
+                    <GoalRing
+                        progress={metrics.revenueProgress}
+                        value={`₹${(metrics.revenue / 1000).toFixed(1)}k`}
+                        label="Revenue"
+                        icon={TrendingUp}
+                        color="text-brand-gold"
+                    />
+                    <GoalRing
+                        progress={metrics.callsProgress}
+                        value={metrics.callsMade}
+                        label="Calls Made"
+                        icon={Phone}
+                        color="text-blue-500"
+                    />
                 </div>
 
                 {/* Quick Actions */}
-                <div className="flex gap-3 justify-center mb-6">
-                    <GlassButton onClick={() => navigate('/leads')} className="rounded-full w-12 h-12 p-0 flex items-center justify-center bg-brand-gold/20 hover:bg-brand-gold/30 border-brand-gold/30 text-brand-gold">
+                <div className="flex gap-3 justify-center">
+                    <GlassButton onClick={() => navigate('/leads')} className="rounded-full w-12 h-12 p-0 flex items-center justify-center bg-brand-gold/20 hover:bg-brand-gold/30 border border-brand-gold/30 text-brand-gold shadow-lg shadow-brand-gold/10">
                         <Plus size={24} />
                     </GlassButton>
-                    <GlassButton onClick={() => navigate('/leads')} className="rounded-full w-12 h-12 p-0 flex items-center justify-center bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-brand-dark dark:text-brand-white">
+                    <GlassButton onClick={() => navigate('/leads')} className="rounded-full w-12 h-12 p-0 flex items-center justify-center bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-brand-dark dark:text-brand-white border border-white/10">
                         <Search size={20} />
                     </GlassButton>
                 </div>
