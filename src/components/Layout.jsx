@@ -18,7 +18,7 @@ export default function Layout() {
                 <Outlet />
             </main>
 
-            <nav className="glass-nav">
+            <nav className="glass-nav relative">
                 {navItems.map(({ path, label, icon: Icon }) => {
                     const isActive = location.pathname === path;
                     return (
@@ -35,6 +35,9 @@ export default function Layout() {
                         </Link>
                     );
                 })}
+                <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] text-white/20 pointer-events-none">
+                    v1.5
+                </div>
             </nav>
         </div>
     );
