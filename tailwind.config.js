@@ -21,6 +21,8 @@ export default {
         script: ['"Gatteway Signature"', '"Great Vibes"', 'cursive'],
       },
       boxShadow: {
+        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
+        'glass-card': '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
         'glass-hover': '0 0 20px rgba(160, 123, 50, 0.3)', // Restored Gold Glow
       }
     },
