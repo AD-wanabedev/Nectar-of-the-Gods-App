@@ -14,7 +14,7 @@ export default function FloatingActionButton({ onAddLead, onImport }) {
     ];
 
     return (
-        <div className="fixed bottom-24 right-6 z-50 flex flex-col items-end gap-3 pointer-events-none">
+        <div className="fixed bottom-32 right-6 z-50 flex flex-col items-end gap-3 pointer-events-none">
             <AnimatePresence>
                 {isOpen && (
                     <div className="flex flex-col items-end gap-3 pointer-events-auto">

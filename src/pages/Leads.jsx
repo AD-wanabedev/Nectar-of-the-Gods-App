@@ -52,37 +52,37 @@ const SwipeableLeadCard = ({ lead, onEdit, onDelete, onCall }) => {
                         <div className="flex-1">
                             {/* Header: Name/Platform */}
                             <div className="flex items-center gap-2 mb-1">
-                                <h3 className="font-bold text-brand-dark dark:text-white text-lg leading-tight">
+                                <h3 className="font-bold text-brand-dark dark:text-white text-xl leading-tight">
                                     {lead.name}
                                 </h3>
                                 <span className="text-brand-dark/40 dark:text-white/40">
-                                    {lead.platform === 'Instagram' && <Instagram size={14} />}
-                                    {lead.platform === 'WhatsApp' && <MessageCircle size={14} />}
-                                    {lead.platform === 'Gmail' && <Mail size={14} />}
-                                    {(lead.platform === 'Call' || !lead.platform) && <Phone size={14} />}
+                                    {lead.platform === 'Instagram' && <Instagram size={16} />}
+                                    {lead.platform === 'WhatsApp' && <MessageCircle size={16} />}
+                                    {lead.platform === 'Gmail' && <Mail size={16} />}
+                                    {(lead.platform === 'Call' || !lead.platform) && <Phone size={16} />}
                                 </span>
                             </div>
 
                             {/* Establishment Name */}
                             {lead.establishment && (
-                                <p className="text-brand-dark/70 dark:text-white/70 text-sm font-medium flex items-center gap-1 mb-1">
-                                    <Building2 size={12} className="text-brand-gold" /> {lead.establishment}
+                                <p className="text-brand-dark/70 dark:text-white/70 text-base font-medium flex items-center gap-1 mb-1">
+                                    <Building2 size={16} className="text-brand-gold" /> {lead.establishment}
                                 </p>
                             )}
 
                             {/* Type Badges */}
                             <div className="flex flex-wrap gap-1 my-1.5">
                                 {lead.leadType && (
-                                    <span className="text-[10px] px-2 py-0.5 rounded bg-blue-500/10 text-blue-500 border border-blue-500/20 font-medium">
+                                    <span className="text-xs px-2 py-0.5 rounded bg-blue-500/10 text-blue-500 border border-blue-500/20 font-medium">
                                         {lead.leadType}
                                     </span>
                                 )}
                                 {lead.leadSubType && (
-                                    <span className="text-[10px] px-2 py-0.5 rounded bg-purple-500/10 text-purple-500 border border-purple-500/20 font-medium">
+                                    <span className="text-xs px-2 py-0.5 rounded bg-purple-500/10 text-purple-500 border border-purple-500/20 font-medium">
                                         {lead.leadSubType}
                                     </span>
                                 )}
-                                <span className="text-[10px] px-2 py-0.5 rounded bg-brand-dark/5 dark:bg-white/5 text-brand-dark/60 dark:text-white/60 uppercase tracking-wide">
+                                <span className="text-xs px-2 py-0.5 rounded bg-brand-dark/5 dark:bg-white/5 text-brand-dark/60 dark:text-white/60 uppercase tracking-wide">
                                     {lead.status}
                                 </span>
                             </div>
@@ -90,13 +90,13 @@ const SwipeableLeadCard = ({ lead, onEdit, onDelete, onCall }) => {
                             {/* Contact Details */}
                             <div className="flex flex-col gap-1 mt-2">
                                 {lead.phone && (
-                                    <p className="text-brand-dark/60 dark:text-white/60 text-xs flex items-center gap-1.5">
-                                        <Phone size={10} /> {lead.phone}
+                                    <p className="text-brand-dark/60 dark:text-white/60 text-sm flex items-center gap-1.5">
+                                        <Phone size={14} /> {lead.phone}
                                     </p>
                                 )}
                                 {lead.email && (
-                                    <p className="text-brand-dark/60 dark:text-white/60 text-xs flex items-center gap-1.5">
-                                        <Mail size={10} /> {lead.email}
+                                    <p className="text-brand-dark/60 dark:text-white/60 text-sm flex items-center gap-1.5">
+                                        <Mail size={14} /> {lead.email}
                                     </p>
                                 )}
                             </div>
@@ -104,11 +104,11 @@ const SwipeableLeadCard = ({ lead, onEdit, onDelete, onCall }) => {
                             {/* Footer: Assigned & Due */}
                             <div className="flex items-center gap-3 mt-3 pt-2 border-t border-brand-dark/5 dark:border-white/5">
                                 {lead.teamMember && lead.teamMember !== 'Me' && (
-                                    <p className="text-brand-dark/50 dark:text-white/50 text-[10px]">
+                                    <p className="text-brand-dark/50 dark:text-white/50 text-xs">
                                         Assigned: <span className="text-brand-gold">{lead.teamMember}</span>
                                     </p>
                                 )}
-                                <p className="text-brand-dark/50 dark:text-white/50 text-[10px] ml-auto">
+                                <p className="text-brand-dark/50 dark:text-white/50 text-xs ml-auto">
                                     Follow-up: {format(parseISO(lead.nextFollowUp), 'MMM d, h:mm a')}
                                 </p>
                             </div>
@@ -295,8 +295,8 @@ export default function Leads() {
                 <div className="relative flex-1">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-dark/50 dark:text-white/50" size={24} />
                     <GlassInput
-                        placeholder="Search name, phone, establishment..."
-                        className="pl-10 text-center"
+                        placeholder="Search..."
+                        className="pl-10"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -313,7 +313,7 @@ export default function Leads() {
                 <input id="csv-import-input" type="file" accept=".csv" className="hidden" onChange={handleImportCSV} />
 
                 <GlassButton
-                    className={`w-12 h-12 p-0 rounded-full flex items-center justify-center transition-all ${priorityFilter !== 'All' ? 'bg-brand-gold/20 text-brand-gold border-brand-gold/50' : 'text-brand-dark dark:text-brand-white hover:text-brand-gold hover:bg-brand-gold/10'}`}
+                    className={`w-12 h-12 p-0 rounded-full flex items-center justify-center transition-all ${priorityFilter !== 'All' ? 'text-brand-gold border-brand-gold border' : 'text-brand-dark dark:text-brand-white hover:text-brand-gold hover:bg-brand-gold/10'}`}
                     onClick={() => setPriorityFilter(f => f === 'All' ? 'High' : f === 'High' ? 'Medium' : 'All')}
                     title={`Filter: ${priorityFilter}`}
                 >

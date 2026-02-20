@@ -30,11 +30,6 @@ export default function Layout() {
                             to={path}
                             className="relative flex flex-col items-center justify-center w-full h-full group"
                         >
-                            {/* Active State Glow - Behind the icon */}
-                            {isActive && (
-                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-brand-gold/20 rounded-full blur-md animate-pulse" />
-                            )}
-
                             <div className={clsx(
                                 "transition-all duration-300 transform",
                                 isActive ? "text-brand-gold scale-110 -translate-y-1 drop-shadow-[0_0_10px_rgba(160,123,50,0.5)]" : "text-white/40 hover:text-white group-hover:scale-105"
