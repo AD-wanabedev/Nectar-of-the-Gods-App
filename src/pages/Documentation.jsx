@@ -299,7 +299,7 @@ export default function Documentation() {
             <div className="flex justify-between items-center px-2">
                 <h1 className="text-2xl font-bold text-brand-dark dark:text-brand-white">Documentation</h1>
                 <div className="flex gap-2">
-                    <GlassButton onClick={generateSmartReport} className="text-xs bg-brand-gold/10 text-brand-gold border-brand-gold/20" title="Smart Weekly Report">
+                    <GlassButton onClick={generateSmartReport} className="text-xs bg-brand-platinum/10 text-brand-platinum border-brand-platinum/20" title="Smart Weekly Report">
                         <Sparkles size={16} className="mr-1" /> Report
                     </GlassButton>
                     <GlassButton onClick={handleExport} className="text-xs" title="Export Markdown">
@@ -309,9 +309,9 @@ export default function Documentation() {
             </div>
 
             {/* Input Area */}
-            <GlassCard className={`p-4 space-y-4 border-brand-gold/20 ${editingId ? 'ring-2 ring-brand-gold/50' : ''}`}>
+            <GlassCard className={`p-4 space-y-4 border-brand-platinum/20 ${editingId ? 'ring-2 ring-brand-platinum/50' : ''}`}>
                 {editingId && (
-                    <div className="flex justify-between items-center text-xs text-brand-gold mb-2">
+                    <div className="flex justify-between items-center text-xs text-brand-platinum mb-2">
                         <span className="font-bold flex items-center gap-1"><Edit2 size={12} /> Editing Entry</span>
                         <button onClick={handleCancelEdit} className="hover:underline">Cancel</button>
                     </div>
@@ -348,7 +348,7 @@ export default function Documentation() {
                             accept="image/*,video/*"
                         />
                     </div>
-                    <GlassButton onClick={handleSave} disabled={!content.trim()} className="px-6 bg-brand-gold/20 text-brand-gold hover:bg-brand-gold hover:text-brand-dark">
+                    <GlassButton onClick={handleSave} disabled={!content.trim()} className="px-6 bg-brand-platinum/20 text-brand-platinum hover:bg-brand-platinum hover:text-brand-dark">
                         <Save size={16} className="mr-2" /> {editingId ? 'Update' : 'Log'}
                     </GlassButton>
                 </div>
@@ -357,17 +357,17 @@ export default function Documentation() {
             {/* Entries Timeline */}
             <div className="relative space-y-8 pl-4">
                 {/* Timeline Line */}
-                <div className="absolute left-[27px] top-6 bottom-0 w-0.5 bg-brand-gold/20"></div>
+                <div className="absolute left-[27px] top-6 bottom-0 w-0.5 bg-brand-platinum/20"></div>
 
                 {entries.map((entry, index) => (
                     <div key={entry.id} className="relative group">
                         {/* Timeline Dot */}
-                        <div className="absolute left-[19px] top-6 w-4 h-4 rounded-full bg-brand-dark dark:bg-brand-white border-4 border-brand-gold z-10"></div>
+                        <div className="absolute left-[19px] top-6 w-4 h-4 rounded-full bg-brand-dark dark:bg-brand-white border-4 border-brand-platinum z-10"></div>
 
                         <div className="pl-12">
                             {/* Date Header */}
                             <div className="flex items-center gap-2 mb-2">
-                                <span className="text-xs font-bold text-brand-gold uppercase tracking-wider">
+                                <span className="text-xs font-bold text-brand-platinum uppercase tracking-wider">
                                     {format(entry.createdAt?.toDate() || new Date(entry.date), 'MMM d, yyyy')}
                                 </span>
                                 <span className="text-[10px] text-brand-dark/40 dark:text-brand-white/40">
@@ -376,18 +376,18 @@ export default function Documentation() {
                             </div>
 
                             {/* Content Card */}
-                            <GlassCard className="p-5 relative hover:border-brand-gold/30 transition-all border-brand-dark/5 dark:border-brand-white/5 bg-brand-white/50 dark:bg-black/20">
+                            <GlassCard className="p-5 relative hover:border-brand-platinum/30 transition-all border-brand-dark/5 dark:border-brand-white/5 bg-brand-white/50 dark:bg-black/20">
                                 <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                     <button
                                         onClick={() => handleEdit(entry)}
-                                        className="p-1.5 text-brand-dark/40 dark:text-brand-white/40 hover:text-brand-gold transition-colors"
+                                        className="p-1.5 text-brand-dark/40 dark:text-brand-white/40 hover:text-brand-platinum transition-colors"
                                         title="Edit"
                                     >
                                         <Edit2 size={14} />
                                     </button>
                                     <button
                                         onClick={() => handleDelete(entry.id)}
-                                        className="p-1.5 text-brand-dark/40 dark:text-brand-white/40 hover:text-brand-gold transition-colors"
+                                        className="p-1.5 text-brand-dark/40 dark:text-brand-white/40 hover:text-brand-platinum transition-colors"
                                         title="Delete"
                                     >
                                         <Trash2 size={14} />
@@ -396,7 +396,7 @@ export default function Documentation() {
 
                                 {entry.type === 'image' ? (
                                     <div className="space-y-3">
-                                        <img src={entry.url} alt="Entry" className="max-h-80 rounded-lg border-2 border-brand-gold/10 shadow-sm" />
+                                        <img src={entry.url} alt="Entry" className="max-h-80 rounded-lg border-2 border-brand-platinum/10 shadow-sm" />
                                         {entry.content && <p className="text-sm text-brand-dark/80 dark:text-brand-white/80 italic">"{entry.content}"</p>}
                                     </div>
                                 ) : (
@@ -404,7 +404,7 @@ export default function Documentation() {
                                         {entry.content.split(/(!\[.*?\]\(.*?\))/g).map((part, i) => {
                                             const imgMatch = part.match(/!\[(.*?)\]\((.*?)\)/);
                                             if (imgMatch) {
-                                                return <img key={i} src={imgMatch[2]} alt={imgMatch[1]} className="max-h-80 rounded-lg border-2 border-brand-gold/10 my-3 shadow-sm" />;
+                                                return <img key={i} src={imgMatch[2]} alt={imgMatch[1]} className="max-h-80 rounded-lg border-2 border-brand-platinum/10 my-3 shadow-sm" />;
                                             }
                                             return part;
                                         })}
@@ -417,7 +417,7 @@ export default function Documentation() {
 
                 {entries.length === 0 && !loading && (
                     <div className="text-center py-20 pl-8">
-                        <div className="inline-flex p-4 rounded-full bg-brand-gold/10 text-brand-gold mb-4">
+                        <div className="inline-flex p-4 rounded-full bg-brand-platinum/10 text-brand-platinum mb-4">
                             <Sparkles size={32} />
                         </div>
                         <p className="text-brand-dark/40 dark:text-brand-white/40 font-script text-xl">
@@ -430,12 +430,12 @@ export default function Documentation() {
             {/* Smart Report Modal */}
             {showReportModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4">
-                    <div className="glass-card w-full max-w-lg p-6 relative flex flex-col max-h-[85vh] bg-brand-dark border-brand-gold/20">
+                    <div className="glass-card w-full max-w-lg p-6 relative flex flex-col max-h-[85vh] bg-brand-dark border-brand-platinum/20">
                         <button onClick={() => setShowReportModal(false)} className="absolute top-4 right-4 text-brand-white/60 hover:text-brand-white">
                             <X size={24} />
                         </button>
                         <h2 className="text-xl font-bold text-brand-white mb-1 flex items-center gap-2">
-                            <Sparkles size={20} className="text-brand-gold" /> AI Report Generator
+                            <Sparkles size={20} className="text-brand-platinum" /> AI Report Generator
                         </h2>
                         <p className="text-xs text-brand-white/50 mb-4">Formatted for email to Anu, Ankita, and Sharjeel.</p>
 
@@ -446,7 +446,7 @@ export default function Documentation() {
                         </div>
 
                         <div className="flex gap-2">
-                            <GlassButton onClick={copyReport} className="flex-1 bg-brand-gold/20 text-brand-gold hover:bg-brand-gold hover:text-brand-dark">
+                            <GlassButton onClick={copyReport} className="flex-1 bg-brand-platinum/20 text-brand-platinum hover:bg-brand-platinum hover:text-brand-dark">
                                 {reportCopied ? <><Check size={18} className="mr-2" /> Copied!</> : <><Copy size={18} className="mr-2" /> Copy to Clipboard</>}
                             </GlassButton>
                             <GlassButton onClick={() => setShowReportModal(false)} variant="secondary">Close</GlassButton>

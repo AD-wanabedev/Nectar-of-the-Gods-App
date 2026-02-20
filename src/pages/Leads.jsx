@@ -66,7 +66,7 @@ const SwipeableLeadCard = ({ lead, onEdit, onDelete, onCall }) => {
                             {/* Establishment Name */}
                             {lead.establishment && (
                                 <p className="text-brand-dark/70 dark:text-white/70 text-base font-medium flex items-center gap-1 mb-1">
-                                    <Building2 size={16} className="text-brand-gold" /> {lead.establishment}
+                                    <Building2 size={16} className="text-brand-platinum" /> {lead.establishment}
                                 </p>
                             )}
 
@@ -105,7 +105,7 @@ const SwipeableLeadCard = ({ lead, onEdit, onDelete, onCall }) => {
                             <div className="flex items-center gap-3 mt-3 pt-2 border-t border-brand-dark/5 dark:border-white/5">
                                 {lead.teamMember && lead.teamMember !== 'Me' && (
                                     <p className="text-brand-dark/50 dark:text-white/50 text-xs">
-                                        Assigned: <span className="text-brand-gold">{lead.teamMember}</span>
+                                        Assigned: <span className="text-brand-platinum">{lead.teamMember}</span>
                                     </p>
                                 )}
                                 <p className="text-brand-dark/50 dark:text-white/50 text-xs ml-auto">

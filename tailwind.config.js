@@ -8,9 +8,10 @@ export default {
     extend: {
       colors: {
         brand: {
-          dark: '#292929',
-          gold: '#a07b32',
-          peach: '#fdcca6',
+          dark: '#050505', // Deep Onyx
+          platinum: '#E5E7EB', // Cool Platinum
+          gold: '#E5E7EB', // Mapped to Platinum for immediate overrides
+          peach: '#fdcca6', // Keep for warmth if needed, or remove? styling consistency.
           white: '#f6f2e9',
         }
       },
@@ -19,7 +20,7 @@ export default {
         script: ['"Gatteway Signature"', '"Great Vibes"', 'cursive'],
       },
       boxShadow: {
-        'glass-hover': '0 0 20px rgba(160, 123, 50, 0.3)', // Gold glow
+        'glass-hover': '0 0 20px rgba(229, 231, 235, 0.1)', // Platinum glow (subtle)
       }
     },
   },

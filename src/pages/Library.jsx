@@ -122,7 +122,7 @@ export default function Library() {
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-dark/50 dark:text-brand-white/50 z-10" size={16} />
                     <GlassInput
                         placeholder="Search assets..."
-                        className="pl-10 w-full text-center bg-brand-dark/5 dark:bg-brand-white/5 border-brand-dark/10 dark:border-brand-white/10 focus:border-brand-gold/50 text-brand-dark dark:text-white"
+                        className="pl-10 w-full text-center bg-brand-dark/5 dark:bg-brand-white/5 border-brand-dark/10 dark:border-brand-white/10 focus:border-brand-platinum/50 text-brand-dark dark:text-white"
                         value={searchTerm}
                         onChange={e => setSearchTerm(e.target.value)}
                     />
@@ -134,7 +134,7 @@ export default function Library() {
                 {/* Upload Card */}
                 <button
                     onClick={() => document.getElementById('file-upload').click()}
-                    className="group relative overflow-hidden rounded-xl bg-brand-dark/5 dark:bg-brand-white/5 border border-brand-dark/10 dark:border-brand-white/10 p-6 text-left transition-all hover:border-brand-gold/50 hover:bg-brand-dark/10 dark:hover:bg-brand-white/10 hover:shadow-glass-hover"
+                    className="group relative overflow-hidden rounded-xl bg-brand-dark/5 dark:bg-brand-white/5 border border-brand-dark/10 dark:border-brand-white/10 p-6 text-left transition-all hover:border-brand-platinum/50 hover:bg-brand-dark/10 dark:hover:bg-brand-white/10 hover:shadow-glass-hover"
                 >
                     <input
                         type="file"
@@ -144,14 +144,14 @@ export default function Library() {
                         accept="image/*,application/pdf"
                     />
                     <div className="absolute top-0 right-0 p-4 opacity-10 transition-opacity group-hover:opacity-20">
-                        <Upload size={100} className="text-brand-gold" />
+                        <Upload size={100} className="text-brand-platinum" />
                     </div>
                     <div className="relative z-10 flex items-center gap-4">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-gold/20 text-brand-gold group-hover:scale-110 transition-transform">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-platinum/20 text-brand-platinum group-hover:scale-110 transition-transform">
                             <Upload size={24} />
                         </div>
                         <div>
-                            <h3 className="text-lg font-bold text-brand-dark dark:text-brand-white group-hover:text-brand-gold transition-colors">Upload File</h3>
+                            <h3 className="text-lg font-bold text-brand-dark dark:text-brand-white group-hover:text-brand-platinum transition-colors">Upload File</h3>
                             <p className="text-sm text-brand-dark/50 dark:text-brand-white/50">{uploading ? 'Uploading...' : 'Images & PDFs'}</p>
                         </div>
                     </div>
@@ -167,17 +167,17 @@ export default function Library() {
                 {/* Link Card */}
                 <button
                     onClick={() => setShowLinkModal(true)}
-                    className="group relative overflow-hidden rounded-xl bg-brand-dark/5 dark:bg-brand-white/5 border border-brand-dark/10 dark:border-brand-white/10 p-6 text-left transition-all hover:border-brand-gold/50 hover:bg-brand-dark/10 dark:hover:bg-brand-white/10 hover:shadow-glass-hover"
+                    className="group relative overflow-hidden rounded-xl bg-brand-dark/5 dark:bg-brand-white/5 border border-brand-dark/10 dark:border-brand-white/10 p-6 text-left transition-all hover:border-brand-platinum/50 hover:bg-brand-dark/10 dark:hover:bg-brand-white/10 hover:shadow-glass-hover"
                 >
                     <div className="absolute top-0 right-0 p-4 opacity-10 transition-opacity group-hover:opacity-20">
-                        <LinkIcon size={100} className="text-brand-gold" />
+                        <LinkIcon size={100} className="text-brand-platinum" />
                     </div>
                     <div className="relative z-10 flex items-center gap-4">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-gold/20 text-brand-gold group-hover:scale-110 transition-transform">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-platinum/20 text-brand-platinum group-hover:scale-110 transition-transform">
                             <LinkIcon size={24} />
                         </div>
                         <div>
-                            <h3 className="text-lg font-bold text-brand-dark dark:text-brand-white group-hover:text-brand-gold transition-colors">Save Link</h3>
+                            <h3 className="text-lg font-bold text-brand-dark dark:text-brand-white group-hover:text-brand-platinum transition-colors">Save Link</h3>
                             <p className="text-sm text-brand-dark/50 dark:text-brand-white/50">Bookmarks & URLs</p>
                         </div>
                     </div>
@@ -191,7 +191,7 @@ export default function Library() {
                     <GlassCard
                         key={item.id}
                         onClick={() => openItem(item)}
-                        className="aspect-square flex flex-col justify-between p-4 group relative cursor-pointer hover:bg-brand-dark/5 dark:hover:bg-brand-white/10 border-brand-dark/5 dark:border-brand-white/5 hover:border-brand-gold/30"
+                        className="aspect-square flex flex-col justify-between p-4 group relative cursor-pointer hover:bg-brand-dark/5 dark:hover:bg-brand-white/10 border-brand-dark/5 dark:border-brand-white/5 hover:border-brand-platinum/30"
                     >
                         <button
                             onClick={(e) => { e.stopPropagation(); handleDelete(item.id); }}
@@ -234,7 +234,7 @@ export default function Library() {
 
             {showLinkModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 pb-20">
-                    <div className="glass-card w-full max-w-md p-6 relative bg-brand-dark border-brand-gold/20 shadow-2xl shadow-brand-gold/10">
+                    <div className="glass-card w-full max-w-md p-6 relative bg-brand-dark border-brand-platinum/20 shadow-2xl shadow-brand-platinum/10">
                         <button onClick={() => setShowLinkModal(false)} className="absolute top-4 right-4 text-brand-white/60 hover:text-brand-white">
                             <X size={24} />
                         </button>
@@ -267,7 +267,7 @@ export default function Library() {
                                 <GlassButton onClick={() => setShowLinkModal(false)} variant="secondary" className="flex-1 text-xs uppercase tracking-wide">
                                     Cancel
                                 </GlassButton>
-                                <GlassButton onClick={handleSaveLink} className="flex-1 bg-brand-gold/20 hover:bg-brand-gold text-brand-gold hover:text-brand-dark border-brand-gold/30 text-xs uppercase tracking-wide font-bold">
+                                <GlassButton onClick={handleSaveLink} className="flex-1 bg-brand-platinum/20 hover:bg-brand-platinum text-brand-platinum hover:text-brand-dark border-brand-platinum/30 text-xs uppercase tracking-wide font-bold">
                                     Save Link
                                 </GlassButton>
                             </div>

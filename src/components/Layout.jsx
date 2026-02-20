@@ -32,14 +32,14 @@ export default function Layout() {
                         >
                             <div className={clsx(
                                 "transition-all duration-300 transform",
-                                isActive ? "text-brand-gold scale-110 -translate-y-1 drop-shadow-[0_0_10px_rgba(160,123,50,0.5)]" : "text-white/40 hover:text-white group-hover:scale-105"
+                                isActive ? "text-brand-platinum scale-110 -translate-y-1 drop-shadow-[0_0_15px_rgba(229,231,235,0.4)]" : "text-white/40 hover:text-white group-hover:scale-105"
                             )}>
                                 <Icon size={28} strokeWidth={isActive ? 2.5 : 2} />
                             </div>
 
                             <span className={clsx(
                                 "text-[10px] mt-1 transition-all duration-300 font-medium tracking-wide",
-                                isActive ? "text-brand-gold opacity-100" : "text-white/40 opacity-0 group-hover:opacity-100"
+                                isActive ? "text-brand-platinum opacity-100" : "text-white/40 opacity-0 group-hover:opacity-100"
                             )}>
                                 {label}
                             </span>
