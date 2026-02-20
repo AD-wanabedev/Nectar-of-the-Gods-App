@@ -296,7 +296,7 @@ export default function Leads() {
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-dark/50 dark:text-white/50" size={24} />
                     <GlassInput
                         placeholder="Search..."
-                        className="pl-10 text-center"
+                        className="pl-10 !text-center"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -305,7 +305,7 @@ export default function Leads() {
                 {/* Export Button - Transparent */}
                 <GlassButton
                     onClick={exportCSV}
-                    className="w-12 h-12 p-0 rounded-full flex items-center justify-center bg-transparent border-transparent text-brand-dark dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors shadow-none"
+                    className="w-12 h-12 p-0 rounded-full flex items-center justify-center !bg-transparent !border-transparent text-brand-dark dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors !shadow-none"
                     title="Export CSV"
                     variant="custom" // Use custom to avoid default glass styles if needed, or just override
                 >
@@ -315,7 +315,7 @@ export default function Leads() {
                 {/* Import Button - Transparent */}
                 <GlassButton
                     onClick={triggerImport}
-                    className="w-12 h-12 p-0 rounded-full flex items-center justify-center bg-transparent border-transparent text-brand-dark dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors shadow-none"
+                    className="w-12 h-12 p-0 rounded-full flex items-center justify-center !bg-transparent !border-transparent text-brand-dark dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors !shadow-none"
                     title="Import CSV"
                     variant="custom"
                 >
@@ -327,7 +327,7 @@ export default function Leads() {
 
                 {/* Filter Button - Transparent (Inactive) / Highlighted (Active) */}
                 <GlassButton
-                    className={`w-12 h-12 p-0 rounded-full flex items-center justify-center transition-all shadow-none ${priorityFilter !== 'All' ? 'bg-brand-dark dark:bg-white text-white dark:text-brand-dark' : 'bg-transparent border-transparent text-brand-dark dark:text-white hover:bg-black/5 dark:hover:bg-white/10'}`}
+                    className={`w-12 h-12 p-0 rounded-full flex items-center justify-center transition-all !shadow-none ${priorityFilter !== 'All' ? 'bg-brand-dark dark:bg-white text-white dark:text-brand-dark' : '!bg-transparent !border-transparent text-brand-dark dark:text-white hover:bg-black/5 dark:hover:bg-white/10'}`}
                     onClick={() => setPriorityFilter(f => f === 'All' ? 'High' : f === 'High' ? 'Medium' : 'All')}
                     title={`Filter: ${priorityFilter}`}
                     variant="custom"
