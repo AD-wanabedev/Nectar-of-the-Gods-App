@@ -68,8 +68,9 @@ export default function Sales() {
             });
 
             // Daily Revenue (Last 7 days for chart)
-            const dateKey = format(saleDate, 'MMM d');
-            dailyRevenue[dateKey] = (dailyRevenue[dateKey] || 0) + val;
+            // Use sortable date key
+            const sortableDateKey = format(saleDate, 'yyyy-MM-dd');
+            dailyRevenue[sortableDateKey] = (dailyRevenue[sortableDateKey] || 0) + val;
         });
 
         // Format Honey Data for Chart
@@ -78,15 +79,11 @@ export default function Sales() {
             value: honeyCounts[key]
         })).sort((a, b) => b.value - a.value).slice(0, 5); // Top 5
 
-        // Format Daily Data
-        const dData = Object.keys(dailyRevenue).map(key => ({
-            name: key,
+        // Format Daily Data - Sort by Key (Date) then Format Name
+        const dData = Object.keys(dailyRevenue).sort().map(key => ({
+            name: format(parseISO(key), 'MMM d'),
             revenue: dailyRevenue[key]
-        })); // Ensure dates are sorted if needed, but for now object iteration order might be enough or need sort
-
-        // better sort dData by date if possible, but map doesn't guarantee order. 
-        // For simple chart, sorting dData by 'name' might fail if months cross. 
-        // Ideally we use timestamp keys then format. But keeping simple for now.
+        }));
 
         setStats({
             totalRevenue: totalRev,
@@ -180,24 +177,24 @@ export default function Sales() {
             </div>
 
             {/* Recent Sales List */}
-            <div className="space-y-3">
+            <div className="space-y-4">
                 <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100 uppercase tracking-wide">Recent Sales</h3>
                 {leads.slice(0, 5).map(sale => (
-                    <GlassCard key={sale.id} className="p-4 flex justify-between items-center group hover:bg-black/5 dark:hover:bg-white/10 transition-all border-black/5 dark:border-white/10 hover:border-brand-gold/30">
-                        <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-full bg-brand-gold/20 flex items-center justify-center text-brand-gold font-bold shadow-sm">
+                    <GlassCard key={sale.id} className="p-5 flex justify-between items-center group hover:bg-black/5 dark:hover:bg-white/10 transition-all border-black/5 dark:border-white/10 hover:border-brand-gold/30">
+                        <div className="flex items-center gap-5">
+                            <div className="w-12 h-12 rounded-full bg-brand-gold/20 flex items-center justify-center text-brand-gold font-bold shadow-sm shrink-0">
                                 <span className="text-xl">₹</span>
                             </div>
-                            <div className="flex flex-col">
-                                <h4 className="font-bold text-gray-900 dark:text-white text-base">{sale.name}</h4>
-                                <p className="text-xs text-gray-600 dark:text-gray-300 font-medium">
+                            <div className="flex flex-col gap-0.5">
+                                <h4 className="font-bold text-gray-900 dark:text-white text-base leading-tight">{sale.name}</h4>
+                                <p className="text-xs text-gray-600 dark:text-gray-400 font-medium">
                                     {sale.honeyTypes && sale.honeyTypes.length > 0
                                         ? sale.honeyTypes.join(', ')
                                         : (sale.honeyType || 'Product')}
                                 </p>
                             </div>
                         </div>
-                        <div className="text-right flex flex-col justify-center h-12">
+                        <div className="text-right flex flex-col justify-center h-12 shrink-0">
                             <p className="font-bold text-brand-gold text-lg leading-tight">₹{parseFloat(sale.orderValue).toLocaleString()}</p>
                             <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mt-0.5">
                                 {sale.saleDate ? format(new Date(sale.saleDate), 'MMM d') : format(new Date(), 'MMM d')}

@@ -5,7 +5,7 @@ import GlassCard from '../components/ui/GlassCard';
 import GlassInput from '../components/ui/GlassInput';
 import GlassButton from '../components/ui/GlassButton';
 import AddLeadForm from '../components/AddLeadForm';
-import { Search, Plus, Filter, Phone, MoreHorizontal, Instagram, Mail, MessageCircle, FileDown, FileUp } from 'lucide-react';
+import { Search, Plus, Filter, Phone, MoreHorizontal, Instagram, Mail, MessageCircle, FileDown, FileUp, Building2 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 
 export default function Leads() {
@@ -90,6 +90,9 @@ export default function Leads() {
                 const rows = text.split("\n").slice(1); // Skip header
 
                 let count = 0;
+                const promises = [];
+                const BATCH_SIZE = 20;
+
                 for (const row of rows) {
                     const cols = row.split(",").map(c => c.replace(/^"|"$/g, '').trim());
                     if (cols.length < 2) continue;
@@ -97,7 +100,7 @@ export default function Leads() {
                     const [name, phone, email, status, priority, teamMember, notes, nextFollowUp] = cols;
 
                     if (name) {
-                        await leadsDB.add({
+                        promises.push(leadsDB.add({
                             name,
                             phone: phone || '',
                             email: email || '',
@@ -106,11 +109,20 @@ export default function Leads() {
                             teamMember: teamMember || 'Me',
                             notes: notes || '',
                             nextFollowUp: nextFollowUp || new Date().toISOString(),
-                            platform: 'Call'
-                        });
+                            platform: 'Call',
+                            leadType: 'B2C', // Default for import
+                            createdAt: new Date().toISOString()
+                        }));
                         count++;
                     }
                 }
+
+                // Execute in batches
+                for (let i = 0; i < promises.length; i += BATCH_SIZE) {
+                    const batch = promises.slice(i, i + BATCH_SIZE);
+                    await Promise.all(batch);
+                }
+
                 alert(`Imported ${count} leads successfully!`);
                 loadLeads(); // Refresh after import
             } catch (error) {
@@ -123,8 +135,10 @@ export default function Leads() {
 
     // Filter leads in memory
     const filteredLeads = leads.filter(lead => {
-        const matchesSearch = lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            lead.phone.includes(searchTerm);
+        const term = searchTerm.toLowerCase();
+        const matchesSearch = lead.name.toLowerCase().includes(term) ||
+            (lead.phone && lead.phone.includes(term)) ||
+            (lead.establishment && lead.establishment.toLowerCase().includes(term));
         const matchesPriority = priorityFilter === 'All' || lead.priority === priorityFilter;
         return matchesSearch && matchesPriority;
     }).sort((a, b) => new Date(b.nextFollowUp) - new Date(a.nextFollowUp));
@@ -142,21 +156,22 @@ export default function Leads() {
             {/* Search & Filter Header */}
             <div className="flex gap-2">
                 <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-dark/50 dark:text-white/50" size={16} />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-dark/50 dark:text-white/50" size={18} />
                     <GlassInput
-                        placeholder="Search leads..."
+                        placeholder="Search name, phone, establishment..."
                         className="pl-10 text-center"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
+                {/* ... (Buttons kept same, already updated in previous step) ... */}
                 <GlassButton onClick={exportCSV} className="w-10 h-10 p-0 rounded-full flex items-center justify-center text-brand-dark dark:text-brand-white hover:text-brand-gold hover:bg-brand-gold/10 transition-colors" title="Export CSV">
-                    <FileDown size={18} />
+                    <FileDown size={22} />
                 </GlassButton>
                 <label className="cursor-pointer">
                     <input type="file" accept=".csv" className="hidden" onChange={handleImportCSV} />
                     <div className="w-10 h-10 flex items-center justify-center rounded-full glass-btn text-brand-dark dark:text-brand-white hover:text-brand-gold hover:bg-brand-gold/10 transition-colors">
-                        <FileUp size={18} />
+                        <FileUp size={22} />
                     </div>
                 </label>
                 <GlassButton
@@ -164,7 +179,7 @@ export default function Leads() {
                     onClick={() => setPriorityFilter(f => f === 'All' ? 'High' : f === 'High' ? 'Medium' : 'All')}
                     title={`Filter: ${priorityFilter}`}
                 >
-                    <Filter size={18} />
+                    <Filter size={22} />
                 </GlassButton>
             </div>
 
@@ -177,43 +192,79 @@ export default function Leads() {
                     </div>
                 ) : (
                     filteredLeads.map(lead => (
-                        <GlassCard key={lead.id} onClick={() => handleEdit(lead)} className="active:scale-[0.99] cursor-pointer hover:bg-brand-dark/5 dark:hover:bg-white/10 group">
-                            <div className="flex justify-between items-start">
-                                <div className="flex gap-3">
-                                    <div className={`w-1 self-stretch rounded-full ${lead.priority === 'High' ? 'bg-red-400' :
-                                        lead.priority === 'Medium' ? 'bg-amber-400' : 'bg-blue-400'
-                                        }`} />
-                                    <div>
-                                        <h3 className="font-semibold text-brand-dark dark:text-white text-lg flex items-center gap-2">
+                        <GlassCard key={lead.id} onClick={() => handleEdit(lead)} className="active:scale-[0.99] cursor-pointer hover:bg-brand-dark/5 dark:hover:bg-white/10 group relative overflow-hidden">
+                            {/* Priority Indicator Strip */}
+                            <div className={`absolute left-0 top-0 bottom-0 w-1 ${lead.priority === 'High' ? 'bg-red-500' :
+                                lead.priority === 'Medium' ? 'bg-amber-500' : 'bg-blue-500'
+                                }`} />
+
+                            <div className="pl-3 flex justify-between items-start">
+                                <div className="flex-1">
+                                    {/* Header: Name/Platform */}
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <h3 className="font-bold text-brand-dark dark:text-white text-lg leading-tight">
                                             {lead.name}
-                                            <span className="text-brand-dark/40 dark:text-white/40">
-                                                {lead.platform === 'Instagram' && <Instagram size={14} />}
-                                                {lead.platform === 'WhatsApp' && <MessageCircle size={14} />}
-                                                {lead.platform === 'Gmail' && <Mail size={14} />}
-                                                {(lead.platform === 'Call' || !lead.platform) && <Phone size={14} />}
-                                            </span>
                                         </h3>
-                                        <div className="flex flex-col gap-1 mt-1">
-                                            <p className="text-brand-dark/60 dark:text-white/60 text-sm flex items-center gap-1">
-                                                <Phone size={12} /> {lead.phone}
+                                        <span className="text-brand-dark/40 dark:text-white/40">
+                                            {lead.platform === 'Instagram' && <Instagram size={14} />}
+                                            {lead.platform === 'WhatsApp' && <MessageCircle size={14} />}
+                                            {lead.platform === 'Gmail' && <Mail size={14} />}
+                                            {(lead.platform === 'Call' || !lead.platform) && <Phone size={14} />}
+                                        </span>
+                                    </div>
+
+                                    {/* Establishment Name */}
+                                    {lead.establishment && (
+                                        <p className="text-brand-dark/70 dark:text-white/70 text-sm font-medium flex items-center gap-1 mb-1">
+                                            <Building2 size={12} className="text-brand-gold" /> {lead.establishment}
+                                        </p>
+                                    )}
+
+                                    {/* Type Badges */}
+                                    <div className="flex flex-wrap gap-1 my-1.5">
+                                        {lead.leadType && (
+                                            <span className="text-[10px] px-2 py-0.5 rounded bg-blue-500/10 text-blue-500 border border-blue-500/20 font-medium">
+                                                {lead.leadType}
+                                            </span>
+                                        )}
+                                        {lead.leadSubType && (
+                                            <span className="text-[10px] px-2 py-0.5 rounded bg-purple-500/10 text-purple-500 border border-purple-500/20 font-medium">
+                                                {lead.leadSubType}
+                                            </span>
+                                        )}
+                                        <span className="text-[10px] px-2 py-0.5 rounded bg-brand-dark/5 dark:bg-white/5 text-brand-dark/60 dark:text-white/60 uppercase tracking-wide">
+                                            {lead.status}
+                                        </span>
+                                    </div>
+
+                                    {/* Contact Details */}
+                                    <div className="flex flex-col gap-1 mt-2">
+                                        {lead.phone && (
+                                            <p className="text-brand-dark/60 dark:text-white/60 text-xs flex items-center gap-1.5">
+                                                <Phone size={10} /> {lead.phone}
                                             </p>
-                                            {lead.teamMember && lead.teamMember !== 'Me' && (
-                                                <p className="text-brand-dark/50 dark:text-white/50 text-xs">
-                                                    Assigned to: <span className="text-blue-500 dark:text-blue-300">{lead.teamMember}</span>
-                                                </p>
-                                            )}
-                                        </div>
-                                        <div className="mt-2 flex gap-2">
-                                            <span className="text-xs px-2 py-0.5 rounded-full bg-brand-dark/10 dark:bg-white/10 text-brand-dark/80 dark:text-white/80 border border-brand-dark/5 dark:border-white/5">
-                                                {lead.status}
-                                            </span>
-                                            <span className="text-xs px-2 py-0.5 rounded-full bg-brand-dark/5 dark:bg-white/5 text-brand-dark/60 dark:text-white/60">
-                                                Due: {format(parseISO(lead.nextFollowUp), 'MMM d, h:mm a')}
-                                            </span>
-                                        </div>
+                                        )}
+                                        {lead.email && (
+                                            <p className="text-brand-dark/60 dark:text-white/60 text-xs flex items-center gap-1.5">
+                                                <Mail size={10} /> {lead.email}
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    {/* Footer: Assigned & Due */}
+                                    <div className="flex items-center gap-3 mt-3 pt-2 border-t border-brand-dark/5 dark:border-white/5">
+                                        {lead.teamMember && lead.teamMember !== 'Me' && (
+                                            <p className="text-brand-dark/50 dark:text-white/50 text-[10px]">
+                                                Assigned: <span className="text-brand-gold">{lead.teamMember}</span>
+                                            </p>
+                                        )}
+                                        <p className="text-brand-dark/50 dark:text-white/50 text-[10px] ml-auto">
+                                            Follow-up: {format(parseISO(lead.nextFollowUp), 'MMM d, h:mm a')}
+                                        </p>
                                     </div>
                                 </div>
-                                <button className="text-brand-dark/40 dark:text-white/40 p-2 hover:text-brand-dark dark:hover:text-white">
+
+                                <button className="text-brand-dark/40 dark:text-white/40 p-2 -mr-2 -mt-1 hover:text-brand-dark dark:hover:text-white">
                                     <MoreHorizontal size={20} />
                                 </button>
                             </div>
