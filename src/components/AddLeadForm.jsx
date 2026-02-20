@@ -238,10 +238,10 @@ export default function AddLeadForm({ onClose, initialData = null }) {
     }, []);
 
     return (
-        <div className="fixed inset-0 z-50 md:flex md:items-center md:justify-center bg-black/80 backdrop-blur-sm md:p-4 animate-in fade-in" onClick={onClose}>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 pb-24 md:pb-4 animate-in fade-in" onClick={onClose}>
             <div
                 onClick={(e) => e.stopPropagation()}
-                className="glass-card fixed inset-0 w-full h-full rounded-none md:relative md:inset-auto md:w-full md:max-w-md md:max-h-[90vh] md:h-auto md:rounded-2xl flex flex-col p-0 bg-brand-dark border-0 md:border md:border-blue-500/20 shadow-none md:shadow-blue-900/20"
+                className="glass-card w-full max-w-md max-h-[85vh] max-h-[85dvh] flex flex-col relative overflow-hidden shadow-2xl bg-brand-dark border border-white/10"
             >
                 {/* Fixed Header */}
                 <div className="p-6 border-b border-white/5 flex-shrink-0 relative flex items-center justify-between">
@@ -604,7 +604,7 @@ export default function AddLeadForm({ onClose, initialData = null }) {
                     </div>
 
                     {/* Fixed Footer */}
-                    <div className="p-6 border-t border-white/5 flex-shrink-0 bg-brand-dark/95 backdrop-blur flex gap-3 z-10 w-full mb-safe">
+                    <div className="p-6 pt-4 border-t border-white/5 flex-shrink-0 bg-brand-dark/95 backdrop-blur flex gap-3 z-10 w-full">
                         {initialData && (
                             <GlassButton type="button" onClick={handleDeleteLead} className="bg-red-600/20 hover:bg-red-600/40 text-red-200 border-red-500/30">
                                 Delete
