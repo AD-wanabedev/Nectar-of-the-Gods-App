@@ -15,7 +15,7 @@
 
 @layer base {
   body {
-    @apply bg-brand-white dark:bg-[#0a0a0c] min-h-screen text-brand-dark dark:text-white font-sans antialiased selection:bg-brand-gold selection:text-black transition-colors duration-500;
+    @apply bg-brand-white dark:bg-[#0a0a0c] min-h-screen text-brand-dark dark:text-white font-sans antialiased selection:bg-brand-gold selection:text-black transition-colors duration-500 md:text-lg;
   }
 }
 

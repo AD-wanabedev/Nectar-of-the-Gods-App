@@ -305,6 +305,10 @@ export default function Leads() {
                     <FileDown size={28} />
                 </GlassButton>
 
+                <GlassButton onClick={triggerImport} className="w-12 h-12 p-0 rounded-full flex items-center justify-center text-brand-dark dark:text-brand-white hover:text-brand-gold hover:bg-brand-gold/10 transition-colors" title="Import CSV">
+                    <FileUp size={28} />
+                </GlassButton>
+
                 {/* Hidden Import Input */}
                 <input id="csv-import-input" type="file" accept=".csv" className="hidden" onChange={handleImportCSV} />
 
