@@ -43,7 +43,7 @@
   }
 
   .glass-btn {
-    @apply flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-medium transition-all duration-300 bg-white/10 dark:bg-white/5 border border-black/5 dark:border-white/10 text-gray-900 dark:text-white hover:bg-black/10 dark:hover:bg-white/10 hover:text-brand-dark dark:hover:text-white hover:border-transparent active:scale-95;
+    @apply flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-medium transition-all duration-300 bg-transparent border border-black/5 dark:border-white/10 text-gray-900 dark:text-white hover:bg-black/10 dark:hover:bg-white/10 hover:text-brand-dark dark:hover:text-white hover:border-transparent active:scale-95;
   }
 
   .glass-btn-primary {
