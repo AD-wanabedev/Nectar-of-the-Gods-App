@@ -301,19 +301,19 @@ export default function Leads() {
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
-                <GlassButton onClick={exportCSV} className="w-10 h-10 p-0 rounded-full flex items-center justify-center text-brand-dark dark:text-brand-white hover:text-brand-gold hover:bg-brand-gold/10 transition-colors" title="Export CSV">
-                    <FileDown size={24} />
+                <GlassButton onClick={exportCSV} className="w-12 h-12 p-0 rounded-full flex items-center justify-center text-brand-dark dark:text-brand-white hover:text-brand-gold hover:bg-brand-gold/10 transition-colors" title="Export CSV">
+                    <FileDown size={28} />
                 </GlassButton>
 
                 {/* Hidden Import Input */}
                 <input id="csv-import-input" type="file" accept=".csv" className="hidden" onChange={handleImportCSV} />
 
                 <GlassButton
-                    className={`w-10 h-10 p-0 rounded-full flex items-center justify-center transition-all ${priorityFilter !== 'All' ? 'bg-brand-gold/20 text-brand-gold border-brand-gold/50' : 'text-brand-dark dark:text-brand-white hover:text-brand-gold hover:bg-brand-gold/10'}`}
+                    className={`w-12 h-12 p-0 rounded-full flex items-center justify-center transition-all ${priorityFilter !== 'All' ? 'bg-brand-gold/20 text-brand-gold border-brand-gold/50' : 'text-brand-dark dark:text-brand-white hover:text-brand-gold hover:bg-brand-gold/10'}`}
                     onClick={() => setPriorityFilter(f => f === 'All' ? 'High' : f === 'High' ? 'Medium' : 'All')}
                     title={`Filter: ${priorityFilter}`}
                 >
-                    <Filter size={24} />
+                    <Filter size={28} />
                 </GlassButton>
             </div>
 
