@@ -119,7 +119,7 @@ export default function AddLeadForm({ onClose, initialData = null }) {
     const [isListening, setIsListening] = useState(false);
     const recognitionRef = useRef(null);
 
-    const startListening = () => {
+    const startListening = async () => {
         if (!('webkitSpeechRecognition' in window)) {
             alert("Voice input not supported in this browser.");
             return;
@@ -128,6 +128,14 @@ export default function AddLeadForm({ onClose, initialData = null }) {
         if (isListening) {
             recognitionRef.current?.stop();
             setIsListening(false);
+            return;
+        }
+
+        try {
+            await navigator.mediaDevices.getUserMedia({ audio: true });
+        } catch (err) {
+            console.error("Microphone permission denied:", err);
+            alert("Microphone permission is required for speech-to-text. Please allow it in your browser settings.");
             return;
         }
 
@@ -170,7 +178,17 @@ export default function AddLeadForm({ onClose, initialData = null }) {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    // ... (keep toggleHoney)
+    // Multi-select toggle function
+    const toggleHoney = (honeyType) => {
+        setFormData(prev => {
+            const currentTypes = prev.honeyTypes || [];
+            if (currentTypes.includes(honeyType)) {
+                return { ...prev, honeyTypes: currentTypes.filter(h => h !== honeyType) };
+            } else {
+                return { ...prev, honeyTypes: [...currentTypes, honeyType] };
+            }
+        });
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -201,10 +219,32 @@ export default function AddLeadForm({ onClose, initialData = null }) {
         };
 
         try {
+            let leadRefId = null;
             if (initialData && initialData.id) {
                 await db.leads.update(initialData.id, payload);
             } else {
-                await db.leads.add(payload);
+                leadRefId = await db.leads.add(payload);
+
+                // --- Google Sheets Sync (Bug 4) ---
+                const sheetUrl = localStorage.getItem('nectar_sheet_url');
+                if (sheetUrl) {
+                    try {
+                        await fetch(sheetUrl, {
+                            method: 'POST',
+                            mode: 'no-cors',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                action: 'ADD_LEAD',
+                                leadId: leadRefId,
+                                ...payload,
+                                timestamp: new Date().toISOString()
+                            })
+                        });
+                        console.log("Successfully beamed lead data to Master Tracker");
+                    } catch (syncError) {
+                        console.error("Failed to sync new lead to Sheets:", syncError);
+                    }
+                }
             }
             onClose();
         } catch (error) {

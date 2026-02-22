@@ -107,8 +107,7 @@ function AppContent() {
         { id: 'leads', path: '/leads', icon: Users, label: 'Leads' },
         { id: 'projects', path: '/projects', icon: Target, label: 'Projects' },
         { id: 'sales', path: '/sales', icon: DollarSign, label: 'Sales' },
-        { id: 'library', path: '/library', icon: BookOpen, label: 'Library' },
-        { id: 'docs', path: '/docs', icon: FileText, label: 'Docs' }
+        { id: 'library', path: '/library', icon: BookOpen, label: 'Library' }
     ];
 
     const getActiveId = () => {
@@ -177,7 +176,6 @@ function AppContent() {
                     <Route path="/projects" element={<ProjectsPage />} />
                     <Route path="/sales" element={<Sales />} />
                     <Route path="/library" element={<Library />} />
-                    <Route path="/docs" element={<Documentation />} />
                     <Route path="/settings" element={<Settings />} />
                     <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
@@ -185,7 +183,7 @@ function AppContent() {
 
             {/* Bottom Navigation */}
             <nav className="fixed bottom-0 left-0 right-0 bg-brand-white/90 dark:bg-brand-dark/90 backdrop-blur-lg border-t border-brand-dark/10 dark:border-brand-white/10 pb-safe z-50 flex glass-nav transition-colors duration-300">
-                <div className="grid grid-cols-6 gap-1 px-1 py-1 w-full max-w-3xl mx-auto">
+                <div className="grid grid-cols-5 gap-1 px-1 py-1 w-full max-w-3xl mx-auto">
                     {navItems.map(({ id, path, icon: Icon, label }) => (
                         <button
                             key={id}

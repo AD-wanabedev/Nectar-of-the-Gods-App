@@ -1,16 +1,17 @@
 import { useState, useEffect } from 'react';
 import { collateralDB } from '../db';
 import { storage } from '../firebase';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { auth } from '../firebase';
 import GlassCard from '../components/ui/GlassCard';
 import GlassInput from '../components/ui/GlassInput';
 import GlassButton from '../components/ui/GlassButton';
-import { Search, FileText, ExternalLink, Share2, Upload, Link as LinkIcon, Trash2, X } from 'lucide-react';
+import { Search, FileText, ExternalLink, Share2, Upload, Link as LinkIcon, Trash2, X, FileVideo } from 'lucide-react';
 import DrivePicker from '../components/DrivePicker';
 
 const GOOGLE_CLIENT_ID = '802929189698-ci1dhice44to5mjjkdtpdg0ltu5u03jm.apps.googleusercontent.com';
 const GOOGLE_API_KEY = 'AIzaSyBWtPIDDFJdYIgxKCH3SVFXyCNq1B8AYHg';
+const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 
 export default function Library() {
     const [items, setItems] = useState([]);
@@ -18,13 +19,14 @@ export default function Library() {
     const [showLinkModal, setShowLinkModal] = useState(false);
     const [linkData, setLinkData] = useState({ title: '', url: '' });
     const [uploading, setUploading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
 
     const handleDrivePick = (docs) => {
         if (!docs) return;
         docs.forEach(async (doc) => {
             await collateralDB.add({
                 title: doc.name,
-                type: 'Link', // treating as Link for now so it opens in new tab
+                type: 'Drive Link',
                 url: doc.url,
                 folder: 'Drive Link',
                 driveId: doc.id,
@@ -51,27 +53,52 @@ export default function Library() {
         const file = e.target.files[0];
         if (!file) return;
 
+        if (file.size > MAX_FILE_SIZE) {
+            alert(`File size exceeds 50MB limit. Current size: ${(file.size / (1024 * 1024)).toFixed(2)}MB`);
+            return;
+        }
+
         setUploading(true);
+        setUploadProgress(0);
         try {
             const userId = auth.currentUser.uid;
             const storageRef = ref(storage, `users/${userId}/collateral/${Date.now()}_${file.name}`);
 
-            await uploadBytes(storageRef, file);
-            const downloadURL = await getDownloadURL(storageRef);
+            const uploadTask = uploadBytesResumable(storageRef, file);
 
-            await collateralDB.add({
-                title: file.name,
-                type: file.type.startsWith('image/') ? 'Image' : 'PDF',
-                url: downloadURL,
-                folder: 'Uploads'
-            });
+            uploadTask.on('state_changed',
+                (snapshot) => {
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    setUploadProgress(progress);
+                },
+                (error) => {
+                    console.error("Upload error:", error);
+                    alert(`Failed to upload: ${error.message}`);
+                    setUploading(false);
+                },
+                async () => {
+                    const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
 
-            loadItems();
+                    let fileType = 'PDF';
+                    if (file.type.startsWith('image/')) fileType = 'Image';
+                    else if (file.type.startsWith('video/')) fileType = 'Video';
+
+                    await collateralDB.add({
+                        title: file.name,
+                        type: fileType,
+                        url: downloadURL,
+                        folder: 'Uploads'
+                    });
+
+                    loadItems();
+                    setUploading(false);
+                    setUploadProgress(0);
+                }
+            );
+
         } catch (error) {
             console.error("Upload failed details:", error);
-            console.error("Storage Config:", storage.app.options.storageBucket);
-            alert(`Failed to upload: ${error.message}`);
-        } finally {
+            alert(`Failed to start upload: ${error.message}`);
             setUploading(false);
         }
     };
@@ -133,16 +160,26 @@ export default function Library() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Upload Card */}
                 <button
-                    onClick={() => document.getElementById('file-upload').click()}
-                    className="group relative overflow-hidden rounded-xl bg-brand-dark/5 dark:bg-brand-white/5 border border-brand-dark/10 dark:border-brand-white/10 p-6 text-left transition-all hover:border-brand-gold/50 hover:bg-brand-dark/10 dark:hover:bg-brand-white/10 hover:shadow-glass-hover"
+                    onClick={() => !uploading && document.getElementById('file-upload').click()}
+                    disabled={uploading}
+                    className="group relative overflow-hidden rounded-xl bg-brand-dark/5 dark:bg-brand-white/5 border border-brand-dark/10 dark:border-brand-white/10 p-6 text-left transition-all hover:border-brand-gold/50 hover:bg-brand-dark/10 dark:hover:bg-brand-white/10 hover:shadow-glass-hover disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                     <input
                         type="file"
                         className="hidden"
                         id="file-upload"
                         onChange={handleFileUpload}
-                        accept="image/*,application/pdf"
+                        accept="image/*,video/*,application/pdf"
                     />
+
+                    {/* Progress Bar Background */}
+                    {uploading && (
+                        <div
+                            className="absolute bottom-0 left-0 h-1 bg-brand-gold transition-all duration-300"
+                            style={{ width: `${uploadProgress}%` }}
+                        />
+                    )}
+
                     <div className="absolute top-0 right-0 p-4 opacity-10 transition-opacity group-hover:opacity-20">
                         <Upload size={100} className="text-brand-gold" />
                     </div>
@@ -152,7 +189,9 @@ export default function Library() {
                         </div>
                         <div>
                             <h3 className="text-lg font-bold text-brand-dark dark:text-brand-white group-hover:text-brand-gold transition-colors">Upload File</h3>
-                            <p className="text-sm text-brand-dark/50 dark:text-brand-white/50">{uploading ? 'Uploading...' : 'Images & PDFs'}</p>
+                            <p className="text-sm text-brand-dark/50 dark:text-brand-white/50">
+                                {uploading ? `Uploading ${Math.round(uploadProgress)}%` : 'Images, Videos & PDFs'}
+                            </p>
                         </div>
                     </div>
                 </button>
@@ -202,14 +241,15 @@ export default function Library() {
 
                         <div className="flex-1 flex items-center justify-center pointer-events-none">
                             {item.type === 'PDF' ? <FileText size={40} className="text-red-400 group-hover:scale-110 transition-transform duration-300" /> :
-                                item.type === 'Image' ? (
-                                    <img
-                                        src={item.url}
-                                        alt={item.title}
-                                        className="w-full h-full object-cover rounded-lg opacity-80 group-hover:opacity-100 transition-opacity"
-                                    />
-                                ) :
-                                    <ExternalLink size={40} className="text-green-500 dark:text-green-400 group-hover:scale-110 transition-transform duration-300" />}
+                                item.type === 'Video' ? <FileVideo size={40} className="text-blue-400 group-hover:scale-110 transition-transform duration-300" /> :
+                                    item.type === 'Image' ? (
+                                        <img
+                                            src={item.url}
+                                            alt={item.title}
+                                            className="w-full h-full object-cover rounded-lg opacity-80 group-hover:opacity-100 transition-opacity"
+                                        />
+                                    ) :
+                                        <ExternalLink size={40} className="text-green-500 dark:text-green-400 group-hover:scale-110 transition-transform duration-300" />}
                         </div>
 
                         <div className="mt-3 pointer-events-none">
