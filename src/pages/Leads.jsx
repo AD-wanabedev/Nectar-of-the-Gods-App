@@ -32,6 +32,10 @@ export default function Leads() {
     const [filterPriority, setFilterPriority] = useState('All');
     const [filterType, setFilterType] = useState('All');
 
+    // Quick Action Toggles
+    const [showNewOnly, setShowNewOnly] = useState(false);
+    const [showHighPriority, setShowHighPriority] = useState(false);
+
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -141,7 +145,11 @@ export default function Leads() {
             matchesType = accContacts.some(c => c.leadType === filterType);
         }
 
-        return matchesSearch && matchesPriority && matchesStatus && matchesType;
+        // Apply Quick Toggles Overrides
+        const matchesQuickNew = !showNewOnly || account.status === 'New';
+        const matchesQuickPriority = !showHighPriority || account.priority === 'High';
+
+        return matchesSearch && matchesPriority && matchesStatus && matchesType && matchesQuickNew && matchesQuickPriority;
     }).sort((a, b) => (b.totalRevenue || 0) - (a.totalRevenue || 0));
 
     // Calculate aggregated Total Value for FilterBar Unified Header
@@ -292,6 +300,8 @@ export default function Leads() {
                 filterType={filterType} setFilterType={setFilterType}
                 onExportCSV={exportCSV} onExportPDF={exportPDF}
                 totalValue={calculatedTotalValue}
+                showNewOnly={showNewOnly} setShowNewOnly={setShowNewOnly}
+                showHighPriority={showHighPriority} setShowHighPriority={setShowHighPriority}
             />
 
             {/* Dynamic View Injection */}
@@ -302,11 +312,9 @@ export default function Leads() {
             {/* Floating Quick Action */}
             <FloatingActionButton onAddLead={handleAdd} />
 
-            {/* Lead Tracking Form (Floating Z-Index Modal) */}
+            {/* Lead Tracking Form (Floating Z-Index Modal autonomously handles centering) */}
             {showAddForm && (
-                <div className="fixed inset-0 z-[60]">
-                    <AddLeadForm onClose={handleCloseForm} initialData={editingLead} />
-                </div>
+                <AddLeadForm onClose={handleCloseForm} initialData={editingLead} />
             )}
 
             {/* Account Detail Flyout Drawer */}

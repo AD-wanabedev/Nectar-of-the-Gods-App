@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Check, X } from 'lucide-react';
+import { ChevronUp, ChevronDown, Check, X } from 'lucide-react';
 import GlassButton from './GlassButton';
 
 export default function FilterDropdown({ label, options, value, onChange }) {
@@ -36,24 +36,25 @@ export default function FilterDropdown({ label, options, value, onChange }) {
                 onClick={() => setIsOpen(!isOpen)}
                 className={`
                     flex items-center justify-between gap-2 
-                    bg-gray-800 hover:bg-gray-700
+                    bg-gray-800/80 hover:bg-gray-700
                     text-white
-                    px-4 py-2 
+                    px-4 py-2.5 
                     rounded-lg 
-                    border ${value !== 'All' ? 'border-gold-500/50 text-gold-300' : 'border-gray-600 hover:border-gold-500/30'}
+                    border border-gray-600
+                    hover:border-gold-500/50
                     transition-all
-                    min-w-[140px] shadow-sm text-sm
+                    min-w-[140px] text-sm
                 `}
             >
-                <span>{label}: <span className="font-bold ml-1">{value || 'All'}</span></span>
-                <ChevronDown size={16} className={`text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                <span>{label}: <span className="font-medium">{value || 'All'}</span></span>
+                {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
             </button>
 
             {/* Dropdown Menu */}
             {isOpen && (
                 <div className="
                     absolute top-full left-0 mt-2
-                    w-full min-w-[200px]
+                    w-48
                     bg-gray-800 
                     rounded-lg 
                     border border-gray-600
@@ -61,7 +62,6 @@ export default function FilterDropdown({ label, options, value, onChange }) {
                     py-2
                     z-[60]
                     overflow-hidden
-                    animate-in fade-in slide-in-from-top-2 duration-200
                 ">
                     {options.map((opt) => (
                         <button
@@ -71,15 +71,19 @@ export default function FilterDropdown({ label, options, value, onChange }) {
                                 onChange(opt);
                                 setIsOpen(false);
                             }}
-                            className={`
-                                w-full flex items-center gap-3 px-4 py-2.5 
-                                text-sm transition-colors text-left
-                                ${value === opt ? 'bg-gray-700 text-white' : 'text-white hover:bg-gray-700'}
-                            `}
+                            className="
+                                w-full text-left px-4 py-2.5
+                                hover:bg-gray-700
+                                transition-colors
+                                flex items-center gap-3
+                                text-white text-sm
+                            "
                         >
-                            <span className={`w-2 h-2 min-w-2 rounded-full ${getOptionColor(opt)}`}></span>
+                            <span className={`w-2 h-2 rounded-full ${getOptionColor(opt)}`}></span>
                             <span>{opt}</span>
-                            {value === opt && <Check size={16} className="text-gold-400 ml-auto" />}
+                            {value === opt && (
+                                <span className="ml-auto text-gold-400">✓</span>
+                            )}
                         </button>
                     ))}
                 </div>

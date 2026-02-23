@@ -447,16 +447,16 @@ export default function AddLeadForm({ onClose, initialData = null }) {
 
                 {/* Form Wrapper */}
                 <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden min-h-0">
-
-                    {/* Scrollable Content */}
-                    <div className="
-                        flex-1 overflow-y-auto 
-                        px-6 py-4 space-y-5
-                        pb-[calc(80px+2rem)] md:pb-6 /* Mobile: Bottom Nav clearance */
-                        custom-scrollbar
-                    ">
+                    {/* Scrollable Form Body Container */}
+                    <div
+                        className="flex-1 overflow-y-auto w-full p-5 md:p-6 space-y-6 custom-scrollbar"
+                        style={{
+                            // Pad the bottom natively on mobile forcing the scroll to clear the sticky buttons
+                            paddingBottom: window.innerWidth < 768 ? 'calc(100px + env(safe-area-inset-bottom))' : '1.5rem'
+                        }}
+                    >
                         {/* Name & Contact Picker */}
-                        <div>
+                        <div className="space-y-1.5">
                             <label className="block text-xs text-white/70 mb-1 flex justify-between items-center">
                                 Name *
                                 <button
@@ -859,23 +859,28 @@ export default function AddLeadForm({ onClose, initialData = null }) {
                         </div>
                     </div>
 
-                    {/* Fixed Footer */}
-                    <div className="
-                        flex-shrink-0 sticky bottom-0 z-10
-                        bg-gray-900/95 backdrop-blur-md
-                        border-t border-gray-800
-                        px-6 py-4 flex gap-3
-                        pb-[calc(80px+1rem)] md:pb-4 /* Critical: Bottom Nav padding override */
-                    ">
+                    {/* Fixed Footer with Contextual Nav Clearance */}
+                    <div
+                        className="
+                            flex-shrink-0 fixed md:sticky bottom-0 left-0 w-full z-20
+                            bg-gray-900/95 backdrop-blur-md
+                            border-t border-gray-800
+                            p-4 md:p-6 pb-[env(safe-area-inset-bottom)]
+                            flex gap-3 items-center justify-end
+                        "
+                        style={{
+                            paddingBottom: window.innerWidth < 768 ? 'calc(5rem + env(safe-area-inset-bottom))' : undefined
+                        }}
+                    >
                         {initialData && (
                             <button
                                 type="button"
                                 onClick={handleDeleteLead}
                                 className="
-                                    px-6 py-3 rounded-lg
+                                    px-5 py-2.5 rounded-xl
                                     bg-red-500/10 hover:bg-red-500/20
                                     text-red-400 border border-red-500/20
-                                    transition-colors font-medium text-sm
+                                    transition-colors font-semibold text-sm mr-auto
                                 "
                             >
                                 Delete
@@ -885,30 +890,31 @@ export default function AddLeadForm({ onClose, initialData = null }) {
                             type="button"
                             onClick={onClose}
                             className={`
-                                ${initialData ? 'flex-1 md:flex-none' : 'w-1/3'} 
-                                px-6 py-3 rounded-lg
+                                px-6 py-2.5 rounded-xl
                                 bg-gray-800 hover:bg-gray-700
-                                text-white border border-gray-700
-                                transition-colors font-medium text-sm
+                                text-white border border-gray-600
+                                transition-colors font-semibold text-sm
+                                ${!initialData ? 'flex-1 md:flex-none' : ''}
                             `}
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
-                            className="
-                                flex-1 px-6 py-3 rounded-lg
+                            className={`
+                                px-8 py-2.5 rounded-xl
                                 bg-gold-500 hover:bg-gold-600
                                 text-gray-950 font-bold text-sm
-                                shadow-lg shadow-gold-500/20
+                                shadow-[0_0_15px_rgba(234,179,8,0.2)]
                                 transition-all
-                            "
+                                ${!initialData ? 'flex-1 md:flex-none w-full md:w-auto' : ''}
+                            `}
                         >
                             Save Lead
                         </button>
                     </div>
                 </form>
-            </div>
+            </div >
         </>
     );
 }
