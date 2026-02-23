@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { collateralDB } from '../db';
 import { storage } from '../firebase';
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { auth } from '../firebase';
 import GlassCard from '../components/ui/GlassCard';
 import GlassInput from '../components/ui/GlassInput';
@@ -61,45 +60,72 @@ export default function Library() {
         setUploading(true);
         setUploadProgress(0);
         try {
-            const userId = auth.currentUser.uid;
-            const storageRef = ref(storage, `users/${userId}/collateral/${Date.now()}_${file.name}`);
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', 'Cloudinary Assets for NOTG');
 
-            const uploadTask = uploadBytesResumable(storageRef, file);
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', `https://api.cloudinary.com/v1_1/dbwqxpgrn/auto/upload`, true);
 
-            uploadTask.on('state_changed',
-                (snapshot) => {
-                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            xhr.upload.onprogress = (event) => {
+                if (event.lengthComputable) {
+                    const progress = (event.loaded / event.total) * 100;
                     setUploadProgress(progress);
-                },
-                (error) => {
-                    console.error("Upload error:", error);
-                    alert(`Failed to upload: ${error.message}`);
-                    setUploading(false);
-                },
-                async () => {
-                    const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                }
+            };
+
+            xhr.onload = async () => {
+                if (xhr.status === 200) {
+                    const response = JSON.parse(xhr.responseText);
+                    const downloadURL = response.secure_url;
 
                     let fileType = 'PDF';
                     if (file.type.startsWith('image/')) fileType = 'Image';
                     else if (file.type.startsWith('video/')) fileType = 'Video';
 
-                    await collateralDB.add({
-                        title: file.name,
-                        type: fileType,
-                        url: downloadURL,
-                        folder: 'Uploads'
-                    });
-
-                    loadItems();
+                    try {
+                        await collateralDB.add({
+                            title: file.name,
+                            type: fileType,
+                            url: downloadURL,
+                            folder: 'Uploads'
+                        });
+                        loadItems();
+                    } catch (dbError) {
+                        console.error("Error saving to database:", dbError);
+                        alert("File uploaded, but failed to save reference. Please refresh.");
+                    } finally {
+                        setUploading(false);
+                        setUploadProgress(0);
+                        document.getElementById('file-upload').value = '';
+                    }
+                } else {
+                    console.error("Upload error details:", xhr.responseText);
+                    try {
+                        const errorRes = JSON.parse(xhr.responseText);
+                        alert(`Failed to upload. Cloudinary says: ${errorRes.error?.message || 'Unknown error'}`);
+                    } catch (e) {
+                        alert(`Failed to upload: ${xhr.statusText}`);
+                    }
                     setUploading(false);
-                    setUploadProgress(0);
+                    document.getElementById('file-upload').value = '';
                 }
-            );
+            };
+
+            xhr.onerror = () => {
+                console.error("Upload failed to start details:", xhr.statusText);
+                alert(`Failed to start upload: Network Error. Please check your connection.`);
+                setUploading(false);
+                document.getElementById('file-upload').value = '';
+            };
+
+            xhr.send(formData);
 
         } catch (error) {
-            console.error("Upload failed details:", error);
+            console.error("Upload failed to start details:", error);
             alert(`Failed to start upload: ${error.message}`);
             setUploading(false);
+            document.getElementById('file-upload').value = '';
         }
     };
 
