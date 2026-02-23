@@ -9,25 +9,27 @@ import { ChevronDown, ChevronUp, MoreHorizontal, User, UserPlus } from 'lucide-r
 import { format, parseISO } from 'date-fns';
 import GlassCard from './GlassCard';
 
-export default function AccountsTable({ accounts, contacts, onRowClick, onEditClick, onDeleteClick }) {
+export default function AccountsTable({ accounts, contacts, isLoading, onRowClick, onEditClick, onDeleteClick }) {
     const [sorting, setSorting] = useState([]);
 
     const columns = [
         {
             accessorKey: 'businessName',
             header: 'Company / Account',
+            meta: { width: 'w-[20%]' },
             cell: info => <span className="font-bold text-white whitespace-nowrap">{info.getValue() || 'Unnamed Account'}</span>,
         },
         {
             id: 'primaryContact',
             header: 'Primary Contact',
+            meta: { width: 'w-[15%]' },
             cell: ({ row }) => {
                 const accountContacts = contacts.filter(c => c.accountId === row.original.id);
                 const primary = accountContacts[0];
                 if (!primary) return <span className="text-white/30 text-xs italic">No contacts</span>;
                 return (
                     <div className="flex flex-col">
-                        <span className="text-sm text-white/90">{primary.name}</span>
+                        <span className="text-sm text-white/90 truncate max-w-[150px]">{primary.name}</span>
                         {accountContacts.length > 1 && (
                             <span className="text-[10px] text-brand-gold mt-0.5 px-1.5 py-0.5 rounded-full bg-brand-gold/10 w-fit">
                                 +{accountContacts.length - 1} more
@@ -40,17 +42,18 @@ export default function AccountsTable({ accounts, contacts, onRowClick, onEditCl
         {
             accessorKey: 'status',
             header: 'Status',
+            meta: { width: 'w-[10%]' },
             cell: info => {
                 const status = info.getValue() || 'New';
                 const colors = {
-                    'New': 'bg-purple-500/20 text-purple-400 border-purple-500/30',
-                    'In Progress': 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-                    'Converted': 'bg-green-500/20 text-green-400 border-green-500/30',
-                    'Lost': 'bg-red-500/20 text-red-400 border-red-500/30',
+                    'New': 'bg-blue-600',
+                    'In Progress': 'bg-orange-600',
+                    'Converted': 'bg-purple-600',
+                    'Lost': 'bg-red-600',
                 };
                 return (
-                    <span className={`px-2 py-1 rounded text-xs border font-medium whitespace-nowrap ${colors[status] || colors['New']}`}>
-                        {status}
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold text-white whitespace-nowrap ${colors[status] || colors['New']}`}>
+                        {status === 'Converted' ? 'Customer' : status === 'In Progress' ? 'Qualified' : status}
                     </span>
                 );
             }
@@ -58,15 +61,16 @@ export default function AccountsTable({ accounts, contacts, onRowClick, onEditCl
         {
             accessorKey: 'priority',
             header: 'Priority',
+            meta: { width: 'w-[10%]' },
             cell: info => {
                 const priority = info.getValue() || 'Medium';
                 const colors = {
-                    'High': 'text-red-400 bg-red-400/10',
-                    'Medium': 'text-amber-400 bg-amber-400/10',
-                    'Low': 'text-gray-400 bg-gray-400/10'
+                    'High': 'bg-red-500',
+                    'Medium': 'bg-amber-500',
+                    'Low': 'bg-gray-500'
                 };
                 return (
-                    <span className={`px-2 py-1 rounded text-xs font-semibold whitespace-nowrap ${colors[priority]}`}>
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold text-white whitespace-nowrap ${colors[priority]}`}>
                         {priority}
                     </span>
                 );
@@ -75,23 +79,31 @@ export default function AccountsTable({ accounts, contacts, onRowClick, onEditCl
         {
             accessorKey: 'totalRevenue',
             header: 'Value',
+            meta: { width: 'w-[12%]' },
             cell: info => {
                 const val = info.getValue() || 0;
-                return <span className="text-green-400 font-bold whitespace-nowrap">₹{val.toLocaleString()}</span>;
+                const formattedValue = new Intl.NumberFormat('en-IN', {
+                    style: 'currency',
+                    currency: 'INR',
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                }).format(val);
+                return <span className={`font-bold whitespace-nowrap ${val > 0 ? 'text-green-400' : 'text-white/50'}`}>{formattedValue}</span>;
             }
         },
         {
             id: 'contacts',
             header: 'Contact Info',
+            meta: { width: 'w-[18%]' },
             cell: ({ row }) => {
                 const accountContacts = contacts.filter(c => c.accountId === row.original.id);
                 const primary = accountContacts[0];
                 if (!primary) return null;
 
                 return (
-                    <div className="text-xs text-white/60 space-y-1 whitespace-nowrap">
-                        {primary.phone && <p>{primary.phone}</p>}
-                        {primary.email && <p>{primary.email}</p>}
+                    <div className="text-xs text-white/60 space-y-1">
+                        {primary.phone && <p className="truncate max-w-[150px]">{primary.phone}</p>}
+                        {primary.email && <p className="truncate max-w-[150px]">{primary.email}</p>}
                     </div>
                 );
             }
@@ -99,14 +111,15 @@ export default function AccountsTable({ accounts, contacts, onRowClick, onEditCl
         {
             id: 'owner',
             header: 'Owner',
+            meta: { width: 'w-[10%]' },
             cell: ({ row }) => {
                 // Determine owner based on the first contact's assigned member, or default
                 const accountContacts = contacts.filter(c => c.accountId === row.original.id);
                 const primary = accountContacts[0];
                 const owner = primary?.teamMember || 'Unassigned';
                 return (
-                    <div className="flex items-center gap-1.5 text-xs text-white/70 whitespace-nowrap">
-                        <User size={12} className="text-brand-gold" /> {owner}
+                    <div className="flex items-center gap-1.5 text-xs text-white/70 whitespace-nowrap truncate max-w-[100px]">
+                        <User size={12} className="text-brand-gold flex-shrink-0" /> {owner}
                     </div>
                 );
             }
@@ -115,6 +128,7 @@ export default function AccountsTable({ accounts, contacts, onRowClick, onEditCl
             id: 'lastContact',
             header: 'Created At',
             accessorFn: row => row.createdAt,
+            meta: { width: 'w-[10%]' },
             cell: info => {
                 const dateStr = info.getValue();
                 if (!dateStr) return <span className="text-white/30 text-xs">-</span>;
@@ -130,6 +144,7 @@ export default function AccountsTable({ accounts, contacts, onRowClick, onEditCl
         {
             id: 'actions',
             header: '',
+            meta: { width: 'w-[5%]' },
             cell: ({ row }) => (
                 <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity justify-end">
                     <button onClick={(e) => { e.stopPropagation(); onEditClick(row.original); }} className="p-1.5 text-blue-400 hover:bg-blue-400/10 rounded">
@@ -156,17 +171,18 @@ export default function AccountsTable({ accounts, contacts, onRowClick, onEditCl
 
     return (
         <GlassCard className="p-0 overflow-hidden border border-white/10 shadow-2xl relative custom-scrollbar">
-            <div className="overflow-x-auto w-full">
-                <table className="w-full text-left border-collapse min-w-[1000px]">
+            <div className="w-full overflow-x-auto">
+                <table className="w-full text-left border-collapse min-w-[1200px]">
                     <thead className="bg-black/40 text-xs uppercase tracking-wider text-white/50 border-b border-white/10 sticky top-0 z-10">
                         {table.getHeaderGroups().map(headerGroup => (
                             <tr key={headerGroup.id}>
                                 {headerGroup.headers.map(header => {
+                                    const metaWidth = header.column.columnDef.meta?.width || 'w-auto';
                                     return (
                                         <th
                                             key={header.id}
                                             colSpan={header.colSpan}
-                                            className="px-4 py-3 font-medium cursor-pointer hover:text-white/80 transition-colors group select-none relative"
+                                            className={`px-4 py-3 font-medium cursor-pointer hover:text-white/80 transition-colors group select-none relative ${metaWidth}`}
                                             onClick={header.column.getToggleSortingHandler()}
                                         >
                                             <div className="flex items-center gap-1">
@@ -185,20 +201,38 @@ export default function AccountsTable({ accounts, contacts, onRowClick, onEditCl
                         ))}
                     </thead>
                     <tbody className="divide-y divide-white/5 bg-brand-dark/20">
-                        {table.getRowModel().rows.map(row => (
-                            <tr
-                                key={row.id}
-                                onClick={() => onRowClick(row.original)}
-                                className="group hover:bg-white/[0.03] transition-colors cursor-pointer"
-                            >
-                                {row.getVisibleCells().map(cell => (
-                                    <td key={cell.id} className="px-4 py-3 align-middle text-sm border-white/5">
-                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                    </td>
-                                ))}
-                            </tr>
-                        ))}
-                        {table.getRowModel().rows.length === 0 && (
+                        {isLoading ? (
+                            Array.from({ length: 6 }).map((_, idx) => (
+                                <tr key={`skel-${idx}`} className="animate-pulse">
+                                    <td className="px-4 py-4 w-[20%]"><div className="h-4 bg-white/10 rounded w-2/3"></div></td>
+                                    <td className="px-4 py-4 w-[15%]"><div className="h-4 bg-white/10 rounded w-3/4 mb-1"></div><div className="h-3 bg-white/5 rounded w-1/2"></div></td>
+                                    <td className="px-4 py-4 w-[10%]"><div className="h-6 gap-2 bg-white/10 rounded-full w-20"></div></td>
+                                    <td className="px-4 py-4 w-[10%]"><div className="h-6 gap-2 bg-white/10 rounded-full w-16"></div></td>
+                                    <td className="px-4 py-4 w-[12%]"><div className="h-4 bg-white/10 rounded w-16"></div></td>
+                                    <td className="px-4 py-4 w-[18%]"><div className="h-3 bg-white/5 rounded w-1/2 mb-1"></div><div className="h-3 bg-white/5 rounded w-2/3"></div></td>
+                                    <td className="px-4 py-4 w-[10%]"><div className="h-4 bg-white/10 rounded w-24"></div></td>
+                                    <td className="px-4 py-4 w-[10%]"><div className="h-4 bg-white/10 rounded w-20"></div></td>
+                                    <td className="px-4 py-4 w-[5%]"><div className="h-6 bg-white/5 rounded w-12"></div></td>
+                                </tr>
+                            ))
+                        ) : (
+                            table.getRowModel().rows.map(row => (
+                                <tr
+                                    key={row.id}
+                                    onClick={() => onRowClick(row.original)}
+                                    className="group hover:bg-white/[0.03] transition-colors cursor-pointer"
+                                >
+                                    {row.getVisibleCells().map(cell => {
+                                        const metaWidth = cell.column.columnDef.meta?.width || 'w-auto';
+                                        return (
+                                            <td key={cell.id} className={`px-4 py-3 align-middle text-sm border-white/5 ${metaWidth}`}>
+                                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                            </td>
+                                        );
+                                    })}
+                                </tr>
+                            )))}
+                        {!isLoading && table.getRowModel().rows.length === 0 && (
                             <tr>
                                 <td colSpan={columns.length} className="px-4 py-8 text-center text-white/40 text-sm">
                                     No accounts match the current filters.

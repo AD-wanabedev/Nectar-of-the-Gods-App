@@ -122,14 +122,22 @@ export default function Leads() {
     // Filter definitions
     const filteredAccounts = accounts.filter(account => {
         const term = searchTerm.toLowerCase();
-        const matchesSearch = account.businessName?.toLowerCase().includes(term);
+        const accContacts = contacts.filter(c => c.accountId === account.id);
+
+        // Search matches company, or any matching contact's name, email, or phone
+        const matchesSearch = !term ||
+            (account.businessName?.toLowerCase().includes(term)) ||
+            accContacts.some(c =>
+                c.name?.toLowerCase().includes(term) ||
+                c.email?.toLowerCase().includes(term) ||
+                c.phone?.includes(term)
+            );
+
         const matchesPriority = filterPriority === 'All' || account.priority === filterPriority;
         const matchesStatus = filterStatus === 'All' || account.status === filterStatus;
 
         let matchesType = true;
         if (filterType !== 'All') {
-            // Find if any tied contact matches B2B or B2C
-            const accContacts = contacts.filter(c => c.accountId === account.id);
             matchesType = accContacts.some(c => c.leadType === filterType);
         }
 
@@ -236,6 +244,7 @@ export default function Leads() {
                 return <AccountsTable
                     accounts={filteredAccounts}
                     contacts={contacts}
+                    isLoading={loading}
                     onRowClick={handleAccountClick}
                     onEditClick={handleAccountClick}
                     onDeleteClick={handleDeleteAccount}
@@ -243,39 +252,31 @@ export default function Leads() {
         }
     };
 
-    if (loading) {
-        return (
-            <div className="p-8 text-center text-white/50">
-                <div className="animate-pulse">Loading accounts...</div>
-            </div>
-        );
-    }
-
     return (
-        <div className="pb-24 pt-4 px-2 space-y-4 max-w-[1400px] mx-auto min-h-screen flex flex-col">
-            {/* Top Toolbar */}
-            <div className="flex justify-between items-center px-2 mb-2">
+        <div className="pb-24 pt-2 px-2 md:px-4 space-y-4 max-w-[1400px] mx-auto min-h-screen flex flex-col">
+            {/* Top Toolbar (Condensed for Bug 7) */}
+            <div className="flex justify-between items-center mb-1">
                 <h1 className="text-xl font-bold text-white flex-shrink-0 mr-4">CRM Database</h1>
 
                 {/* View Toggles */}
-                <div className="flex gap-1 bg-black/20 p-1 rounded-xl border border-white/10 hidden sm:flex">
+                <div className="flex gap-1 bg-black/20 p-1 rounded-xl border border-white/10 hidden md:flex">
                     <button
                         onClick={() => setViewMode('table')}
-                        className={`p-2 rounded-lg transition-colors flex items-center gap-1.5 text-xs font-medium ${viewMode === 'table' ? 'bg-white/10 text-white' : 'text-white/50 hover:text-white'}`}
+                        className={`p-1.5 px-3 rounded-lg transition-colors flex items-center gap-1.5 text-xs font-medium ${viewMode === 'table' ? 'bg-white/10 text-white shadow-sm' : 'text-white/50 hover:text-white hover:bg-white/5'}`}
                     >
-                        <LayoutTemplate size={16} /> Table
+                        <LayoutTemplate size={14} /> Table
                     </button>
                     <button
                         onClick={() => setViewMode('kanban')}
-                        className={`p-2 rounded-lg transition-colors flex items-center gap-1.5 text-xs font-medium ${viewMode === 'kanban' ? 'bg-white/10 text-white' : 'text-white/50 hover:text-white'}`}
+                        className={`p-1.5 px-3 rounded-lg transition-colors flex items-center gap-1.5 text-xs font-medium ${viewMode === 'kanban' ? 'bg-white/10 text-white shadow-sm' : 'text-white/50 hover:text-white hover:bg-white/5'}`}
                     >
-                        <LayoutGrid size={16} /> Kanban
+                        <LayoutGrid size={14} /> Kanban
                     </button>
                     <button
                         onClick={() => setViewMode('list')}
-                        className={`p-2 rounded-lg transition-colors flex items-center gap-1.5 text-xs font-medium ${viewMode === 'list' ? 'bg-white/10 text-white' : 'text-white/50 hover:text-white'}`}
+                        className={`p-1.5 px-3 rounded-lg transition-colors flex items-center gap-1.5 text-xs font-medium ${viewMode === 'list' ? 'bg-white/10 text-white shadow-sm' : 'text-white/50 hover:text-white hover:bg-white/5'}`}
                     >
-                        <LayoutList size={16} /> List
+                        <LayoutList size={14} /> List
                     </button>
                 </div>
             </div>
