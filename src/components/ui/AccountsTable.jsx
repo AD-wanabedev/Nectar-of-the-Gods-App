@@ -46,13 +46,13 @@ export default function AccountsTable({ accounts, contacts, isLoading, onRowClic
             cell: info => {
                 const status = info.getValue() || 'New';
                 const colors = {
-                    'New': 'bg-blue-600',
-                    'In Progress': 'bg-orange-600',
-                    'Converted': 'bg-purple-600',
-                    'Lost': 'bg-red-600',
+                    'New': 'bg-blue-500/20 text-blue-300 border-blue-500/30 border',
+                    'In Progress': 'bg-purple-500/20 text-purple-300 border-purple-500/30 border',
+                    'Converted': 'bg-green-500/20 text-green-300 border-green-500/30 border',
+                    'Lost': 'bg-gray-600/20 text-gray-400 border-gray-600/30 border',
                 };
                 return (
-                    <span className={`px-3 py-1 rounded-full text-xs font-bold text-white whitespace-nowrap ${colors[status] || colors['New']}`}>
+                    <span className={`px-3 py-1 rounded-full text-[11px] font-bold whitespace-nowrap ${colors[status] || colors['New']}`}>
                         {status === 'Converted' ? 'Customer' : status === 'In Progress' ? 'Qualified' : status}
                     </span>
                 );
@@ -65,12 +65,12 @@ export default function AccountsTable({ accounts, contacts, isLoading, onRowClic
             cell: info => {
                 const priority = info.getValue() || 'Medium';
                 const colors = {
-                    'High': 'bg-red-500',
-                    'Medium': 'bg-amber-500',
-                    'Low': 'bg-gray-500'
+                    'High': 'bg-red-500/20 text-red-300 border-red-500/30 border',
+                    'Medium': 'bg-amber-500/20 text-amber-300 border-amber-500/30 border',
+                    'Low': 'bg-gray-600/20 text-gray-400 border-gray-600/30 border'
                 };
                 return (
-                    <span className={`px-3 py-1 rounded-full text-xs font-bold text-white whitespace-nowrap ${colors[priority]}`}>
+                    <span className={`px-3 py-1 rounded-full text-[11px] font-bold whitespace-nowrap ${colors[priority]}`}>
                         {priority}
                     </span>
                 );

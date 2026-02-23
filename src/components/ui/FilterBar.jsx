@@ -38,11 +38,11 @@ export default function FilterBar({
         <div className="flex flex-col md:flex-row gap-3 p-4 bg-brand-dark/40 dark:bg-white/5 border border-white/10 rounded-2xl backdrop-blur-md sticky top-0 z-30 mb-4 shadow-xl">
             {/* Search */}
             <div className="relative flex-1 group">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50 group-focus-within:text-brand-gold transition-colors" size={18} />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50 group-focus-within:text-gold-500 transition-colors" size={18} />
                 <input
                     type="text"
                     placeholder="Search accounts, names, phones..."
-                    className="w-full pl-10 pr-10 text-sm h-11 bg-black/20 border border-white/10 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold transition-all"
+                    className="w-full pl-10 pr-10 text-sm h-11 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition-all"
                     value={localSearch}
                     onChange={(e) => setLocalSearch(e.target.value)}
                 />

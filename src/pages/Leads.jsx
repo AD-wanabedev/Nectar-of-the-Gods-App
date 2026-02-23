@@ -256,25 +256,25 @@ export default function Leads() {
         <div className="pb-24 pt-2 px-2 md:px-4 space-y-4 max-w-[1400px] mx-auto min-h-screen flex flex-col">
             {/* Top Toolbar (Condensed for Bug 7) */}
             <div className="flex justify-between items-center mb-1">
-                <h1 className="text-xl font-bold text-white flex-shrink-0 mr-4">CRM Database</h1>
+                <h1 className="text-xl font-bold text-gold-300 flex-shrink-0 mr-4">CRM Database</h1>
 
                 {/* View Toggles */}
-                <div className="flex gap-1 bg-black/20 p-1 rounded-xl border border-white/10 hidden md:flex">
+                <div className="flex gap-1 bg-gray-800 p-1 rounded-lg border border-gray-700 hidden md:flex">
                     <button
                         onClick={() => setViewMode('table')}
-                        className={`p-1.5 px-3 rounded-lg transition-colors flex items-center gap-1.5 text-xs font-medium ${viewMode === 'table' ? 'bg-white/10 text-white shadow-sm' : 'text-white/50 hover:text-white hover:bg-white/5'}`}
+                        className={`p-1.5 px-4 rounded-md transition-all flex items-center gap-1.5 text-xs font-medium ${viewMode === 'table' ? 'bg-gold-500 text-gray-950 shadow-lg' : 'text-gray-400 hover:text-white hover:bg-gray-700'}`}
                     >
                         <LayoutTemplate size={14} /> Table
                     </button>
                     <button
                         onClick={() => setViewMode('kanban')}
-                        className={`p-1.5 px-3 rounded-lg transition-colors flex items-center gap-1.5 text-xs font-medium ${viewMode === 'kanban' ? 'bg-white/10 text-white shadow-sm' : 'text-white/50 hover:text-white hover:bg-white/5'}`}
+                        className={`p-1.5 px-4 rounded-md transition-all flex items-center gap-1.5 text-xs font-medium ${viewMode === 'kanban' ? 'bg-gold-500 text-gray-950 shadow-lg' : 'text-gray-400 hover:text-white hover:bg-gray-700'}`}
                     >
                         <LayoutGrid size={14} /> Kanban
                     </button>
                     <button
                         onClick={() => setViewMode('list')}
-                        className={`p-1.5 px-3 rounded-lg transition-colors flex items-center gap-1.5 text-xs font-medium ${viewMode === 'list' ? 'bg-white/10 text-white shadow-sm' : 'text-white/50 hover:text-white hover:bg-white/5'}`}
+                        className={`p-1.5 px-4 rounded-md transition-all flex items-center gap-1.5 text-xs font-medium ${viewMode === 'list' ? 'bg-gold-500 text-gray-950 shadow-lg' : 'text-gray-400 hover:text-white hover:bg-gray-700'}`}
                     >
                         <LayoutList size={14} /> List
                     </button>

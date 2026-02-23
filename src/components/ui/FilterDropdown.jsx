@@ -22,52 +22,55 @@ export default function FilterDropdown({ label, options, value, onChange }) {
 
     return (
         <div className="relative" ref={dropdownRef}>
+            {/* Trigger Button */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className={`flex items-center gap-2 bg-black/20 text-white border ${value !== 'All' ? 'border-brand-gold text-brand-gold' : 'border-white/10'} rounded-lg px-3 py-2 text-sm focus:outline-none hover:bg-white/5 transition-colors`}
+                className={`
+                    flex items-center justify-between gap-2 
+                    bg-gray-800 hover:bg-gray-700
+                    text-white
+                    px-4 py-2 
+                    rounded-lg 
+                    border ${value !== 'All' ? 'border-gold-500/50 text-gold-300' : 'border-gray-700 hover:border-gold-500/30'}
+                    transition-all
+                    min-w-[140px] shadow-sm
+                `}
             >
-                {label}: <span className="font-bold">{value}</span>
-                <ChevronDown size={14} className={`transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                <span className="text-sm">{label}: <span className="font-bold ml-1">{value || 'All'}</span></span>
+                <ChevronDown size={16} className={`text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
             </button>
 
+            {/* Dropdown Menu */}
             {isOpen && (
-                <>
-                    {/* Mobile Fullscreen Overlay */}
-                    <div className="md:hidden fixed inset-0 z-[45] bg-black/60 backdrop-blur-sm" onClick={() => setIsOpen(false)} />
-
-                    {/* Dropdown Menu */}
-                    <div className={`
-                        fixed md:absolute z-[50] md:z-[40]
-                        bottom-0 left-0 right-0 md:bottom-auto md:left-auto md:right-auto md:top-full md:mt-2
-                        w-full md:w-56 bg-gray-900 md:bg-gray-900/95 md:backdrop-blur border-t md:border border-white/10 md:rounded-xl shadow-2xl
-                        animate-in slide-in-from-bottom md:slide-in-from-top-2 duration-200
-                    `}>
-                        <div className="flex justify-between items-center p-4 md:hidden border-b border-white/5">
-                            <h3 className="font-bold text-white">Filter by {label}</h3>
-                            <button onClick={() => setIsOpen(false)} className="text-white/50 hover:text-white p-1">
-                                <X size={20} />
-                            </button>
-                        </div>
-
-                        <div className="p-2 max-h-[60vh] overflow-y-auto">
-                            {options.map((opt) => (
-                                <button
-                                    key={opt}
-                                    onClick={() => {
-                                        onChange(opt);
-                                        setIsOpen(false);
-                                    }}
-                                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-colors text-left
-                                        ${value === opt ? 'bg-brand-gold/10 text-brand-gold font-bold' : 'text-white/80 hover:bg-white/5'}
-                                    `}
-                                >
-                                    {opt}
-                                    {value === opt && <Check size={16} />}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                </>
+                <div className="
+                    absolute top-full left-0 mt-2
+                    w-full min-w-[200px]
+                    bg-gray-800 
+                    rounded-lg 
+                    border border-white/10
+                    shadow-2xl shadow-black/50
+                    py-2
+                    z-50
+                    animate-in fade-in slide-in-from-top-2 duration-200
+                ">
+                    {options.map((opt) => (
+                        <button
+                            key={opt}
+                            onClick={() => {
+                                onChange(opt);
+                                setIsOpen(false);
+                            }}
+                            className={`
+                                w-full flex items-center justify-between px-4 py-2.5 
+                                text-sm transition-colors text-left
+                                ${value === opt ? 'bg-gold-500/10 text-gold-300 font-bold' : 'text-gray-300 hover:bg-white/5 hover:text-white'}
+                            `}
+                        >
+                            <span>{opt}</span>
+                            {value === opt && <Check size={16} className="text-gold-500" />}
+                        </button>
+                    ))}
+                </div>
             )}
         </div>
     );
