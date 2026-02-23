@@ -62,14 +62,22 @@ export default function Today() {
 
     const overdueItems = useMemo(() => leads.filter(l => {
         if (!l.nextFollowUp) return false;
+
+        // Hide Converted, Lost, and Closed leads from Overdue
+        if (['Closed', 'Converted', 'Lost'].includes(l.status)) return false;
+
         const date = parseISO(l.nextFollowUp);
-        return isBefore(date, today) && l.status !== 'Closed';
+        return isBefore(date, today);
     }), [leads, today]);
 
     const todayFollowUps = useMemo(() => leads.filter(l => {
         if (!l.nextFollowUp) return false;
+
+        // Hide Converted, Lost, and Closed leads from Today
+        if (['Closed', 'Converted', 'Lost'].includes(l.status)) return false;
+
         const date = parseISO(l.nextFollowUp);
-        return isToday(date) && l.status !== 'Closed';
+        return isToday(date);
     }), [leads, today]);
 
     return (
