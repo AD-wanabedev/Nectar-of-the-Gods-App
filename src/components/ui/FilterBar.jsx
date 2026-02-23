@@ -12,11 +12,8 @@ export default function FilterBar({
     filterPriority,
     setFilterPriority,
     filterType,
-    onExportCSV,
-    onExportPDF,
-    totalValue = 0,
-    showNewOnly = false, setShowNewOnly,
-    showHighPriority = false, setShowHighPriority
+    setFilterType,
+    onExportCSV
 }) {
     const STATUS_OPTIONS = ['All', 'New', 'In Progress', 'Converted', 'Lost'];
     const PRIORITY_OPTIONS = ['All', 'High', 'Medium', 'Low'];
