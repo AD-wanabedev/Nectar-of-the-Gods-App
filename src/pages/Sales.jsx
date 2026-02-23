@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { leadsDB } from '../db';
+import { leadsDB, accountsDB } from '../db';
 import GlassCard from '../components/ui/GlassCard';
 import {
     TrendingUp, DollarSign, BarChart2, Calendar, ShoppingBag,
@@ -13,6 +13,7 @@ const COLORS = ['#a07b32', '#fdcca6', '#c49a45', '#eeb085', '#8c6b2b', '#ffe4cc'
 
 export default function Sales() {
     const [allLeads, setAllLeads] = useState([]);
+    const [allAccounts, setAllAccounts] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -22,8 +23,12 @@ export default function Sales() {
     const loadData = async () => {
         try {
             setLoading(true);
-            const data = await leadsDB.getAll();
-            setAllLeads(data);
+            const [leadsData, accountsData] = await Promise.all([
+                leadsDB.getAll(),
+                accountsDB.getAll()
+            ]);
+            setAllLeads(leadsData);
+            setAllAccounts(accountsData);
         } catch (error) {
             console.error("Failed to load leads data:", error);
         } finally {
@@ -41,17 +46,16 @@ export default function Sales() {
         const weekAgo = subDays(now, 7);
         const startOfCurrentYear = new Date(now.getFullYear(), 0, 1);
 
-        // --- Collections ---
-        const salesOnly = allLeads.filter(l => l.orderValue && parseFloat(l.orderValue) > 0);
-
-        // --- Core Lead Metrics ---
-        const totalLeads = allLeads.length;
-        const totalSales = salesOnly.length;
+        // --- Core Account Metrics (Deduped Revenue) ---
+        const totalLeads = allAccounts.length; // 1 Account = 1 Real Lead Business
+        const totalSales = allAccounts.filter(a => (a.totalRevenue || 0) > 0).length;
         const conversionRate = totalLeads ? ((totalSales / totalLeads) * 100).toFixed(1) : 0;
 
-        // --- Core Revenue Metrics ---
-        const totalRevenue = salesOnly.reduce((sum, l) => sum + (parseFloat(l.orderValue) || 0), 0);
+        const totalRevenue = allAccounts.reduce((sum, a) => sum + (a.totalRevenue || 0), 0);
         const averageOrderValue = totalSales ? (totalRevenue / totalSales) : 0;
+
+        // --- Collections ---
+        const salesOnly = allLeads.filter(l => l.orderValue && parseFloat(l.orderValue) > 0);
 
         // --- Time-Based Revenue Trends ---
         let revenueThisMonth = 0;
@@ -76,6 +80,12 @@ export default function Sales() {
         const b2bCategories = {};
         const honeyCounts = {};
 
+        // Calculate overarching pipeline health directly from Accounts
+        allAccounts.forEach(acc => {
+            if (acc.priority) priorityCounts[acc.priority] = (priorityCounts[acc.priority] || 0) + 1;
+            if (acc.status) statusCounts[acc.status] = (statusCounts[acc.status] || 0) + 1;
+        });
+
         allLeads.forEach(lead => {
             const createdDate = lead.created ? new Date(lead.created) : new Date(Date.now() - 86400000); // fallback
 
@@ -83,9 +93,7 @@ export default function Sales() {
             if (createdDate >= weekAgo) leadsThisWeek++;
             if (createdDate >= startOfThisMonth) leadsThisMonth++;
 
-            // Breakdowns
-            if (lead.priority) priorityCounts[lead.priority] = (priorityCounts[lead.priority] || 0) + 1;
-            if (lead.status) statusCounts[lead.status] = (statusCounts[lead.status] || 0) + 1;
+            // Breakdowns for granular contact insights
             if (lead.teamMember) teamMemberCounts[lead.teamMember] = (teamMemberCounts[lead.teamMember] || 0) + 1;
             if (lead.platform) sourceCounts[lead.platform] = (sourceCounts[lead.platform] || 0) + 1;
 
@@ -141,7 +149,7 @@ export default function Sales() {
             honeyChartData, revenueChartData, recentSales: salesOnly.slice(-5).reverse()
         };
 
-    }, [allLeads]);
+    }, [allLeads, allAccounts]);
 
     if (loading) return <div className="p-8 text-center text-brand-dark/50 dark:text-brand-white/50 animate-pulse">Computing Analytics...</div>;
     if (!dashboardData) return <div className="p-8 text-center text-brand-dark/50 dark:text-brand-white/50">No data available for analytics.</div>;

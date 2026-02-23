@@ -1,36 +1,30 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
-import { leadsDB } from '../db';
+import { leadsDB, accountsDB } from '../db';
 import GlassCard from '../components/ui/GlassCard';
 import GlassInput from '../components/ui/GlassInput';
 import GlassButton from '../components/ui/GlassButton';
 import FloatingActionButton from '../components/ui/FloatingActionButton';
 import AddLeadForm from '../components/AddLeadForm';
-import { Search, Plus, Filter, Phone, MoreHorizontal, Instagram, Mail, MessageCircle, FileDown, FileUp, Building2, Trash2, Check } from 'lucide-react';
+import AccountDetailsModal from '../components/AccountDetailsModal';
+import { Search, Plus, Filter, Phone, MoreHorizontal, Instagram, Mail, MessageCircle, FileDown, FileUp, Building2, Trash2, Check, IndianRupee } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 
-const SwipeableLeadCard = ({ lead, onEdit, onDelete, onCall }) => {
+const SwipeableAccountCard = ({ account, onClick, onDelete }) => {
     const x = useMotionValue(0);
     const background = useTransform(x, [-100, 0, 100], ["rgba(239, 68, 68, 0.2)", "rgba(0,0,0,0)", "rgba(34, 197, 94, 0.2)"]);
     const opacityRight = useTransform(x, [50, 100], [0, 1]);
     const opacityLeft = useTransform(x, [-50, -100], [0, 1]);
 
     const handleDragEnd = (_, info) => {
-        if (info.offset.x > 100) {
-            onCall(lead);
-        } else if (info.offset.x < -100) {
-            onDelete(lead);
+        if (info.offset.x < -100) {
+            onDelete(account);
         }
     };
 
     return (
         <motion.div style={{ background }} className="relative rounded-2xl overflow-hidden mb-3">
-            {/* Left Action (Call) */}
-            <motion.div style={{ opacity: opacityRight }} className="absolute inset-y-0 left-0 w-20 flex items-center justify-center bg-green-500/20 text-green-500">
-                <Phone size={24} />
-            </motion.div>
-
             {/* Right Action (Delete) */}
             <motion.div style={{ opacity: opacityLeft }} className="absolute inset-y-0 right-0 w-20 flex items-center justify-center bg-red-500/20 text-red-500">
                 <Trash2 size={24} />
@@ -43,79 +37,36 @@ const SwipeableLeadCard = ({ lead, onEdit, onDelete, onCall }) => {
                 className="relative z-10"
                 whileDrag={{ scale: 1.02 }}
             >
-                <GlassCard onClick={() => onEdit(lead)} className="active:scale-[0.99] cursor-pointer hover:bg-brand-dark/5 dark:hover:bg-white/10 group relative overflow-hidden !m-0 !rounded-none !bg-transparent border-0 shadow-none">
+                <GlassCard onClick={() => onClick(account)} className="active:scale-[0.99] cursor-pointer hover:bg-brand-dark/5 dark:hover:bg-white/10 group relative overflow-hidden !m-0 !rounded-none !bg-transparent border-0 shadow-none pb-4">
                     {/* Priority Indicator Strip */}
-                    <div className={`absolute left-0 top-0 bottom-0 w-1 ${lead.priority === 'High' ? 'bg-red-500' :
-                        lead.priority === 'Medium' ? 'bg-amber-500' : 'bg-blue-500'
+                    <div className={`absolute left-0 top-0 bottom-0 w-1 ${account.priority === 'High' ? 'bg-red-500' :
+                        account.priority === 'Medium' ? 'bg-amber-500' : 'bg-blue-500'
                         }`} />
 
-                    <div className="pl-3 flex justify-between items-start">
-                        <div className="flex-1">
-                            {/* Header: Name/Platform */}
-                            <div className="flex items-center gap-2 mb-1">
+                    <div className="pl-4 pr-2 flex justify-between items-start">
+                        <div className="flex-1 pt-1 space-y-2">
+                            {/* Header: Business Name */}
+                            <div className="flex items-center gap-2">
+                                <Building2 size={16} className="text-brand-gold flex-shrink-0" />
                                 <h3 className="font-bold text-brand-dark dark:text-white text-xl leading-tight">
-                                    {lead.name}
+                                    {account.businessName}
                                 </h3>
-                                <span className="text-brand-dark/40 dark:text-white/40">
-                                    {lead.platform === 'Instagram' && <Instagram size={16} />}
-                                    {lead.platform === 'WhatsApp' && <MessageCircle size={16} />}
-                                    {lead.platform === 'Gmail' && <Mail size={16} />}
-                                    {(lead.platform === 'Call' || !lead.platform) && <Phone size={16} />}
-                                </span>
                             </div>
 
-                            {/* Establishment Name */}
-                            {lead.establishment && (
-                                <p className="text-brand-dark/70 dark:text-white/70 text-base font-medium flex items-center gap-1 mb-1">
-                                    <Building2 size={16} className="text-brand-gold" /> {lead.establishment}
-                                </p>
-                            )}
-
-                            {/* Type Badges */}
-                            <div className="flex flex-wrap gap-1 my-1.5">
-                                {lead.leadType && (
-                                    <span className="text-xs px-2 py-0.5 rounded bg-blue-500/10 text-blue-500 border border-blue-500/20 font-medium">
-                                        {lead.leadType}
+                            {/* Badges */}
+                            <div className="flex flex-wrap gap-2">
+                                <span className="text-[10px] px-2 py-0.5 rounded bg-brand-dark/5 dark:bg-white/5 text-brand-dark/70 dark:text-white/70 tracking-wide uppercase font-medium">
+                                    {account.status || 'New'}
+                                </span>
+                                {account.totalRevenue > 0 && (
+                                    <span className="text-[10px] px-2 py-0.5 rounded bg-green-500/10 text-green-400 font-bold border border-green-500/20 flex items-center gap-0.5">
+                                        <IndianRupee size={10} /> {account.totalRevenue.toLocaleString()}
                                     </span>
                                 )}
-                                {lead.leadSubType && (
-                                    <span className="text-xs px-2 py-0.5 rounded bg-purple-500/10 text-purple-500 border border-purple-500/20 font-medium">
-                                        {lead.leadSubType}
-                                    </span>
-                                )}
-                                <span className="text-xs px-2 py-0.5 rounded bg-brand-dark/5 dark:bg-white/5 text-brand-dark/60 dark:text-white/60 uppercase tracking-wide">
-                                    {lead.status}
-                                </span>
-                            </div>
-
-                            {/* Contact Details */}
-                            <div className="flex flex-col gap-1 mt-2">
-                                {lead.phone && (
-                                    <p className="text-brand-dark/60 dark:text-white/60 text-sm flex items-center gap-1.5">
-                                        <Phone size={14} /> {lead.phone}
-                                    </p>
-                                )}
-                                {lead.email && (
-                                    <p className="text-brand-dark/60 dark:text-white/60 text-sm flex items-center gap-1.5">
-                                        <Mail size={14} /> {lead.email}
-                                    </p>
-                                )}
-                            </div>
-
-                            {/* Footer: Assigned & Due */}
-                            <div className="flex items-center gap-3 mt-3 pt-2 border-t border-brand-dark/5 dark:border-white/5">
-                                {lead.teamMember && lead.teamMember !== 'Me' && (
-                                    <p className="text-brand-dark/50 dark:text-white/50 text-xs">
-                                        Assigned: <span className="text-brand-gold">{lead.teamMember}</span>
-                                    </p>
-                                )}
-                                <p className="text-brand-dark/50 dark:text-white/50 text-xs ml-auto">
-                                    Follow-up: {lead.nextFollowUp ? format(parseISO(lead.nextFollowUp), 'MMM d, h:mm a') : 'None'}
-                                </p>
                             </div>
                         </div>
 
-                        <button onClick={(e) => { e.stopPropagation(); onDelete(lead); }} className="text-brand-dark/40 dark:text-white/40 p-2 -mr-2 -mt-1 hover:text-red-500 transition-colors">
+                        <button onClick={(e) => { e.stopPropagation(); onDelete(account); }} className="text-brand-dark/40 dark:text-white/40 p-2 -mr-2 -mt-1 hover:text-red-500 transition-colors">
                             <Trash2 size={20} />
                         </button>
                     </div>
@@ -126,47 +77,52 @@ const SwipeableLeadCard = ({ lead, onEdit, onDelete, onCall }) => {
 };
 
 export default function Leads() {
-    const [leads, setLeads] = useState([]);
+    const [accounts, setAccounts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showAddForm, setShowAddForm] = useState(false);
     const [editingLead, setEditingLead] = useState(null);
+    const [selectedAccount, setSelectedAccount] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [priorityFilter, setPriorityFilter] = useState('All');
     const location = useLocation();
     const navigate = useNavigate();
 
     useEffect(() => {
-        loadLeads();
+        loadAccounts();
     }, []);
 
     // Check for deep link from Today.jsx
     useEffect(() => {
-        if (leads.length > 0 && location.state?.openLeadId) {
-            const leadToOpen = leads.find(l => l.id === location.state.openLeadId);
-            if (leadToOpen) {
-                handleEdit(leadToOpen);
-                // Clear the state so it doesn't re-open on refresh
-                navigate(location.pathname, { replace: true });
+        const processDeepLink = async () => {
+            if (location.state?.openLeadId) {
+                const allLeads = await leadsDB.getAll();
+                const leadToOpen = allLeads.find(l => l.id === location.state.openLeadId);
+                if (leadToOpen) {
+                    setEditingLead(leadToOpen);
+                    setShowAddForm(true);
+                    // Clear the state so it doesn't re-open on refresh
+                    navigate(location.pathname, { replace: true });
+                }
             }
-        }
-    }, [leads, location.state, navigate, location.pathname]);
+        };
+        processDeepLink();
+    }, [location.state, navigate, location.pathname]);
 
-    const loadLeads = async (isRefetch = false) => {
+    const loadAccounts = async (isRefetch = false) => {
         try {
-            if (!isRefetch && leads.length === 0) setLoading(true);
-            const data = await leadsDB.getAll();
-            setLeads(data);
+            if (!isRefetch && accounts.length === 0) setLoading(true);
+            const data = await accountsDB.getAll();
+            setAccounts(data);
         } catch (error) {
-            console.error("Failed to load leads:", error);
-            alert("Failed to load leads. Please refresh.");
+            console.error("Failed to load accounts:", error);
+            alert("Failed to load accounts. Please refresh.");
         } finally {
             setLoading(false);
         }
     };
 
-    const handleEdit = (lead) => {
-        setEditingLead(lead);
-        setShowAddForm(true);
+    const handleAccountClick = (account) => {
+        setSelectedAccount(account);
     };
 
     const handleAdd = () => {
@@ -174,42 +130,34 @@ export default function Leads() {
         setShowAddForm(true);
     };
 
-    const handleDelete = async (lead) => {
-        if (window.confirm(`Are you sure you want to delete ${lead.name}?`)) {
+    const handleDelete = async (account) => {
+        if (window.confirm(`Are you sure you want to delete ${account.businessName}? This will NOT delete associated leads.`)) {
             try {
-                await leadsDB.delete(lead.id);
-                loadLeads(true); // Silent refresh
+                await accountsDB.delete(account.id);
+                loadAccounts(true); // Silent refresh
             } catch (error) {
-                console.error("Failed to delete lead:", error);
-                alert("Failed to delete lead.");
+                console.error("Failed to delete account:", error);
+                alert("Failed to delete account.");
             }
         }
-    };
-
-    const handleCall = (lead) => {
-        if (!lead.phone) return alert("No phone number for this lead.");
-        window.location.href = `tel:${lead.phone}`;
     };
 
     const handleCloseForm = () => {
         setShowAddForm(false);
         setEditingLead(null);
-        loadLeads(true); // Refresh data silently to keep scroll position
+        loadAccounts(true); // Refresh data silently to keep scroll position
     };
 
-    const exportCSV = () => {
-        if (!leads || leads.length === 0) return alert("No leads to export.");
+    const exportCSV = async () => {
+        if (!accounts || accounts.length === 0) return alert("No accounts to export.");
 
-        const headers = ["Name", "Phone", "Email", "Status", "Priority", "Assigned To", "Notes", "Next Follow Up"];
-        const rows = leads.map(l => [
-            l.name,
-            l.phone,
-            l.email || '',
-            l.status,
-            l.priority,
-            l.teamMember,
-            l.notes || '',
-            l.nextFollowUp
+        const headers = ["Business Name", "Status", "Priority", "Total Revenue", "Created At"];
+        const rows = accounts.map(a => [
+            a.businessName,
+            a.status,
+            a.priority,
+            a.totalRevenue || 0,
+            a.createdAt ? format(new Date(a.createdAt), 'yyyy-MM-dd') : ''
         ]);
 
         const csvContent = [
@@ -221,84 +169,33 @@ export default function Leads() {
         const link = document.createElement("a");
         const url = URL.createObjectURL(blob);
         link.setAttribute("href", url);
-        link.setAttribute("download", `moonshine_leads_${format(new Date(), 'yyyy-MM-dd')}.csv`);
+        link.setAttribute("download", `moonshine_accounts_${format(new Date(), 'yyyy-MM-dd')}.csv`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
     };
 
     const handleImportCSV = (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = async (event) => {
-            try {
-                const text = event.target.result;
-                const rows = text.split("\n").slice(1); // Skip header
-
-                let count = 0;
-                const promises = [];
-                const BATCH_SIZE = 20;
-
-                for (const row of rows) {
-                    const cols = row.split(",").map(c => c.replace(/^"|"$/g, '').trim());
-                    if (cols.length < 2) continue;
-
-                    const [name, phone, email, status, priority, teamMember, notes, nextFollowUp] = cols;
-
-                    if (name) {
-                        promises.push(leadsDB.add({
-                            name,
-                            phone: phone || '',
-                            email: email || '',
-                            status: status || 'New',
-                            priority: priority || 'Medium',
-                            teamMember: teamMember || 'Me',
-                            notes: notes || '',
-                            nextFollowUp: nextFollowUp || new Date().toISOString(),
-                            platform: 'Call',
-                            leadType: 'B2C', // Default for import
-                            createdAt: new Date().toISOString()
-                        }));
-                        count++;
-                    }
-                }
-
-                // Execute in batches
-                for (let i = 0; i < promises.length; i += BATCH_SIZE) {
-                    const batch = promises.slice(i, i + BATCH_SIZE);
-                    await Promise.all(batch);
-                }
-
-                alert(`Imported ${count} leads successfully!`);
-                loadLeads(); // Refresh after import
-            } catch (error) {
-                console.error("Import failed:", error);
-                alert("Failed to import leads. Check CSV format.");
-            }
-        };
-        reader.readAsText(file);
+        // Disabled for now as Accounts/Leads import logic requires deep relation handling
+        alert("Account imports are disabled pending relational schema support.");
     };
 
     const triggerImport = () => {
         document.getElementById('csv-import-input').click();
     };
 
-    // Filter leads in memory
-    const filteredLeads = leads.filter(lead => {
+    // Filter accounts in memory
+    const filteredAccounts = accounts.filter(account => {
         const term = searchTerm.toLowerCase();
-        const matchesSearch = lead.name.toLowerCase().includes(term) ||
-            (lead.phone && lead.phone.includes(term)) ||
-            (lead.establishment && lead.establishment.toLowerCase().includes(term));
-        const matchesPriority = priorityFilter === 'All' || lead.priority === priorityFilter;
+        const matchesSearch = account.businessName.toLowerCase().includes(term);
+        const matchesPriority = priorityFilter === 'All' || account.priority === priorityFilter;
         return matchesSearch && matchesPriority;
-    }).sort((a, b) => new Date(b.nextFollowUp) - new Date(a.nextFollowUp));
+    }).sort((a, b) => (b.totalRevenue || 0) - (a.totalRevenue || 0));
 
     if (loading) {
         return (
             <div className="p-8 text-center text-white/50">
-                <div className="animate-pulse">Loading leads...</div>
+                <div className="animate-pulse">Loading accounts...</div>
             </div>
         );
     }
@@ -351,21 +248,20 @@ export default function Leads() {
                 </GlassButton>
             </div>
 
-            {/* Leads List */}
+            {/* Accounts List */}
             <div className="space-y-3">
-                {filteredLeads.length === 0 ? (
+                {filteredAccounts.length === 0 ? (
                     <div className="text-center py-10 text-brand-dark/40 dark:text-white/40">
-                        <p>No leads found.</p>
+                        <p>No accounts found.</p>
                         <p className="text-xs mt-1">Tap + to add one.</p>
                     </div>
                 ) : (
-                    filteredLeads.map(lead => (
-                        <SwipeableLeadCard
-                            key={lead.id}
-                            lead={lead}
-                            onEdit={handleEdit}
+                    filteredAccounts.map(account => (
+                        <SwipeableAccountCard
+                            key={account.id}
+                            account={account}
+                            onClick={handleAccountClick}
                             onDelete={handleDelete}
-                            onCall={handleCall}
                         />
                     ))
                 )}
@@ -374,12 +270,13 @@ export default function Leads() {
             {/* FAB */}
             <FloatingActionButton onAddLead={handleAdd} onImport={triggerImport} />
 
-            {/* Add Lead Modal */}
+            {/* Account Details Modal */}
             {
-                showAddForm && (
-                    <AddLeadForm
-                        onClose={handleCloseForm}
-                        initialData={editingLead}
+                selectedAccount && (
+                    <AccountDetailsModal
+                        account={selectedAccount}
+                        onClose={() => setSelectedAccount(null)}
+                        onRefreshAccounts={loadAccounts}
                     />
                 )
             }

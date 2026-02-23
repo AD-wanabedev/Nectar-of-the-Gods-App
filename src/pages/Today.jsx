@@ -5,23 +5,28 @@ import GlassButton from '../components/ui/GlassButton';
 import GoalRing from '../components/ui/GoalRing';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect, useMemo } from 'react';
-import { db } from '../db';
+import { db, accountsDB } from '../db';
 import { format, isBefore, isToday, parseISO, startOfToday, getHours } from 'date-fns';
 
 export default function Today() {
     const navigate = useNavigate();
     const [leads, setLeads] = useState([]);
+    const [accounts, setAccounts] = useState([]);
 
     useEffect(() => {
-        const fetchLeads = async () => {
+        const fetchData = async () => {
             try {
-                const data = await db.leads.getAll();
-                setLeads(data);
+                const [leadsData, accountsData] = await Promise.all([
+                    db.leads.getAll(),
+                    accountsDB.getAll()
+                ]);
+                setLeads(leadsData);
+                setAccounts(accountsData);
             } catch (error) {
-                console.error("Error fetching leads:", error);
+                console.error("Error fetching dashboard data:", error);
             }
         };
-        fetchLeads();
+        fetchData();
     }, []);
 
     const today = startOfToday();
@@ -35,10 +40,10 @@ export default function Today() {
 
     // --- Metrics Calculations (Memoized for performance) ---
     const metrics = useMemo(() => {
-        const totalLeads = leads.length;
-        const revenue = leads.reduce((sum, l) => sum + (parseFloat(l.orderValue) || 0), 0);
-        const highPriorityCount = leads.filter(l => l.priority === 'High').length;
-        const salesCount = leads.filter(l => (parseFloat(l.orderValue) || 0) > 0).length;
+        const totalLeads = accounts.length;
+        const revenue = accounts.reduce((sum, a) => sum + (a.totalRevenue || 0), 0);
+        const highPriorityCount = accounts.filter(a => a.priority === 'High').length;
+        const salesCount = accounts.filter(a => (a.totalRevenue || 0) > 0).length;
 
         // Goals (Mock targets for visualization)
         const revenueGoal = 50000;
@@ -58,7 +63,7 @@ export default function Today() {
             callsMade,
             callsProgress
         };
-    }, [leads]);
+    }, [leads, accounts]);
 
     const overdueItems = useMemo(() => leads.filter(l => {
         if (!l.nextFollowUp) return false;
