@@ -258,22 +258,19 @@ export default function LeadDetailPanel({ account, contacts, onClose, onRefreshA
                             ))}
                         </div>
                     </section>
-
                 </div>
-
-                {/* Render Overlay Form inside Panel bounds or fullscreen depending on UX choice, going Fullscreen explicitly for AddLeadForm stability */}
-                {showContactForm && (
-                    <div className="fixed inset-0 z-[60]">
-                        <AddLeadForm
-                            onClose={() => {
-                                setShowContactForm(false);
-                                if (onRefreshAccounts) onRefreshAccounts(true);
-                            }}
-                            initialData={editingContact || { accountId: account.id, establishment: account.businessName }}
-                        />
-                    </div>
-                )}
             </div>
+
+            {/* Render Overlay Form inside root Fragment to escape 'transform' coordinate matrix */}
+            {showContactForm && (
+                <AddLeadForm
+                    onClose={() => {
+                        setShowContactForm(false);
+                        if (onRefreshAccounts) onRefreshAccounts(true);
+                    }}
+                    initialData={editingContact || { accountId: account.id, establishment: account.businessName }}
+                />
+            )}
         </>
     );
 }

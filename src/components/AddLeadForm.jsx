@@ -862,7 +862,7 @@ export default function AddLeadForm({ onClose, initialData = null }) {
                     {/* Fixed Footer with Contextual Nav Clearance */}
                     <div
                         className="
-                            flex-shrink-0 fixed md:sticky bottom-0 left-0 w-full z-20
+                            flex-shrink-0 z-20
                             bg-gray-900/95 backdrop-blur-md
                             border-t border-gray-800
                             p-4 md:p-6 pb-[env(safe-area-inset-bottom)]
