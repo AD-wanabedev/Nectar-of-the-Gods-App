@@ -145,11 +145,7 @@ export default function Leads() {
             matchesType = accContacts.some(c => c.leadType === filterType);
         }
 
-        // Apply Quick Toggles Overrides
-        const matchesQuickNew = !showNewOnly || account.status === 'New';
-        const matchesQuickPriority = !showHighPriority || account.priority === 'High';
-
-        return matchesSearch && matchesPriority && matchesStatus && matchesType && matchesQuickNew && matchesQuickPriority;
+        return matchesSearch && matchesPriority && matchesStatus && matchesType;
     }).sort((a, b) => (b.totalRevenue || 0) - (a.totalRevenue || 0));
 
     // Calculate aggregated Total Value for FilterBar Unified Header
@@ -292,16 +288,13 @@ export default function Leads() {
                 </div>
             </div>
 
-            {/* Notion Filter Bar Engine -> Converted to Unified Header */}
+            {/* Notion Filter Bar Engine - Optimized Header */}
             <FilterBar
                 searchTerm={searchTerm} setSearchTerm={setSearchTerm}
                 filterStatus={filterStatus} setFilterStatus={setFilterStatus}
                 filterPriority={filterPriority} setFilterPriority={setFilterPriority}
                 filterType={filterType} setFilterType={setFilterType}
-                onExportCSV={exportCSV} onExportPDF={exportPDF}
-                totalValue={calculatedTotalValue}
-                showNewOnly={showNewOnly} setShowNewOnly={setShowNewOnly}
-                showHighPriority={showHighPriority} setShowHighPriority={setShowHighPriority}
+                onExportCSV={exportCSV}
             />
 
             {/* Dynamic View Injection */}

@@ -12,7 +12,6 @@ export default function FilterBar({
     filterPriority,
     setFilterPriority,
     filterType,
-    setFilterType,
     onExportCSV,
     onExportPDF,
     totalValue = 0,
@@ -71,43 +70,10 @@ export default function FilterBar({
                 <div className="flex gap-2 ml-auto shrink-0">
                     <button
                         onClick={onExportCSV}
-                        className="h-11 px-5 rounded-xl text-sm bg-gold-500 hover:bg-gold-600 text-gray-950 font-bold border-none shadow-[0_0_15px_rgba(234,179,8,0.3)] flex items-center gap-2 transition-all"
+                        className="h-11 px-6 rounded-xl text-sm bg-gold-500 hover:bg-gold-600 text-gray-950 font-bold border-none shadow-[0_0_15px_rgba(234,179,8,0.3)] flex items-center gap-2 transition-all"
                     >
-                        <Download size={16} /> CSV
+                        <Download size={16} /> CSV / Excel
                     </button>
-                    <button
-                        onClick={onExportPDF}
-                        className="h-11 px-5 rounded-xl text-sm bg-gray-800 hover:bg-gray-700 text-white border border-gray-600 flex items-center gap-2 transition-all"
-                    >
-                        <Download size={16} /> PDF
-                    </button>
-                </div>
-            </div>
-
-            {/* Bottom Row: Quick Toggles & Total Value */}
-            <div className="flex flex-wrap items-center justify-between pt-4 border-t border-gray-700/50 gap-4">
-                {/* Quick Filters */}
-                <div className="flex gap-2">
-                    <button
-                        onClick={() => setShowNewOnly && setShowNewOnly(!showNewOnly)}
-                        className={`px-4 py-2 rounded-lg border text-xs font-semibold transition-colors ${showNewOnly ? 'bg-blue-500/20 border-blue-500/50 text-blue-300' : 'bg-gray-800 border-gray-600 text-gray-300 hover:text-white hover:border-blue-500'}`}
-                    >
-                        Show New Only
-                    </button>
-                    <button
-                        onClick={() => setShowHighPriority && setShowHighPriority(!showHighPriority)}
-                        className={`px-4 py-2 rounded-lg border text-xs font-semibold transition-colors ${showHighPriority ? 'bg-red-500/20 border-red-500/50 text-red-300' : 'bg-gray-800 border-gray-600 text-gray-300 hover:text-white hover:border-red-500'}`}
-                    >
-                        High Priority
-                    </button>
-                </div>
-
-                {/* Metrics */}
-                <div className="flex items-center gap-3 bg-black/40 px-5 py-2.5 rounded-xl border border-gray-700/50">
-                    <span className="text-gray-400 text-xs font-bold tracking-widest uppercase">Total Value</span>
-                    <span className="text-green-400 text-xl font-black">
-                        ₹{totalValue.toLocaleString('en-IN')}
-                    </span>
                 </div>
             </div>
         </div>

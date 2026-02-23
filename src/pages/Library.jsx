@@ -49,13 +49,21 @@ export default function Library() {
     };
 
     const handleFileUpload = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
+        const originalFile = e.target.files[0];
+        if (!originalFile) return;
 
-        if (file.size > MAX_FILE_SIZE) {
-            alert(`File size exceeds 50MB limit. Current size: ${(file.size / (1024 * 1024)).toFixed(2)}MB`);
+        if (originalFile.size > MAX_FILE_SIZE) {
+            alert(`File size exceeds 50MB limit. Current size: ${(originalFile.size / (1024 * 1024)).toFixed(2)}MB`);
             return;
         }
+
+        // CRITICAL FIX: Windows systems leak absolute paths like C:\Users\dir\file.png into 'name'
+        // This causes Cloudinary to interpret it as a command to create those exact literal nested folders.
+        // We MUST sanitize the filename, ripping out all slashes.
+        const safeFilename = originalFile.name.split(/[\\/]/).pop();
+
+        // Construct a clean, perfectly insulated File object for transmission
+        const file = new File([originalFile], safeFilename, { type: originalFile.type });
 
         setUploading(true);
         setUploadProgress(0);
@@ -63,6 +71,8 @@ export default function Library() {
             const formData = new FormData();
             formData.append('file', file);
             formData.append('upload_preset', 'Cloudinary Assets for NOTG');
+            // Explicitly force Cloudinary to dump assets right into our chosen path:
+            formData.append('folder', 'NOTG_Library');
 
             const xhr = new XMLHttpRequest();
             xhr.open('POST', `https://api.cloudinary.com/v1_1/dbwqxpgrn/auto/upload`, true);

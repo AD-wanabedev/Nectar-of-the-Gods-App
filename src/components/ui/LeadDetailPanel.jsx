@@ -113,10 +113,24 @@ export default function LeadDetailPanel({ account, contacts, onClose, onRefreshA
                 onClick={onClose}
             />
 
-            {/* Slide-in Panel */}
-            <div className="fixed inset-y-0 right-0 w-full md:w-[450px] bg-gray-900/95 backdrop-blur-xl md:border-l border-white/10 shadow-2xl z-50 flex flex-col animate-in slide-in-from-right duration-300">
+            {/* Slide-in Panel -> Converted to Centered Modal */}
+            <div className={`
+                fixed z-[50] flex flex-col bg-gray-900 shadow-2xl overflow-hidden
+                
+                /* Desktop Centering logic */
+                md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2
+                md:w-[800px] md:max-w-[95vw] md:h-auto md:max-h-[85vh]
+                md:rounded-2xl md:border md:border-gray-700
+                
+                /* Mobile Full Screen logic */
+                top-0 left-0 w-full h-full rounded-none border-none
+                
+                /* Animations */
+                animate-in fade-in slide-in-from-bottom-8 md:slide-in-from-bottom-0 md:zoom-in-95
+                duration-200
+            `}>
                 {/* Header Sticky */}
-                <div className="flex-shrink-0 p-5 border-b border-white/5 bg-black/20 flex justify-between items-start">
+                <div className="flex-shrink-0 p-5 border-b border-gray-800 bg-gray-900/95 flex justify-between items-start sticky top-0 z-20 backdrop-blur-md">
                     <div className="flex-1 pr-4">
                         <h2 className="text-2xl font-bold text-white flex items-center gap-2 mb-2">
                             <Building2 size={24} className="text-brand-gold" />
@@ -145,9 +159,13 @@ export default function LeadDetailPanel({ account, contacts, onClose, onRefreshA
                     </div>
                 </div>
 
-                {/* Scrollable Body (Added pb-24 for Bug 6 navbar overlap) */}
-                <div className="flex-1 overflow-y-auto custom-scrollbar p-5 pb-24 space-y-6">
-
+                {/* Scrollable Body (Added bottom-nav padding for Mobile bounds via safe-area overrides) */}
+                <div
+                    className="flex-1 overflow-y-auto custom-scrollbar p-5 space-y-6"
+                    style={{
+                        paddingBottom: window.innerWidth < 768 ? 'calc(100px + env(safe-area-inset-bottom))' : '1.5rem'
+                    }}
+                >
                     {/* Total Value Indicator (Moved to top of content for spacious UI Issue 5) */}
                     <div className="flex items-center justify-between gap-3 bg-gray-800/50 rounded-lg px-4 py-3 border border-white/10">
                         <span className="text-white/60 text-sm uppercase tracking-wider font-semibold">Total Value</span>
