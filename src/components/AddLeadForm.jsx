@@ -748,7 +748,7 @@ export default function AddLeadForm({ onClose, initialData = null }) {
                     </div>
 
                     {/* Fixed Footer */}
-                    <div className="p-6 pt-4 border-t border-white/5 flex-shrink-0 bg-brand-dark/95 backdrop-blur flex gap-3 z-10 w-full">
+                    <div className="p-6 pt-4 border-t border-white/5 flex-shrink-0 bg-brand-dark/95 backdrop-blur flex gap-3 z-10 w-full rounded-b-2xl">
                         {initialData && (
                             <GlassButton type="button" onClick={handleDeleteLead} className="bg-red-600/20 hover:bg-red-600/40 text-red-200 border-red-500/30">
                                 Delete

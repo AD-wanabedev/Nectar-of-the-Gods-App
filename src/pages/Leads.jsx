@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
 import { leadsDB } from '../db';
 import GlassCard from '../components/ui/GlassCard';
@@ -133,6 +133,7 @@ export default function Leads() {
     const [searchTerm, setSearchTerm] = useState('');
     const [priorityFilter, setPriorityFilter] = useState('All');
     const location = useLocation();
+    const navigate = useNavigate();
 
     useEffect(() => {
         loadLeads();
@@ -145,10 +146,10 @@ export default function Leads() {
             if (leadToOpen) {
                 handleEdit(leadToOpen);
                 // Clear the state so it doesn't re-open on refresh
-                window.history.replaceState({}, document.title)
+                navigate(location.pathname, { replace: true });
             }
         }
-    }, [leads, location.state]);
+    }, [leads, location.state, navigate, location.pathname]);
 
     const loadLeads = async (isRefetch = false) => {
         try {
