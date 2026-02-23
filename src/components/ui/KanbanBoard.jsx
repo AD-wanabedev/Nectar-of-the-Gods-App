@@ -5,7 +5,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Building2, IndianRupee } from 'lucide-react';
 import GlassCard from './GlassCard';
-import { accountsDB } from '../db';
+import { accountsDB } from '../../db';
 
 const STATUSES = ['New', 'In Progress', 'Converted', 'Lost'];
 
