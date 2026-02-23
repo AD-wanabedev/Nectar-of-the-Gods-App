@@ -130,7 +130,7 @@ export default function LeadDetailPanel({ account, contacts, onClose, onRefreshA
                 duration-200
             `}>
                 {/* Header Sticky */}
-                <div className="flex-shrink-0 p-5 border-b border-gray-800 bg-gray-900/95 flex justify-between items-start sticky top-0 z-20 backdrop-blur-md">
+                <div className="flex-shrink-0 pt-12 md:pt-5 pb-5 px-5 border-b border-gray-800 bg-gray-900/95 flex justify-between items-start sticky top-0 z-20 backdrop-blur-md">
                     <div className="flex-1 pr-4">
                         <h2 className="text-2xl font-bold text-white flex items-center gap-2 mb-2">
                             <Building2 size={24} className="text-brand-gold" />

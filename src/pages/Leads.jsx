@@ -13,6 +13,7 @@ import { LayoutList, LayoutGrid, LayoutTemplate } from 'lucide-react';
 import Papa from 'papaparse';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import * as XLSX from 'xlsx';
 import { format } from 'date-fns';
 
 export default function Leads() {
@@ -189,6 +190,39 @@ export default function Leads() {
         document.body.removeChild(link);
     };
 
+    // Excel Export utilizing xlsx
+    const exportExcel = () => {
+        if (filteredAccounts.length === 0) return alert("No active data to export.");
+
+        const exportData = filteredAccounts.map(a => {
+            const accContacts = contacts.filter(c => c.accountId === a.id);
+            const primary = accContacts[0] || {};
+            return {
+                'Company Name': a.businessName || '',
+                'Status': a.status || 'New',
+                'Priority': a.priority || 'Medium',
+                'Total Revenue': a.totalRevenue || 0,
+                'Primary Contact Name': primary.name || '',
+                'Primary Phone': primary.phone || '',
+                'Primary Email': primary.email || '',
+                'Account Owner': primary.teamMember || 'Unassigned',
+                'Created At': (() => {
+                    try {
+                        if (!a.createdAt) return '';
+                        const d = new Date(a.createdAt);
+                        return isNaN(d) ? '' : format(d, 'yyyy-MM-dd');
+                    } catch { return ''; }
+                })()
+            };
+        });
+
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        // Add styling mapping if requested later, keeping simple array buffers for now
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Leads");
+        XLSX.writeFile(workbook, `moonshine_crm_${format(new Date(), 'yyyy-MM-dd')}.xlsx`);
+    };
+
     // PDF Export utilizing jsPDF and autoTable
     const exportPDF = () => {
         if (filteredAccounts.length === 0) return alert("No active data to export.");
@@ -262,11 +296,11 @@ export default function Leads() {
     return (
         <div className="pb-24 pt-2 px-2 md:px-4 space-y-4 max-w-[1400px] mx-auto min-h-screen flex flex-col">
             {/* Top Toolbar (Condensed for Bug 7) */}
-            <div className="flex justify-between items-center mb-1">
+            <div className="flex justify-between items-center mb-1 gap-2">
                 <h1 className="text-xl font-bold text-gold-300 flex-shrink-0 mr-4">CRM Database</h1>
 
                 {/* View Toggles */}
-                <div className="flex gap-1 bg-gray-800 p-1 rounded-lg border border-gray-700 hidden md:flex">
+                <div className="flex gap-1 overflow-x-auto no-scrollbar max-w-full bg-gray-800 p-1 rounded-lg border border-gray-700 shrink-0">
                     <button
                         onClick={() => setViewMode('table')}
                         className={`p-1.5 px-4 rounded-md transition-all flex items-center gap-1.5 text-xs font-medium ${viewMode === 'table' ? 'bg-gold-500 text-gray-950 shadow-lg' : 'text-gray-400 hover:text-white hover:bg-gray-700'}`}
@@ -295,6 +329,7 @@ export default function Leads() {
                 filterPriority={filterPriority} setFilterPriority={setFilterPriority}
                 filterType={filterType} setFilterType={setFilterType}
                 onExportCSV={exportCSV}
+                onExportExcel={exportExcel}
             />
 
             {/* Dynamic View Injection */}

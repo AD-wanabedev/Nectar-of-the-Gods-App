@@ -9,8 +9,10 @@ import { accountsDB } from '../../db';
 
 const STATUSES = ['New', 'In Progress', 'Converted', 'Lost'];
 
-function SortableAccountCard({ account }) {
+function SortableAccountCard({ account, contacts }) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: account.id });
+
+    const primaryContact = contacts?.find(c => c.accountId === account.id);
 
     const style = {
         transform: CSS.Transform.toString(transform),
@@ -28,6 +30,11 @@ function SortableAccountCard({ account }) {
                         <span className="line-clamp-1">{account.businessName || 'Unnamed'}</span>
                     </h4>
                 </div>
+                {primaryContact && (
+                    <div className="text-xs text-brand-dark/50 dark:text-white/50 mb-2 truncate">
+                        👤 {primaryContact.name}
+                    </div>
+                )}
                 <div className="flex justify-between items-center mt-2 pt-2 border-t border-white/5 text-xs">
                     <span className={`px-1.5 py-0.5 rounded font-bold uppercase tracking-wide
                         ${account.priority === 'High' ? 'text-red-400 bg-red-400/10' :
@@ -44,7 +51,7 @@ function SortableAccountCard({ account }) {
     );
 }
 
-function KanbanColumn({ title, accounts }) {
+function KanbanColumn({ title, accounts, contacts }) {
     const colors = {
         'New': 'border-t-purple-500',
         'In Progress': 'border-t-blue-500',
@@ -64,7 +71,7 @@ function KanbanColumn({ title, accounts }) {
             <SortableContext items={accounts.map(a => a.id)} strategy={verticalListSortingStrategy}>
                 <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar min-h-[100px]">
                     {accounts.map(account => (
-                        <SortableAccountCard key={account.id} account={account} />
+                        <SortableAccountCard key={account.id} account={account} contacts={contacts} />
                     ))}
                     {accounts.length === 0 && (
                         <div className="h-full min-h-[100px] border-2 border-dashed border-white/10 rounded-xl flex items-center justify-center text-white/20 text-xs">
@@ -77,7 +84,7 @@ function KanbanColumn({ title, accounts }) {
     );
 }
 
-export default function KanbanBoard({ accounts, onRefreshAccounts }) {
+export default function KanbanBoard({ accounts, contacts, onRefreshAccounts }) {
     const [localAccounts, setLocalAccounts] = useState(accounts);
 
     useEffect(() => {
@@ -153,6 +160,7 @@ export default function KanbanBoard({ accounts, onRefreshAccounts }) {
                         <KanbanColumn
                             title={status}
                             accounts={groupedAccounts[status]}
+                            contacts={contacts}
                         />
                     </div>
                 ))}

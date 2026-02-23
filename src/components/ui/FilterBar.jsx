@@ -13,11 +13,14 @@ export default function FilterBar({
     setFilterPriority,
     filterType,
     setFilterType,
-    onExportCSV
+    onExportCSV,
+    onExportExcel
 }) {
     const STATUS_OPTIONS = ['All', 'New', 'In Progress', 'Converted', 'Lost'];
     const PRIORITY_OPTIONS = ['All', 'High', 'Medium', 'Low'];
     const TYPE_OPTIONS = ['All', 'B2B', 'B2C'];
+
+    const [showExportOptions, setShowExportOptions] = useState(false);
 
     // Local debounced search state
     const [localSearch, setLocalSearch] = useState(searchTerm);
@@ -64,13 +67,29 @@ export default function FilterBar({
                 <FilterDropdown label="Type" options={TYPE_OPTIONS} value={filterType} onChange={setFilterType} />
 
                 {/* Actions */}
-                <div className="flex gap-2 ml-auto shrink-0">
+                <div className="flex gap-2 ml-auto shrink-0 relative">
                     <button
-                        onClick={onExportCSV}
+                        onClick={() => setShowExportOptions(!showExportOptions)}
                         className="h-11 px-6 rounded-xl text-sm bg-gold-500 hover:bg-gold-600 text-gray-950 font-bold border-none shadow-[0_0_15px_rgba(234,179,8,0.3)] flex items-center gap-2 transition-all"
                     >
-                        <Download size={16} /> CSV / Excel
+                        <Download size={16} /> Export
                     </button>
+                    {showExportOptions && (
+                        <div className="absolute top-full right-0 mt-2 py-2 w-40 bg-gray-900 border border-gray-700 rounded-xl shadow-2xl z-50 flex flex-col overflow-hidden">
+                            <button
+                                onClick={() => { if (onExportCSV) onExportCSV(); setShowExportOptions(false); }}
+                                className="px-4 py-2 text-sm text-left text-white/80 hover:bg-gray-800 hover:text-white transition-colors border-b border-gray-800"
+                            >
+                                Download .CSV
+                            </button>
+                            <button
+                                onClick={() => { if (onExportExcel) onExportExcel(); setShowExportOptions(false); }}
+                                className="px-4 py-2 text-sm text-left text-white/80 hover:bg-gray-800 hover:text-white transition-colors"
+                            >
+                                Download .Excel
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

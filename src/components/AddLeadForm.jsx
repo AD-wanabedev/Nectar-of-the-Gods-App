@@ -424,7 +424,7 @@ export default function AddLeadForm({ onClose, initialData = null }) {
                     flex-shrink-0 sticky top-0 z-10
                     bg-gray-900/95 backdrop-blur-md
                     border-b border-gray-800
-                    px-6 py-4
+                    px-6 pt-12 md:pt-4 pb-4
                     flex items-center justify-between
                 ">
                     <h2 className="text-xl font-bold text-white tracking-wide">
