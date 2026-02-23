@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { leadsDB, accountsDB } from '../db';
 import GlassCard from '../components/ui/GlassCard';
 import {
@@ -12,6 +13,7 @@ import { format, subDays, isSameDay, parseISO, startOfMonth, subMonths } from 'd
 const COLORS = ['#a07b32', '#fdcca6', '#c49a45', '#eeb085', '#8c6b2b', '#ffe4cc'];
 
 export default function Sales() {
+    const navigate = useNavigate();
     const [allLeads, setAllLeads] = useState([]);
     const [allAccounts, setAllAccounts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -161,38 +163,43 @@ export default function Sales() {
     } = dashboardData;
 
     // Helper components
-    const MetricCard = ({ title, value, icon: Icon, trend, prefix = '', suffix = '', colorClass = 'text-brand-gold' }) => (
-        <GlassCard className="p-4 flex flex-col justify-between border-brand-white/5 hover:border-brand-gold/30 transition-all">
-            <div className="flex justify-between items-start mb-2">
-                <p className="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-wider">{title}</p>
-                <div className={`p-2 rounded-full bg-brand-dark/5 dark:bg-brand-white/10 ${colorClass}`}>
-                    <Icon size={16} />
-                </div>
+    const MetricCard = ({ title, value, subtitle, icon: Icon, trend, colorClass = "text-brand-gold", onClick }) => (
+        <GlassCard onClick={onClick} className={`p-5 relative overflow-hidden group hover:bg-white/[0.05] transition-colors ${onClick ? 'cursor-pointer' : ''}`}>
+            <div className="absolute top-0 right-0 p-4 opacity-10 transform translate-x-4 -translate-y-4 group-hover:scale-110 group-hover:-rotate-12 transition-transform duration-500">
+                <Icon size={80} className={colorClass} />
             </div>
-            <div className="flex items-end justify-between">
-                <h2 className={`text-2xl font-bold ${colorClass}`}>
-                    {prefix}{typeof value === 'number' ? value.toLocaleString() : value}{suffix}
-                </h2>
-                {trend !== undefined && (
-                    <div className={`flex items-center text-xs font-bold ${trend >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                        {trend >= 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
-                        {Math.abs(trend)}%
+            <div className="relative z-10">
+                <div className="flex justify-between items-start mb-4">
+                    <div className={`p-2 rounded-xl bg-black/5 dark:bg-white/5 ${colorClass}`}>
+                        <Icon size={24} />
+                    </div>
+                </div>
+                <h3 className="text-sm font-medium text-brand-dark/60 dark:text-white/60 mb-1">{title}</h3>
+                <div className="text-3xl font-bold text-brand-dark dark:text-white mb-2">{value}</div>
+                {subtitle && <p className="text-xs text-brand-dark/50 dark:text-white/50 font-medium">{subtitle}</p>}
+                {trend != null && (
+                    <div className={`flex items-center gap-1 text-xs mt-3 ${trend >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                        <ArrowUpRight size={14} className={trend < 0 ? 'rotate-90' : ''} />
+                        <span className="font-bold">{Math.abs(trend).toFixed(1)}%</span>
+                        <span className="text-brand-dark/40 dark:text-white/40 ml-1">vs last month</span>
                     </div>
                 )}
             </div>
         </GlassCard>
     );
 
-    const BreakdownBar = ({ label, value, total, colorHex }) => {
-        const percentage = total > 0 ? (value / total) * 100 : 0;
+    const BreakdownBar = ({ label, count, total, color, onClick }) => {
+        const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
         return (
-            <div className="mb-3 last:mb-0">
+            <div onClick={onClick} className={`mb-3 group hover:bg-white/5 p-2 rounded-lg -mx-2 transition-colors ${onClick ? 'cursor-pointer' : ''}`}>
                 <div className="flex justify-between text-xs mb-1">
-                    <span className="text-gray-700 dark:text-gray-300">{label}</span>
-                    <span className="font-bold text-gray-900 dark:text-gray-100">{value} ({Math.round(percentage)}%)</span>
+                    <span className="font-medium text-brand-dark/70 dark:text-white/70 group-hover:text-white flex items-center gap-1.5">
+                        {label} <span className="text-[10px] text-white/30">{count}</span>
+                    </span>
+                    <span className="font-bold text-brand-dark dark:text-white">{percentage}%</span>
                 </div>
-                <div className="w-full bg-brand-dark/10 dark:bg-brand-white/10 rounded-full h-1.5 overflow-hidden">
-                    <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${percentage}%`, backgroundColor: colorHex }} />
+                <div className="h-2 w-full bg-black/5 dark:bg-white/5 rounded-full overflow-hidden">
+                    <div className={`h-full ${color}`} style={{ width: `${percentage}%` }} />
                 </div>
             </div>
         );
@@ -210,66 +217,62 @@ export default function Sales() {
                 </p>
             </header>
 
-            {/* Core Revenue Metrics */}
-            <div className="grid grid-cols-2 gap-3">
-                <MetricCard title="Total Revenue" value={totalRevenue} prefix="₹" icon={DollarSign} trend={revenueGrowth} />
-                <MetricCard title="Sales (Converted)" value={totalSales} icon={Award} colorClass="text-brand-peach" />
-                <MetricCard title="Avg Order Value" value={Math.round(averageOrderValue)} prefix="₹" icon={Target} colorClass="text-blue-400" />
-                <MetricCard title="Conversion Rate" value={conversionRate} suffix="%" icon={TrendingUp} colorClass="text-green-400" />
+            {/* Core Metrics */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <MetricCard
+                    title="Total Revenue"
+                    value={`₹${(dashboardData.totalRevenue || 0).toLocaleString()}`}
+                    icon={DollarSign}
+                    trend={dashboardData.revenueGrowth}
+                    colorClass="text-green-500"
+                    onClick={() => navigate('/leads')}
+                />
+                <MetricCard
+                    title="Total Sales"
+                    value={dashboardData.totalSales}
+                    subtitle={`Avg ₹${Math.round(dashboardData.averageOrderValue).toLocaleString()}`}
+                    icon={ShoppingBag}
+                    colorClass="text-brand-gold"
+                    onClick={() => navigate('/leads', { state: { filterStatus: 'Converted' } })}
+                />
+                <MetricCard
+                    title="Active Pipeline"
+                    value={dashboardData.totalLeads}
+                    subtitle="+ Active Businesses"
+                    icon={Users}
+                    colorClass="text-blue-500"
+                    onClick={() => navigate('/leads', { state: { filterStatus: 'In Progress' } })}
+                />
+                <MetricCard
+                    title="Conversion Rate"
+                    value={`${dashboardData.conversionRate}%`}
+                    subtitle="Lead to Sale"
+                    icon={TrendingUp}
+                    colorClass="text-purple-500"
+                />
             </div>
 
-            {/* Core Lead Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <GlassCard className="p-5">
-                    <h3 className="text-sm font-bold text-brand-dark dark:text-brand-white mb-4 flex items-center gap-2">
-                        <Users size={16} className="text-brand-gold" /> Lead Overview ({totalLeads} Total)
-                    </h3>
-                    <div className="space-y-4">
-                        <div>
-                            <p className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">By Priority</p>
-                            <BreakdownBar label="High Priority" value={priorityCounts.High} total={totalLeads} colorHex="#ef4444" />
-                            <BreakdownBar label="Medium Priority" value={priorityCounts.Medium} total={totalLeads} colorHex="#f59e0b" />
-                            <BreakdownBar label="Low Priority" value={priorityCounts.Low} total={totalLeads} colorHex="#3b82f6" />
-                        </div>
-                        <div className="pt-2 border-t border-brand-white/10">
-                            <p className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">By Status</p>
-                            <BreakdownBar label="New" value={statusCounts.New} total={totalLeads} colorHex="#8b5cf6" />
-                            <BreakdownBar label="In Progress" value={statusCounts['In Progress']} total={totalLeads} colorHex="#3b82f6" />
-                            <BreakdownBar label="Converted" value={statusCounts.Converted} total={totalLeads} colorHex="#10b981" />
-                            <BreakdownBar label="Lost" value={statusCounts.Lost} total={totalLeads} colorHex="#ef4444" />
-                        </div>
-                    </div>
+            {/* Pipeline Health & Demographics */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <GlassCard className="p-6">
+                    <h3 className="text-sm font-bold text-brand-dark/50 dark:text-white/50 uppercase tracking-widest mb-6">Status Pipeline</h3>
+                    <BreakdownBar label="Converted" count={dashboardData.statusCounts['Converted']} total={dashboardData.totalLeads} color="bg-green-500" onClick={() => navigate('/leads', { state: { filterStatus: 'Converted' } })} />
+                    <BreakdownBar label="In Progress" count={dashboardData.statusCounts['In Progress']} total={dashboardData.totalLeads} color="bg-blue-500" onClick={() => navigate('/leads', { state: { filterStatus: 'In Progress' } })} />
+                    <BreakdownBar label="New Leads" count={dashboardData.statusCounts['New']} total={dashboardData.totalLeads} color="bg-purple-500" onClick={() => navigate('/leads', { state: { filterStatus: 'New' } })} />
+                    <BreakdownBar label="Lost" count={dashboardData.statusCounts['Lost']} total={dashboardData.totalLeads} color="bg-red-500" onClick={() => navigate('/leads', { state: { filterStatus: 'Lost' } })} />
                 </GlassCard>
 
-                <GlassCard className="p-5">
-                    <h3 className="text-sm font-bold text-brand-dark dark:text-brand-white mb-4 flex items-center gap-2">
-                        <PieChartIcon size={16} className="text-brand-gold" /> Segments & Sources
-                    </h3>
-                    <div className="space-y-4">
-                        <div>
-                            <p className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">B2B vs B2C</p>
-                            <BreakdownBar label="B2B Clients" value={b2bCount} total={totalLeads} colorHex="#c49a45" />
-                            <BreakdownBar label="B2C Consumers" value={b2cCount} total={totalLeads} colorHex="#fdcca6" />
-                        </div>
-                        {b2bCount > 0 && (
-                            <div className="pt-2 border-t border-brand-white/10">
-                                <p className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">B2B Categories</p>
-                                {Object.entries(b2bCategories)
-                                    .sort((a, b) => b[1] - a[1])
-                                    .map(([cat, count], idx) => (
-                                        <BreakdownBar key={cat} label={cat} value={count} total={b2bCount} colorHex={COLORS[idx % COLORS.length]} />
-                                    ))}
-                            </div>
-                        )}
-                        <div className="pt-2 border-t border-brand-white/10">
-                            <p className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">Lead Sources</p>
-                            {Object.entries(sourceCounts)
-                                .sort((a, b) => b[1] - a[1])
-                                .map(([source, count], idx) => (
-                                    <BreakdownBar key={source} label={source} value={count} total={totalLeads} colorHex={['#E1306C', '#25D366', '#4285F4', '#EA4335'][idx % 4] || '#888'} />
-                                ))}
-                        </div>
-                    </div>
+                <GlassCard className="p-6">
+                    <h3 className="text-sm font-bold text-brand-dark/50 dark:text-white/50 uppercase tracking-widest mb-6">Priority Distribution</h3>
+                    <BreakdownBar label="High Priority" count={dashboardData.priorityCounts['High']} total={dashboardData.totalLeads} color="bg-red-500" onClick={() => navigate('/leads', { state: { filterPriority: 'High' } })} />
+                    <BreakdownBar label="Medium Priority" count={dashboardData.priorityCounts['Medium']} total={dashboardData.totalLeads} color="bg-brand-gold" onClick={() => navigate('/leads', { state: { filterPriority: 'Medium' } })} />
+                    <BreakdownBar label="Low Priority" count={dashboardData.priorityCounts['Low']} total={dashboardData.totalLeads} color="bg-blue-300" onClick={() => navigate('/leads', { state: { filterPriority: 'Low' } })} />
+                </GlassCard>
+
+                <GlassCard className="p-6">
+                    <h3 className="text-sm font-bold text-brand-dark/50 dark:text-white/50 uppercase tracking-widest mb-6">Audience Type</h3>
+                    <BreakdownBar label="B2B (Business)" count={dashboardData.b2bCount} total={allLeads.length} color="bg-indigo-500" onClick={() => navigate('/leads', { state: { filterType: 'B2B' } })} />
+                    <BreakdownBar label="B2C (Consumer)" count={dashboardData.b2cCount} total={allLeads.length} color="bg-pink-500" onClick={() => navigate('/leads', { state: { filterType: 'B2C' } })} />
                 </GlassCard>
             </div>
 
