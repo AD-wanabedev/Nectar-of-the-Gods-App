@@ -14,7 +14,7 @@ export default function FloatingActionButton({ onAddLead, onImport }) {
     ];
 
     return (
-        <div className="fixed bottom-28 right-6 z-[60] flex flex-col items-end gap-3 pointer-events-none">
+        <div className="fixed bottom-24 right-6 z-[60] flex flex-col items-end gap-3 pointer-events-none">
             <AnimatePresence>
                 {isOpen && (
                     <div className="flex flex-col items-end gap-3 pointer-events-auto">
@@ -48,9 +48,9 @@ export default function FloatingActionButton({ onAddLead, onImport }) {
                 animate={{ rotate: isOpen ? 45 : 0 }}
                 whileTap={{ scale: 0.9 }}
                 className={clsx(
-                    "w-14 h-14 rounded-full flex items-center justify-center shadow-2xl pointer-events-auto",
-                    "bg-brand-dark dark:bg-white text-white dark:text-brand-dark border border-white/20",
-                    "hover:scale-105 transition-all duration-300"
+                    "w-14 h-14 rounded-full flex items-center justify-center shadow-2xl shadow-brand-gold/30 pointer-events-auto",
+                    "bg-brand-gold text-black border-none",
+                    "hover:scale-110 transition-transform duration-300 z-40"
                 )}
             >
                 <Plus size={28} strokeWidth={2.5} />

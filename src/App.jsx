@@ -190,11 +190,11 @@ function AppContent() {
                             onClick={() => navigate(path)}
                             className={`flex flex-col items-center justify-center gap-1 py-1.5 px-1 rounded-xl transition-all ${activeId === id
                                 ? 'text-brand-gold'
-                                : 'text-brand-dark/70 dark:text-brand-white/40 hover:text-brand-dark dark:hover:text-brand-white/80'
+                                : 'text-brand-dark/50 dark:text-white/40 hover:text-brand-dark dark:hover:text-white/70'
                                 }`}
                         >
-                            <Icon size={22} className={`transition-transform ${activeId === id ? 'scale-110' : ''}`} />
-                            <span className={`text-[9px] font-medium ${activeId === id ? 'text-brand-gold' : ''}`}>{label}</span>
+                            <Icon size={24} className={`transition-transform ${activeId === id ? 'scale-110' : ''}`} />
+                            <span className={`text-[10px] font-medium ${activeId === id ? 'text-brand-gold' : ''}`}>{label}</span>
                         </button>
                     ))}
                 </div>

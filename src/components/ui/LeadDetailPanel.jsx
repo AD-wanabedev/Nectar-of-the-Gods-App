@@ -1,9 +1,76 @@
-import { X, Building2, IndianRupee, MapPin, Phone, Mail, FileText, UserPlus, Users, Edit2, Trash2 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { X, Building2, IndianRupee, MapPin, Phone, Mail, FileText, UserPlus, Users, Edit2, Trash2, ChevronDown, Check } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
 import GlassCard from './GlassCard';
 import GlassButton from './GlassButton';
 import AddLeadForm from '../AddLeadForm';
 import { db, leadsDB, accountsDB } from '../../db';
+
+const PRIORITY_OPTIONS = [
+    { value: 'High', label: 'High Priority', dot: '🔴' },
+    { value: 'Medium', label: 'Med Priority', dot: '🟡' },
+    { value: 'Low', label: 'Low Priority', dot: '🔵' },
+];
+
+const STATUS_OPTIONS = [
+    { value: 'New', label: 'New' },
+    { value: 'In Progress', label: 'In Progress' },
+    { value: 'Converted', label: 'Converted' },
+    { value: 'Lost', label: 'Lost' }
+];
+
+const STATUS_COLORS = {
+    'New': 'text-blue-400',
+    'In Progress': 'text-orange-400',
+    'Converted': 'text-green-400',
+    'Lost': 'text-red-400'
+};
+
+function InlineDropdown({ value, options, onChange, colors }) {
+    const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setIsOpen(false);
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const selectedOpt = options.find(o => o.value === value) || options[0];
+    const selectedColor = colors ? colors[value] : 'text-white';
+
+    return (
+        <div className="relative" ref={dropdownRef}>
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className={`flex items-center gap-2 bg-gray-900/90 backdrop-blur border border-white/10 hover:bg-white/5 rounded-lg px-3 py-1.5 text-xs font-bold uppercase tracking-wider transition-colors outline-none focus:border-brand-gold/50 ${selectedColor}`}
+            >
+                {selectedOpt.dot && <span className="text-xs mr-1">{selectedOpt.dot}</span>}
+                {selectedOpt.label}
+                <ChevronDown size={14} className={`transition-transform text-white/50 ${isOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {isOpen && (
+                <div className="absolute z-[60] top-full mt-1 left-0 w-44 bg-gray-900 border border-white/10 rounded-xl shadow-2xl py-1 animate-in slide-in-from-top-2 duration-200">
+                    {options.map((opt) => (
+                        <button
+                            key={opt.value}
+                            onClick={() => { onChange(opt.value); setIsOpen(false); }}
+                            className={`w-full flex items-center justify-between px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors hover:bg-white/5 ${colors ? colors[opt.value] : 'text-white/80'} ${value === opt.value ? 'bg-white/5' : ''}`}
+                        >
+                            <div className="flex items-center gap-2">
+                                {opt.dot && <span className="text-xs">{opt.dot}</span>}
+                                {opt.label}
+                            </div>
+                            {value === opt.value && <Check size={14} className="text-brand-gold" />}
+                        </button>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
 
 export default function LeadDetailPanel({ account, contacts, onClose, onRefreshAccounts }) {
     const [isEditing, setIsEditing] = useState(false);
@@ -47,7 +114,7 @@ export default function LeadDetailPanel({ account, contacts, onClose, onRefreshA
             />
 
             {/* Slide-in Panel */}
-            <div className="fixed inset-y-0 right-0 w-full md:w-1/2 md:max-w-xl bg-brand-dark/95 backdrop-blur-xl md:border-l border-white/10 shadow-2xl z-50 flex flex-col animate-in slide-in-from-right duration-300">
+            <div className="fixed inset-y-0 right-0 w-full md:w-[450px] bg-gray-900/95 backdrop-blur-xl md:border-l border-white/10 shadow-2xl z-50 flex flex-col animate-in slide-in-from-right duration-300">
                 {/* Header Sticky */}
                 <div className="flex-shrink-0 p-5 border-b border-white/5 bg-black/20 flex justify-between items-start">
                     <div className="flex-1 pr-4">
@@ -57,27 +124,17 @@ export default function LeadDetailPanel({ account, contacts, onClose, onRefreshA
                         </h2>
 
                         <div className="flex flex-wrap gap-2 text-xs">
-                            <select
+                            <InlineDropdown
                                 value={editableAccount.status || 'New'}
-                                onChange={(e) => saveAccountInline('status', e.target.value)}
-                                className="bg-white/5 border border-white/10 rounded px-2 py-1 outline-none focus:border-brand-gold uppercase tracking-wider font-bold"
-                                style={{ color: editableAccount.status === 'Converted' ? '#4ade80' : editableAccount.status === 'Lost' ? '#f87171' : '#a78bfa' }}
-                            >
-                                <option value="New">NEW</option>
-                                <option value="In Progress">IN PROGRESS</option>
-                                <option value="Converted">CONVERTED</option>
-                                <option value="Lost">LOST</option>
-                            </select>
-
-                            <select
+                                options={STATUS_OPTIONS}
+                                colors={STATUS_COLORS}
+                                onChange={(val) => saveAccountInline('status', val)}
+                            />
+                            <InlineDropdown
                                 value={editableAccount.priority || 'Medium'}
-                                onChange={(e) => saveAccountInline('priority', e.target.value)}
-                                className="bg-white/5 border border-white/10 text-white/70 rounded px-2 py-1 outline-none focus:border-brand-gold uppercase tracking-wider font-bold"
-                            >
-                                <option value="Low">LOW PRIORITY</option>
-                                <option value="Medium">MED PRIORITY</option>
-                                <option value="High">HIGH PRIORITY</option>
-                            </select>
+                                options={PRIORITY_OPTIONS}
+                                onChange={(val) => saveAccountInline('priority', val)}
+                            />
                         </div>
                     </div>
 
@@ -85,47 +142,48 @@ export default function LeadDetailPanel({ account, contacts, onClose, onRefreshA
                         <button onClick={onClose} className="p-2 bg-white/5 hover:bg-white/10 rounded-full text-white/50 hover:text-white transition-colors">
                             <X size={20} />
                         </button>
-
-                        <div className="flex flex-col items-end">
-                            <span className="text-[10px] text-white/40 uppercase tracking-widest">Total Value</span>
-                            <div className="flex items-center text-green-400 font-bold text-lg bg-green-400/10 px-2 py-0.5 rounded border border-green-400/20 mt-1">
-                                <IndianRupee size={14} />
-                                {isEditing ? (
-                                    <input
-                                        type="number"
-                                        className="bg-transparent outline-none w-20 ml-1 text-right"
-                                        defaultValue={editableAccount.totalRevenue || 0}
-                                        autoFocus
-                                        onBlur={(e) => {
-                                            saveAccountInline('totalRevenue', parseFloat(e.target.value) || 0);
-                                            setIsEditing(false);
-                                        }}
-                                    />
-                                ) : (
-                                    <span onClick={() => setIsEditing(true)} className="cursor-text ml-1">
-                                        {(editableAccount.totalRevenue || 0).toLocaleString()}
-                                    </span>
-                                )}
-                            </div>
-                        </div>
                     </div>
                 </div>
 
                 {/* Scrollable Body (Added pb-24 for Bug 6 navbar overlap) */}
                 <div className="flex-1 overflow-y-auto custom-scrollbar p-5 pb-24 space-y-6">
 
+                    {/* Total Value Indicator (Moved to top of content for spacious UI Issue 5) */}
+                    <div className="flex items-center justify-between gap-3 bg-gray-800/50 rounded-lg px-4 py-3 border border-white/10">
+                        <span className="text-white/60 text-sm uppercase tracking-wider font-semibold">Total Value</span>
+                        <div className="flex items-center text-green-400 font-bold text-2xl">
+                            ₹
+                            {isEditing ? (
+                                <input
+                                    type="number"
+                                    className="bg-transparent outline-none w-24 ml-1 text-right"
+                                    defaultValue={editableAccount.totalRevenue || 0}
+                                    autoFocus
+                                    onBlur={(e) => {
+                                        saveAccountInline('totalRevenue', parseFloat(e.target.value) || 0);
+                                        setIsEditing(false);
+                                    }}
+                                />
+                            ) : (
+                                <span onClick={() => setIsEditing(true)} className="cursor-text ml-1">
+                                    {(editableAccount.totalRevenue || 0).toLocaleString('en-IN')}
+                                </span>
+                            )}
+                        </div>
+                    </div>
+
                     {/* Contacts Section */}
                     <section>
-                        <div className="flex justify-between items-center mb-3">
-                            <h3 className="text-xs font-bold text-white/40 uppercase tracking-widest flex items-center gap-2">
+                        <div className="flex justify-between items-center mb-4 pb-3 border-b border-white/10">
+                            <h3 className="text-white/60 text-xs uppercase tracking-wider flex items-center gap-2 font-semibold">
                                 <Users size={14} /> Associated Contacts ({contacts.length})
                             </h3>
-                            <GlassButton
+                            <button
                                 onClick={() => { setEditingContact(null); setShowContactForm(true); }}
-                                className="py-1 px-3 text-xs bg-brand-gold/10 text-brand-gold border-brand-gold/20 hover:bg-brand-gold/20 flex gap-1 items-center"
+                                className="flex items-center gap-1 text-brand-gold hover:text-brand-gold/80 text-sm transition-colors font-medium"
                             >
-                                <UserPlus size={12} /> Add
-                            </GlassButton>
+                                <UserPlus size={14} /> Add
+                            </button>
                         </div>
 
                         <div className="space-y-3">
@@ -135,28 +193,50 @@ export default function LeadDetailPanel({ account, contacts, onClose, onRefreshA
                                     <p className="text-xs mt-1">Add one to track conversations.</p>
                                 </div>
                             ) : contacts.map(contact => (
-                                <GlassCard key={contact.id} className="p-4 bg-white/[0.02] hover:bg-white/[0.04]">
-                                    <div className="flex justify-between items-start mb-2">
-                                        <div>
-                                            <h4 className="font-bold text-white leading-tight">{contact.name || 'Unknown'}</h4>
-                                            <span className="text-[10px] text-brand-gold bg-brand-gold/10 px-1.5 py-0.5 rounded font-medium">Owner: {contact.teamMember || 'Me'}</span>
-                                        </div>
-                                        <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 md:opacity-100 transition-opacity">
-                                            <button onClick={() => { setEditingContact(contact); setShowContactForm(true); }} className="p-1 text-blue-400 hover:bg-blue-400/10 rounded"><Edit2 size={14} /></button>
-                                            <button onClick={() => handleDeleteContact(contact.id)} className="p-1 text-red-400 hover:bg-red-400/10 rounded"><Trash2 size={14} /></button>
+                                <div key={contact.id} className="bg-gray-800/50 rounded-lg p-4 border border-white/10 hover:border-white/20 transition-colors">
+                                    {/* Header */}
+                                    <div className="flex items-center justify-between mb-3">
+                                        <h4 className="text-white font-bold text-lg">{contact.name}</h4>
+                                        <div className="flex gap-2">
+                                            <button onClick={() => { setEditingContact(contact); setShowContactForm(true); }} className="text-blue-400 hover:text-blue-300 p-1">
+                                                <Edit2 size={16} />
+                                            </button>
+                                            <button onClick={() => handleDeleteContact(contact.id)} className="text-red-400 hover:text-red-300 p-1">
+                                                <Trash2 size={16} />
+                                            </button>
                                         </div>
                                     </div>
-                                    <div className="space-y-1.5 mt-3 text-xs text-white/60">
-                                        {contact.phone && <a href={`tel:${contact.phone}`} className="flex items-center gap-2 hover:text-green-400 transition-colors w-fit"><Phone size={12} /> {contact.phone}</a>}
-                                        {contact.email && <a href={`mailto:${contact.email}`} className="flex items-center gap-2 hover:text-blue-400 transition-colors w-fit truncate"><Mail size={12} /> {contact.email}</a>}
+
+                                    {/* Owner */}
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <Users size={12} className="text-white/40" />
+                                        <span className="text-xs text-white/60">Owner:</span>
+                                        <span className="text-sm text-brand-gold">{contact.teamMember || 'Unassigned'}</span>
                                     </div>
+
+                                    {/* Phone */}
+                                    {contact.phone && (
+                                        <a href={`tel:${contact.phone}`} className="flex items-center gap-2 mb-3 text-blue-400 hover:text-blue-300 w-fit">
+                                            <Phone size={12} />
+                                            <span className="text-sm">{contact.phone}</span>
+                                        </a>
+                                    )}
+
+                                    {/* Email */}
+                                    {contact.email && (
+                                        <a href={`mailto:${contact.email}`} className="flex items-center gap-2 mb-3 text-blue-400 hover:text-blue-300 w-fit truncate">
+                                            <Mail size={12} />
+                                            <span className="text-sm">{contact.email}</span>
+                                        </a>
+                                    )}
+
+                                    {/* Notes */}
                                     {contact.notes && (
-                                        <div className="mt-3 pt-3 border-t border-white/5 text-xs text-white/50 italic flex items-start gap-2">
-                                            <FileText size={12} className="flex-shrink-0 mt-0.5" />
-                                            <p className="line-clamp-3">{contact.notes}</p>
+                                        <div className="bg-gray-900/50 rounded p-3 border border-white/5 mt-2">
+                                            <p className="text-white/70 text-sm italic">{contact.notes}</p>
                                         </div>
                                     )}
-                                </GlassCard>
+                                </div>
                             ))}
                         </div>
                     </section>
