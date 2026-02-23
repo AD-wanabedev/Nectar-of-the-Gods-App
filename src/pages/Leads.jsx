@@ -153,7 +153,13 @@ export default function Leads() {
                 'Primary Phone': primary.phone || '',
                 'Primary Email': primary.email || '',
                 'Account Owner': primary.teamMember || 'Unassigned',
-                'Created At': a.createdAt ? format(new Date(a.createdAt), 'yyyy-MM-dd') : ''
+                'Created At': (() => {
+                    try {
+                        if (!a.createdAt) return '';
+                        const d = new Date(a.createdAt);
+                        return isNaN(d) ? '' : format(d, 'yyyy-MM-dd');
+                    } catch { return ''; }
+                })()
             };
         });
 

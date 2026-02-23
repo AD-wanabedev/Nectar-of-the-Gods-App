@@ -49,8 +49,8 @@ export default function AccountsList({ accounts, contacts, onRowClick, onEditCli
                                 ₹{(account.totalRevenue || 0).toLocaleString()}
                             </span>
                             <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded ${account.priority === 'High' ? 'text-red-400 bg-red-400/10' :
-                                    account.priority === 'Medium' ? 'text-amber-400 bg-amber-400/10' :
-                                        'text-gray-400 bg-gray-400/10'
+                                account.priority === 'Medium' ? 'text-amber-400 bg-amber-400/10' :
+                                    'text-gray-400 bg-gray-400/10'
                                 }`}>
                                 Priority: {account.priority || 'Medium'}
                             </span>
@@ -87,7 +87,15 @@ export default function AccountsList({ accounts, contacts, onRowClick, onEditCli
                                 <User size={10} className="text-brand-gold" /> {primary?.teamMember || 'Unassigned'}
                             </span>
                             <span className="flex items-center gap-1">
-                                <Calendar size={10} /> {account.createdAt ? format(new Date(account.createdAt), 'MMM d, yyyy') : '-'}
+                                <Calendar size={10} /> {(() => {
+                                    try {
+                                        if (!account.createdAt) return '-';
+                                        const d = new Date(account.createdAt);
+                                        return isNaN(d) ? '-' : format(d, 'MMM d, yyyy');
+                                    } catch {
+                                        return '-';
+                                    }
+                                })()}
                             </span>
                         </div>
                     </GlassCard>

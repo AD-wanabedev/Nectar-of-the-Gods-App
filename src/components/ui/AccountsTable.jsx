@@ -118,7 +118,13 @@ export default function AccountsTable({ accounts, contacts, onRowClick, onEditCl
             cell: info => {
                 const dateStr = info.getValue();
                 if (!dateStr) return <span className="text-white/30 text-xs">-</span>;
-                return <span className="text-white/70 text-xs whitespace-nowrap">{format(new Date(dateStr), 'MMM d, yyyy')}</span>;
+                try {
+                    const parsedDate = new Date(dateStr);
+                    if (isNaN(parsedDate)) throw new Error('Invalid Date');
+                    return <span className="text-white/70 text-xs whitespace-nowrap">{format(parsedDate, 'MMM d, yyyy')}</span>;
+                } catch {
+                    return <span className="text-white/30 text-xs">-</span>;
+                }
             }
         },
         {
