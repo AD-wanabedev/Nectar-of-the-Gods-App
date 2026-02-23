@@ -1,4 +1,4 @@
-import { X, Building2, IndianRupee, MapPin, Phone, Mail, FileText, UserPlus, Edit2, Trash2 } from 'lucide-react';
+import { X, Building2, IndianRupee, MapPin, Phone, Mail, FileText, UserPlus, Users, Edit2, Trash2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import GlassCard from './GlassCard';
 import GlassButton from './GlassButton';
