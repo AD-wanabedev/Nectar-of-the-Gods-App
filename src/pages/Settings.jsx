@@ -4,14 +4,78 @@ import { collection, query, onSnapshot, doc, updateDoc, deleteDoc } from 'fireba
 import GlassCard from '../components/ui/GlassCard';
 import GlassButton from '../components/ui/GlassButton';
 import GlassInput from '../components/ui/GlassInput';
-import { Smartphone, Ban, CheckCircle, Save, ExternalLink } from 'lucide-react';
+import { Smartphone, Ban, CheckCircle, Save, ExternalLink, Database } from 'lucide-react';
 import { format } from 'date-fns';
+import { leadsDB, accountsDB } from '../db';
 
 export default function Settings() {
     const [devices, setDevices] = useState([]);
     const [currentDeviceId, setCurrentDeviceId] = useState('');
     const [sheetUrl, setSheetUrl] = useState('');
     const [savingSheet, setSavingSheet] = useState(false);
+    const [migrating, setMigrating] = useState(false);
+
+    const handleMigrate = async () => {
+        if (!confirm("Are you sure you want to migrate Leads to Accounts? This is irreversible and should only be run once.")) return;
+        setMigrating(true);
+        try {
+            const allLeads = await leadsDB.getAll();
+            const accountMap = {};
+
+            // Group leads by establishment
+            for (const lead of allLeads) {
+                if (lead.accountId) continue; // Skip already migrated leads
+
+                let accountName = (lead.establishment || lead.name + " (Individual)").trim();
+
+                if (!accountMap[accountName]) {
+                    accountMap[accountName] = {
+                        businessName: accountName,
+                        totalRevenue: 0,
+                        status: lead.status || 'New',
+                        priority: lead.priority || 'Medium',
+                        contacts: []
+                    };
+                }
+
+                accountMap[accountName].totalRevenue += (parseFloat(lead.orderValue) || 0);
+                accountMap[accountName].contacts.push(lead);
+
+                // Elevate status to highest priority if appropriate
+                if (['Customer', 'Converted'].includes(lead.status) || (parseFloat(lead.orderValue) || 0) > 0) {
+                    accountMap[accountName].status = 'Customer';
+                } else if (['In Progress'].includes(lead.status) && accountMap[accountName].status !== 'Customer') {
+                    accountMap[accountName].status = 'In Progress';
+                }
+            }
+
+            let accountCount = 0;
+            const leadsToMigrateCount = allLeads.filter(l => !l.accountId).length;
+
+            if (leadsToMigrateCount === 0) {
+                alert("No leads available to migrate. They may already be linked to accounts.");
+                setMigrating(false);
+                return;
+            }
+
+            for (const [name, accData] of Object.entries(accountMap)) {
+                const { contacts, ...accountFields } = accData;
+                const newAccountId = await accountsDB.add(accountFields);
+                accountCount++;
+
+                for (const lead of contacts) {
+                    await leadsDB.update(lead.id, { accountId: newAccountId });
+                }
+            }
+
+            alert(`Migration Complete! Created ${accountCount} Accounts and linked ${leadsToMigrateCount} Leads.`);
+        } catch (error) {
+            console.error("Migration failed:", error);
+            alert("Migration failed. Check console.");
+        } finally {
+            setMigrating(false);
+        }
+    };
 
     useEffect(() => {
         setCurrentDeviceId(localStorage.getItem('nectar_device_id'));
@@ -173,6 +237,26 @@ export default function Settings() {
                         className="bg-red-500/10 text-red-500 hover:bg-red-500/20 text-xs"
                     >
                         Reset App
+                    </GlassButton>
+                </GlassCard>
+            </section>
+
+            {/* Developer Tools */}
+            <section className="space-y-4 pt-4 border-t border-brand-dark/5 dark:border-white/5">
+                <h2 className="text-lg font-semibold text-brand-dark/80 dark:text-white/80 flex items-center gap-2">
+                    <Database size={20} /> Developer Tools
+                </h2>
+                <GlassCard className="p-4 flex justify-between items-center bg-blue-500/5 border-blue-500/10">
+                    <div>
+                        <p className="font-medium text-brand-dark dark:text-white text-sm">Migrate Data to Accounts</p>
+                        <p className="text-xs text-brand-dark/50 dark:text-white/50">One-time restructuring of Leads to the Accounts hierarchy.</p>
+                    </div>
+                    <GlassButton
+                        onClick={handleMigrate}
+                        disabled={migrating}
+                        className="bg-blue-500/20 text-blue-500 hover:bg-blue-500/30 text-xs"
+                    >
+                        {migrating ? 'Migrating...' : 'Run Migration'}
                     </GlassButton>
                 </GlassCard>
             </section>

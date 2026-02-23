@@ -171,10 +171,41 @@ export const documentationDB = {
     }
 };
 
+// Accounts operations
+export const accountsDB = {
+    async getAll() {
+        const q = query(getUserCollection('accounts'), orderBy('createdAt', 'desc'));
+        const snapshot = await getDocs(q);
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    },
+
+    async add(data) {
+        const docRef = await addDoc(getUserCollection('accounts'), {
+            ...data,
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now()
+        });
+        return docRef.id;
+    },
+
+    async update(id, data) {
+        const docRef = doc(getUserCollection('accounts'), id);
+        await updateDoc(docRef, {
+            ...data,
+            updatedAt: Timestamp.now()
+        });
+    },
+
+    async delete(id) {
+        await deleteDoc(doc(getUserCollection('accounts'), id));
+    }
+};
+
 export const db = {
     leads: leadsDB,
     projects: projectsDB,
     tasks: tasksDB,
     collateral: collateralDB,
-    documentation: documentationDB
+    documentation: documentationDB,
+    accounts: accountsDB
 };
