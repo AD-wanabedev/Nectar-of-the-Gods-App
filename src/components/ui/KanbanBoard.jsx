@@ -133,7 +133,11 @@ export default function KanbanBoard({ accounts, onRefreshAccounts }) {
     // Group accounts by status
     const groupedAccounts = STATUSES.reduce((acc, status) => {
         acc[status] = localAccounts.filter(a => (a.status || 'New') === status)
-            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            .sort((a, b) => {
+                const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
+                const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
+                return dateB - dateA;
+            });
         return acc;
     }, {});
 

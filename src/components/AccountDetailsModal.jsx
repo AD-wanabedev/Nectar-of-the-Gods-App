@@ -17,7 +17,11 @@ export default function AccountDetailsModal({ account, onClose, onRefreshAccount
         try {
             const allLeads = await leadsDB.getAll();
             const accountLeads = allLeads.filter(l => l.accountId === account.id);
-            setContacts(accountLeads.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+            setContacts(accountLeads.sort((a, b) => {
+                const dateA = a.createdAt ? new Date(a.createdAt) : new Date(0);
+                const dateB = b.createdAt ? new Date(b.createdAt) : new Date(0);
+                return dateB - dateA;
+            }));
         } catch (error) {
             console.error("Failed to load contacts:", error);
         } finally {
