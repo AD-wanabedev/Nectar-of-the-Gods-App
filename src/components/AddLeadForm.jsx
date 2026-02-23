@@ -366,7 +366,7 @@ export default function AddLeadForm({ onClose, initialData = null }) {
                 </div>
 
                 {/* Form Wrapper */}
-                <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
+                <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden min-h-0">
 
                     {/* Scrollable Content */}
                     <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">

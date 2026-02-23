@@ -83,6 +83,15 @@ export default function Projects() {
         }
     };
 
+    const updateTaskTitle = async (taskId, newTitle) => {
+        if (!newTitle.trim()) return;
+        try {
+            await db.tasks.update(taskId, { title: newTitle });
+        } catch (error) {
+            console.error("Update task error:", error);
+        }
+    };
+
     const toggleTask = (taskId, currentStatus) => {
         db.tasks.update(taskId, { isDone: !currentStatus });
     };
@@ -142,11 +151,30 @@ export default function Projects() {
                             <div className="space-y-2">
                                 {projectTasks.map(task => (
                                     <div key={task.id}
-                                        onClick={() => toggleTask(task.id, task.isDone)}
-                                        className="flex items-center gap-2 cursor-pointer group text-sm text-brand-dark/80 dark:text-white/80"
+                                        className="flex items-center gap-2 group text-sm text-brand-dark/80 dark:text-white/80"
                                     >
-                                        {task.isDone ? <CheckCircle size={16} className="text-green-500 dark:text-green-400" /> : <Circle size={16} className="text-brand-dark/40 dark:text-white/40 group-hover:text-brand-dark dark:group-hover:text-white" />}
-                                        <span className={task.isDone ? "line-through text-brand-dark/40 dark:text-white/40" : ""}>{task.title}</span>
+                                        <button
+                                            onClick={() => toggleTask(task.id, task.isDone)}
+                                            className="cursor-pointer flex-shrink-0 outline-none"
+                                            aria-label={task.isDone ? "Mark as incomplete" : "Mark as complete"}
+                                        >
+                                            {task.isDone ? <CheckCircle size={16} className="text-green-500 dark:text-green-400" /> : <Circle size={16} className="text-brand-dark/40 dark:text-white/40 group-hover:text-brand-dark dark:group-hover:text-white" />}
+                                        </button>
+                                        <input
+                                            type="text"
+                                            defaultValue={task.title}
+                                            onBlur={(e) => {
+                                                if (e.target.value !== task.title) {
+                                                    updateTaskTitle(task.id, e.target.value);
+                                                }
+                                            }}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') {
+                                                    e.target.blur();
+                                                }
+                                            }}
+                                            className={`flex-1 bg-transparent border-none focus:outline-none focus:ring-1 focus:ring-brand-gold/50 rounded px-1 -ml-1 ${task.isDone ? "line-through text-brand-dark/40 dark:text-white/40" : ""}`}
+                                        />
                                     </div>
                                 ))}
 
