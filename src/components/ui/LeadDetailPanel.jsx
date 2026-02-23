@@ -123,7 +123,7 @@ export default function LeadDetailPanel({ account, contacts, onClose, onRefreshA
                 md:rounded-2xl md:border md:border-gray-700
                 
                 /* Mobile Full Screen logic */
-                top-0 left-0 w-full h-full rounded-none border-none
+                top-0 left-0 w-full h-[100dvh] rounded-none border-none
                 
                 /* Animations */
                 animate-in fade-in slide-in-from-bottom-8 md:slide-in-from-bottom-0 md:zoom-in-95

@@ -24,21 +24,62 @@ const syncToSheets = async (data, action) => {
     const sheetUrl = localStorage.getItem('nectar_sheet_url');
     if (!sheetUrl) return;
 
+    const payload = { ...data, action, timestamp: new Date().toISOString() };
+
+    if (!navigator.onLine) {
+        // Offline: Add to local queue
+        const queue = JSON.parse(localStorage.getItem('offline_sheets_queue') || '[]');
+        queue.push(payload);
+        localStorage.setItem('offline_sheets_queue', JSON.stringify(queue));
+        console.log("Offline mode: Saved Sheets sync to queue", action);
+        return;
+    }
+
     try {
-        // We use no-cors to avoid CORS errors with Google Apps Script
         await fetch(sheetUrl, {
             method: 'POST',
             mode: 'no-cors',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ ...data, action, timestamp: new Date().toISOString() })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
         });
         console.log("Synced to Sheets:", action);
     } catch (error) {
-        console.error("Sheets sync error:", error);
+        console.error("Sheets sync error, pushing to queue:", error);
+        const queue = JSON.parse(localStorage.getItem('offline_sheets_queue') || '[]');
+        queue.push(payload);
+        localStorage.setItem('offline_sheets_queue', JSON.stringify(queue));
     }
 };
+
+// Global queue flusher when back online
+window.addEventListener('online', async () => {
+    const sheetUrl = localStorage.getItem('nectar_sheet_url');
+    if (!sheetUrl) return;
+
+    let queue = [];
+    try {
+        queue = JSON.parse(localStorage.getItem('offline_sheets_queue') || '[]');
+    } catch { return; }
+
+    if (queue.length === 0) return;
+    console.log(`Back online. Flushing ${queue.length} pending Sheets uploads...`);
+
+    const remaining = [];
+    for (const payload of queue) {
+        try {
+            await fetch(sheetUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            console.log("Flushed offline ping:", payload.action);
+        } catch (e) {
+            remaining.push(payload);
+        }
+    }
+    localStorage.setItem('offline_sheets_queue', JSON.stringify(remaining));
+});
 
 // Leads operations
 export const leadsDB = {

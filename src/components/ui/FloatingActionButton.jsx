@@ -1,16 +1,17 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, UserPlus, FileUp, X } from 'lucide-react';
+import { Plus, UserPlus, FileUp, X, Building2 } from 'lucide-react';
 import clsx from 'clsx';
 
-export default function FloatingActionButton({ onAddLead, onImport }) {
+export default function FloatingActionButton({ onAddAccount, onAddContact, onImport }) {
     const [isOpen, setIsOpen] = useState(false);
 
     const toggleOpen = () => setIsOpen(!isOpen);
 
     const menuItems = [
-        { label: 'Import CSV', icon: FileUp, onClick: onImport, delay: 0.1 },
-        { label: 'New Lead', icon: UserPlus, onClick: onAddLead, delay: 0.05 },
+        { label: 'Import CSV', icon: FileUp, onClick: onImport, delay: 0.15 },
+        { label: 'New Account', icon: Building2, onClick: onAddAccount, delay: 0.1 },
+        { label: 'New Contact', icon: UserPlus, onClick: onAddContact, delay: 0.05 },
     ];
 
     return (
@@ -31,7 +32,7 @@ export default function FloatingActionButton({ onAddLead, onImport }) {
                                 }}
                                 className="group flex items-center gap-3"
                             >
-                                <span className="text-white text-xs font-medium px-2 py-1 bg-black/50 backdrop-blur-md rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
+                                <span className="text-white text-xs font-semibold px-3 py-1.5 bg-black/60 backdrop-blur-md rounded-lg border border-white/10 shadow">
                                     {item.label}
                                 </span>
                                 <div className="w-12 h-12 rounded-full glass-btn bg-brand-dark/80 backdrop-blur-xl border border-white/10 flex items-center justify-center shadow-lg hover:bg-brand-dark dark:hover:bg-white hover:text-white dark:hover:text-brand-dark transition-colors">

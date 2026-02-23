@@ -1,10 +1,16 @@
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, Users, Target, BookOpen } from 'lucide-react';
 import clsx from 'clsx';
 import Background from './ui/Background';
+import FloatingActionButton from './ui/FloatingActionButton';
 
 export default function Layout() {
     const location = useLocation();
+    const navigate = useNavigate();
+
+    // FAB handlers — navigate to /leads and signal which modal to open
+    const handleAddAccount = () => navigate('/leads', { state: { openModal: 'account' } });
+    const handleAddContact = () => navigate('/leads', { state: { openModal: 'contact' } });
 
     const navItems = [
         { path: '/', label: 'Today', icon: Home },
@@ -14,7 +20,7 @@ export default function Layout() {
     ];
 
     return (
-        <div className="min-h-screen pb-28 text-white"> {/* Applied text-white global default for dark theme preference */}
+        <div className="min-h-[100dvh] pb-28 text-white"> {/* Applied text-white global default for dark theme preference */}
             <Background />
 
             <main className="container mx-auto p-4 max-w-md md:max-w-4xl lg:max-w-7xl animate-in fade-in duration-500">
@@ -50,6 +56,12 @@ export default function Layout() {
                     v2.0 Glass OS
                 </div>
             </nav>
+
+            {/* Global FAB — visible on all pages */}
+            <FloatingActionButton
+                onAddAccount={handleAddAccount}
+                onAddContact={handleAddContact}
+            />
         </div>
     );
 }

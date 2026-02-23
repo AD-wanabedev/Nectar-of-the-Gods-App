@@ -2,10 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import GlassInput from './ui/GlassInput';
 import GlassButton from './ui/GlassButton';
 import { db, accountsDB } from '../db';
-import { X, Calendar, UserPlus, Mic, Instagram, Phone, Mail, MessageCircle, User, Check, Building2, ChevronDown, ChevronUp } from 'lucide-react';
+import { X, Calendar, UserPlus, Mic, Instagram, Phone, Mail, MessageCircle, User, Check, Building2, ChevronDown, ChevronUp, PlusCircle } from 'lucide-react';
 import { format } from 'date-fns';
-
-import { PlusCircle } from 'lucide-react';
 
 export default function AddLeadForm({ onClose, initialData = null }) {
     // --- Team Member Logic ---
@@ -21,9 +19,8 @@ export default function AddLeadForm({ onClose, initialData = null }) {
     const [isAddingSale, setIsAddingSale] = useState(false);
     const [addAmount, setAddAmount] = useState('');
 
-    // --- Account Auto-complete Logic ---
+    // --- Account Dropdown ---
     const [accounts, setAccounts] = useState([]);
-    const [showAccountSuggestions, setShowAccountSuggestions] = useState(false);
 
     useEffect(() => {
         const fetchAccounts = async () => {
@@ -84,18 +81,14 @@ export default function AddLeadForm({ onClose, initialData = null }) {
 
     // --- Form State ---
     const [formData, setFormData] = useState({
+        accountId: '',
         name: '',
         phone: '',
         email: '',
-        priority: 'Medium',
-        status: 'New',
-        leadType: 'B2C', // Default
-        leadSubType: '',
         teamMember: 'AD',
         platform: 'Call',
         notes: '',
-        honeyTypes: [], // Multi-select array
-        establishment: '', // New field
+        honeyTypes: [],
         orderValue: '',
         saleDate: '',
         date: format(new Date(), 'yyyy-MM-dd'),
@@ -237,17 +230,19 @@ export default function AddLeadForm({ onClose, initialData = null }) {
                 initialAmPm = format(d, 'a');
             }
 
-            setFormData({
-                ...initialData,
-                establishment: initialData.establishment || '',
-                honeyTypes: initialData.honeyTypes || (initialData.honeyType ? [initialData.honeyType] : []),
-                leadType: initialData.leadType || 'B2C',
-                leadSubType: initialData.leadSubType || '',
-                notes: initialData.notes || '',
-                date: initialDateStr,
-                hour: initialHour,
-                minute: initialMinute,
-                ampm: initialAmPm
+            setFormData(prev => {
+                const merged = { ...prev, ...initialData };
+                return {
+                    ...merged,
+                    accountId: initialData.accountId || prev.accountId,
+                    honeyTypes: initialData.honeyTypes || (initialData.honeyType ? [initialData.honeyType] : prev.honeyTypes),
+                    notes: initialData.notes || prev.notes,
+                    date: initialDateStr,
+                    hour: initialHour,
+                    minute: initialMinute,
+                    ampm: initialAmPm,
+                    platform: initialData.platform || prev.platform || 'Instagram'
+                };
             });
         }
     }, [initialData]);
@@ -285,79 +280,29 @@ export default function AddLeadForm({ onClose, initialData = null }) {
         }
 
         const payload = {
+            accountId: formData.accountId,
             name: formData.name,
             phone: formData.phone,
             email: formData.email || '',
-            priority: formData.priority,
-            status: formData.status,
-            leadType: formData.leadType,
-            leadSubType: formData.leadSubType,
             teamMember: formData.teamMember,
             platform: formData.platform,
             notes: formData.notes,
-            honeyTypes: formData.honeyTypes, // Array
-            establishment: formData.establishment, // Kept for legacy display compatibility
+            honeyTypes: formData.honeyTypes,
             orderValue: formData.orderValue,
             saleDate: formData.saleDate,
             nextFollowUp: followUpIsoString
         };
 
         try {
-            // --- Account Hookup & Consolidation ---
-            let targetAccountId = null;
-            const searchName = formData.establishment.trim();
-
-            if (searchName) {
-                const existingAccount = accounts.find(a => a.businessName.toLowerCase() === searchName.toLowerCase());
-
-                if (existingAccount) {
-                    targetAccountId = existingAccount.id;
-                    // If this submission brings new revenue, update the overarching account
-                    const newOrderValue = parseFloat(formData.orderValue) || 0;
-                    if (!initialData && newOrderValue > 0) {
-                        await accountsDB.update(targetAccountId, {
-                            totalRevenue: (existingAccount.totalRevenue || 0) + newOrderValue,
-                            status: 'Customer'
-                        });
-                    }
-                } else {
-                    // Create a net-new account dynamically
-                    targetAccountId = await accountsDB.add({
-                        businessName: searchName,
-                        totalRevenue: parseFloat(formData.orderValue) || 0,
-                        status: formData.status,
-                        priority: formData.priority
-                    });
-                }
+            if (!payload.accountId) {
+                alert("Please select an Account/Business to link to.");
+                return;
             }
 
-            payload.accountId = targetAccountId; // Attach foreign key
-            let leadRefId = null;
             if (initialData && initialData.id) {
                 await db.leads.update(initialData.id, payload);
             } else {
-                leadRefId = await db.leads.add(payload);
-
-                // --- Google Sheets Sync (Bug 4) ---
-                const sheetUrl = localStorage.getItem('nectar_sheet_url');
-                if (sheetUrl) {
-                    try {
-                        await fetch(sheetUrl, {
-                            method: 'POST',
-                            mode: 'no-cors',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                action: 'ADD_LEAD',
-                                leadId: leadRefId,
-                                ...payload,
-                                timestamp: new Date().toISOString()
-                            })
-                        });
-                        console.log("Successfully beamed lead data to Master Tracker");
-                    } catch (syncError) {
-                        console.error("Failed to sync new lead to Sheets:", syncError);
-                    }
-                }
+                await db.leads.add(payload);
             }
             onClose();
         } catch (error) {
@@ -407,7 +352,7 @@ export default function AddLeadForm({ onClose, initialData = null }) {
                 md:rounded-2xl md:border md:border-gray-700
                 
                 /* Mobile: Full Screen with Bottom Nav Safe Area */
-                top-0 left-0 w-full h-full
+                top-0 left-0 w-full h-[100dvh]
                 
                 /* Layout */
                 flex flex-col
@@ -428,7 +373,7 @@ export default function AddLeadForm({ onClose, initialData = null }) {
                     flex items-center justify-between
                 ">
                     <h2 className="text-xl font-bold text-white tracking-wide">
-                        {initialData ? 'Edit Lead' : 'New Lead'}
+                        {initialData ? 'Edit Contact' : 'New Contact'}
                     </h2>
                     <button
                         type="button"
@@ -477,87 +422,24 @@ export default function AddLeadForm({ onClose, initialData = null }) {
                             />
                         </div>
 
-                        {/* Lead Type Configuration */}
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-xs text-white/70 mb-1">Lead Type</label>
-                                <select
-                                    name="leadType"
-                                    value={formData.leadType}
-                                    onChange={handleChange}
-                                    className="glass-input w-full appearance-none bg-black"
-                                >
-                                    {leadTypes.map(t => <option key={t} value={t} className="text-white bg-black">{t}</option>)}
-                                </select>
-                            </div>
-                            {formData.leadType === 'B2B' && (
-                                <div className="animate-in fade-in slide-in-from-left-2">
-                                    <label className="block text-xs text-white/70 mb-1">B2B Category</label>
-                                    <select
-                                        name="leadSubType"
-                                        value={formData.leadSubType}
-                                        onChange={handleChange}
-                                        className="glass-input w-full appearance-none bg-black"
-                                    >
-                                        <option value="" className="text-white/50 bg-black">Select...</option>
-                                        {b2bSubTypes.map(t => <option key={t} value={t} className="text-white bg-black">{t}</option>)}
-                                    </select>
-                                </div>
-                            )}
-                            {formData.leadType === 'Collaborator' && (
-                                <div className="animate-in fade-in slide-in-from-left-2">
-                                    <label className="block text-xs text-white/70 mb-1">Collab Type</label>
-                                    <select
-                                        name="leadSubType"
-                                        value={formData.leadSubType}
-                                        onChange={handleChange}
-                                        className="glass-input w-full appearance-none bg-black"
-                                    >
-                                        <option value="" className="text-white/50 bg-black">Select...</option>
-                                        {collaboratorSubTypes.map(t => <option key={t} value={t} className="text-white bg-black">{t}</option>)}
-                                    </select>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Establishment Name (Account Auto-Complete) */}
+                        {/* Account Selection Dropdown */}
                         <div className="relative">
                             <label className="block text-xs text-white/70 mb-1 flex items-center gap-1">
-                                <Building2 size={12} /> Company / Account Name
+                                <Building2 size={12} /> Account / Business *
                             </label>
-                            <GlassInput
-                                name="establishment"
-                                placeholder="Ex: The Royal Bar"
-                                value={formData.establishment}
-                                onFocus={() => setShowAccountSuggestions(true)}
-                                onBlur={() => setTimeout(() => setShowAccountSuggestions(false), 200)}
-                                onChange={(e) => {
-                                    handleChange(e);
-                                    setShowAccountSuggestions(true);
-                                }}
-                            />
-
-                            {/* Auto-Complete Dropdown */}
-                            {showAccountSuggestions && accounts.length > 0 && (
-                                <div className="absolute z-50 w-full mt-1 bg-brand-dark/95 border border-white/10 rounded-xl shadow-2xl max-h-40 overflow-y-auto custom-scrollbar backdrop-blur-xl">
-                                    {accounts
-                                        .filter(a => a.businessName.toLowerCase().includes(formData.establishment.toLowerCase()) && a.businessName.toLowerCase() !== formData.establishment.toLowerCase())
-                                        .map(account => (
-                                            <button
-                                                key={account.id}
-                                                type="button"
-                                                className="w-full text-left px-4 py-2 text-sm text-white/80 hover:bg-brand-gold/20 hover:text-brand-gold transition-colors block border-b border-white/5 last:border-0"
-                                                onClick={() => {
-                                                    setFormData(p => ({ ...p, establishment: account.businessName }));
-                                                    setShowAccountSuggestions(false);
-                                                }}
-                                            >
-                                                <span className="font-bold">{account.businessName}</span>
-                                                <span className="text-[10px] text-white/40 block">Found Account</span>
-                                            </button>
-                                        ))}
-                                </div>
-                            )}
+                            <select
+                                required
+                                name="accountId"
+                                value={formData.accountId || ''}
+                                onChange={handleChange}
+                                className="glass-input w-full appearance-none bg-black text-white"
+                                disabled={!!initialData?.accountId} // Prevent moving between accounts lightly
+                            >
+                                <option value="" disabled className="text-white/50 bg-black">Select an Account...</option>
+                                {accounts.map(a => (
+                                    <option key={a.id} value={a.id} className="text-white bg-black">{a.businessName}</option>
+                                ))}
+                            </select>
                         </div>
 
                         <div>
@@ -580,37 +462,6 @@ export default function AddLeadForm({ onClose, initialData = null }) {
                                 value={formData.email}
                                 onChange={handleChange}
                             />
-                        </div>
-
-                        {/* Priority, Status & Team Member */}
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-xs text-white/70 mb-1">Status</label>
-                                <select
-                                    name="status"
-                                    value={formData.status}
-                                    onChange={handleChange}
-                                    className="glass-input w-full appearance-none bg-black"
-                                >
-                                    <option value="New" className="text-white bg-black">New</option>
-                                    <option value="In Progress" className="text-white bg-black">In Progress</option>
-                                    <option value="Converted" className="text-green-400 bg-black">Converted</option>
-                                    <option value="Lost" className="text-red-400 bg-black">Lost</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-xs text-white/70 mb-1">Priority</label>
-                                <select
-                                    name="priority"
-                                    value={formData.priority}
-                                    onChange={handleChange}
-                                    className="glass-input w-full appearance-none bg-black"
-                                >
-                                    <option value="High" className="text-white bg-black">High</option>
-                                    <option value="Medium" className="text-white bg-black">Medium</option>
-                                    <option value="Low" className="text-white bg-black">Low</option>
-                                </select>
-                            </div>
                         </div>
 
                         {/* Assigned To Row */}

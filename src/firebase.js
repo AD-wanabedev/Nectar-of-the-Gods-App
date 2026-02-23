@@ -1,9 +1,8 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from 'firebase/firestore';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
 
-// PASTE YOUR CONFIG HERE (from Step 4)
 const firebaseConfig = {
   apiKey: "AIzaSyAN0_o2RUWavYXiaVec6EF9O6e0ffw5nKI",
   authDomain: "mhp-internal-4297d.firebaseapp.com",
@@ -14,11 +13,16 @@ const firebaseConfig = {
   measurementId: "G-4DGJNYS6VQ"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize services
-export const db = getFirestore(app);
+// Modern offline persistence API (replaces deprecated enableIndexedDbPersistence)
+// persistentMultipleTabManager allows offline across tabs without errors
+export const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({
+    tabManager: persistentMultipleTabManager()
+  })
+});
+
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 export const storage = getStorage(app);

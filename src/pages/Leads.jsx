@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { accountsDB, leadsDB } from '../db';
 import GlassCard from '../components/ui/GlassCard';
-import FloatingActionButton from '../components/ui/FloatingActionButton';
 import AddLeadForm from '../components/AddLeadForm';
+import AddAccountForm from '../components/AddAccountForm';
 import LeadDetailPanel from '../components/ui/LeadDetailPanel';
 import FilterBar from '../components/ui/FilterBar';
 import AccountsTable from '../components/ui/AccountsTable';
@@ -23,7 +23,8 @@ export default function Leads() {
 
     // UI State
     const [viewMode, setViewMode] = useState('table'); // 'table' | 'kanban' | 'list'
-    const [showAddForm, setShowAddForm] = useState(false);
+    const [showAddContactForm, setShowAddContactForm] = useState(false);
+    const [showAddAccountForm, setShowAddAccountForm] = useState(false);
     const [selectedAccount, setSelectedAccount] = useState(null);
     const [editingLead, setEditingLead] = useState(null);
 
@@ -56,11 +57,19 @@ export default function Leads() {
         loadData();
     }, []);
 
-    // Parse incoming Analytics Drilldowns routing
+    // Parse incoming routing state (from Analytics drilldowns, Today deep links, and global FAB)
     useEffect(() => {
         if (location.state?.filterPriority) setFilterPriority(location.state.filterPriority);
         if (location.state?.filterStatus) setFilterStatus(location.state.filterStatus);
         if (location.state?.filterType) setFilterType(location.state.filterType);
+
+        // Global FAB navigation — open the correct modal
+        if (location.state?.openModal === 'account') {
+            setShowAddAccountForm(true);
+        } else if (location.state?.openModal === 'contact') {
+            setEditingLead(null);
+            setShowAddContactForm(true);
+        }
 
         // Deep Links from Today.jsx for single contacts
         const processDeepLink = async () => {
@@ -69,7 +78,7 @@ export default function Leads() {
                 const leadToOpen = allLeads.find(l => l.id === location.state.openLeadId);
                 if (leadToOpen) {
                     setEditingLead(leadToOpen);
-                    setShowAddForm(true);
+                    setShowAddContactForm(true);
                 }
             }
             // Clear location state to prevent loop on refresh
@@ -101,9 +110,13 @@ export default function Leads() {
         setSelectedAccount(account);
     };
 
-    const handleAdd = () => {
+    const handleAddAccount = () => {
+        setShowAddAccountForm(true);
+    };
+
+    const handleAddContact = () => {
         setEditingLead(null);
-        setShowAddForm(true);
+        setShowAddContactForm(true);
     };
 
     const handleDeleteAccount = async (account) => {
@@ -118,10 +131,15 @@ export default function Leads() {
         }
     };
 
-    const handleCloseForm = () => {
-        setShowAddForm(false);
+    const handleCloseContactForm = () => {
+        setShowAddContactForm(false);
         setEditingLead(null);
         loadData(true);
+    };
+
+    const handleCloseAccountForm = (refreshNeeded = false) => {
+        setShowAddAccountForm(false);
+        if (refreshNeeded) loadData(true);
     };
 
     // Filter definitions
@@ -337,12 +355,14 @@ export default function Leads() {
                 {renderView()}
             </div>
 
-            {/* Floating Quick Action */}
-            <FloatingActionButton onAddLead={handleAdd} />
+            {/* New Account Form */}
+            {showAddAccountForm && (
+                <AddAccountForm onClose={handleCloseAccountForm} />
+            )}
 
-            {/* Lead Tracking Form (Floating Z-Index Modal autonomously handles centering) */}
-            {showAddForm && (
-                <AddLeadForm onClose={handleCloseForm} initialData={editingLead} />
+            {/* Add / Edit Contact Form */}
+            {showAddContactForm && (
+                <AddLeadForm onClose={handleCloseContactForm} initialData={editingLead} />
             )}
 
             {/* Account Detail Flyout Drawer */}
