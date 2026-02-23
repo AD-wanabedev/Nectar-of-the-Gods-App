@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import GlassInput from './ui/GlassInput';
 import GlassButton from './ui/GlassButton';
-import { db } from '../db';
+import { db, accountsDB } from '../db';
 import { X, Calendar, UserPlus, Mic, Instagram, Phone, Mail, MessageCircle, User, Check, Building2, ChevronDown, ChevronUp } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -20,6 +20,18 @@ export default function AddLeadForm({ onClose, initialData = null }) {
     // --- Quick Sale Add Logic ---
     const [isAddingSale, setIsAddingSale] = useState(false);
     const [addAmount, setAddAmount] = useState('');
+
+    // --- Account Auto-complete Logic ---
+    const [accounts, setAccounts] = useState([]);
+    const [showAccountSuggestions, setShowAccountSuggestions] = useState(false);
+
+    useEffect(() => {
+        const fetchAccounts = async () => {
+            const data = await accountsDB.getAll();
+            setAccounts(data);
+        };
+        fetchAccounts();
+    }, []);
 
     const handleAddSale = () => {
         if (!addAmount || isNaN(parseFloat(addAmount))) return;
@@ -284,13 +296,42 @@ export default function AddLeadForm({ onClose, initialData = null }) {
             platform: formData.platform,
             notes: formData.notes,
             honeyTypes: formData.honeyTypes, // Array
-            establishment: formData.establishment, // New Field
+            establishment: formData.establishment, // Kept for legacy display compatibility
             orderValue: formData.orderValue,
             saleDate: formData.saleDate,
             nextFollowUp: followUpIsoString
         };
 
         try {
+            // --- Account Hookup & Consolidation ---
+            let targetAccountId = null;
+            const searchName = formData.establishment.trim();
+
+            if (searchName) {
+                const existingAccount = accounts.find(a => a.businessName.toLowerCase() === searchName.toLowerCase());
+
+                if (existingAccount) {
+                    targetAccountId = existingAccount.id;
+                    // If this submission brings new revenue, update the overarching account
+                    const newOrderValue = parseFloat(formData.orderValue) || 0;
+                    if (!initialData && newOrderValue > 0) {
+                        await accountsDB.update(targetAccountId, {
+                            totalRevenue: (existingAccount.totalRevenue || 0) + newOrderValue,
+                            status: 'Customer'
+                        });
+                    }
+                } else {
+                    // Create a net-new account dynamically
+                    targetAccountId = await accountsDB.add({
+                        businessName: searchName,
+                        totalRevenue: parseFloat(formData.orderValue) || 0,
+                        status: formData.status,
+                        priority: formData.priority
+                    });
+                }
+            }
+
+            payload.accountId = targetAccountId; // Attach foreign key
             let leadRefId = null;
             if (initialData && initialData.id) {
                 await db.leads.update(initialData.id, payload);
@@ -435,17 +476,44 @@ export default function AddLeadForm({ onClose, initialData = null }) {
                             )}
                         </div>
 
-                        {/* Establishment Name (New) */}
-                        <div>
+                        {/* Establishment Name (Account Auto-Complete) */}
+                        <div className="relative">
                             <label className="block text-xs text-white/70 mb-1 flex items-center gap-1">
-                                <Building2 size={12} /> Establishment / Bar Name
+                                <Building2 size={12} /> Company / Account Name
                             </label>
                             <GlassInput
                                 name="establishment"
                                 placeholder="Ex: The Royal Bar"
                                 value={formData.establishment}
-                                onChange={handleChange}
+                                onFocus={() => setShowAccountSuggestions(true)}
+                                onBlur={() => setTimeout(() => setShowAccountSuggestions(false), 200)}
+                                onChange={(e) => {
+                                    handleChange(e);
+                                    setShowAccountSuggestions(true);
+                                }}
                             />
+
+                            {/* Auto-Complete Dropdown */}
+                            {showAccountSuggestions && accounts.length > 0 && (
+                                <div className="absolute z-50 w-full mt-1 bg-brand-dark/95 border border-white/10 rounded-xl shadow-2xl max-h-40 overflow-y-auto custom-scrollbar backdrop-blur-xl">
+                                    {accounts
+                                        .filter(a => a.businessName.toLowerCase().includes(formData.establishment.toLowerCase()) && a.businessName.toLowerCase() !== formData.establishment.toLowerCase())
+                                        .map(account => (
+                                            <button
+                                                key={account.id}
+                                                type="button"
+                                                className="w-full text-left px-4 py-2 text-sm text-white/80 hover:bg-brand-gold/20 hover:text-brand-gold transition-colors block border-b border-white/5 last:border-0"
+                                                onClick={() => {
+                                                    setFormData(p => ({ ...p, establishment: account.businessName }));
+                                                    setShowAccountSuggestions(false);
+                                                }}
+                                            >
+                                                <span className="font-bold">{account.businessName}</span>
+                                                <span className="text-[10px] text-white/40 block">Found Account</span>
+                                            </button>
+                                        ))}
+                                </div>
+                            )}
                         </div>
 
                         <div>
