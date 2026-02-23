@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
 import { leadsDB } from '../db';
 import GlassCard from '../components/ui/GlassCard';
@@ -131,10 +132,23 @@ export default function Leads() {
     const [editingLead, setEditingLead] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [priorityFilter, setPriorityFilter] = useState('All');
+    const location = useLocation();
 
     useEffect(() => {
         loadLeads();
     }, []);
+
+    // Check for deep link from Today.jsx
+    useEffect(() => {
+        if (leads.length > 0 && location.state?.openLeadId) {
+            const leadToOpen = leads.find(l => l.id === location.state.openLeadId);
+            if (leadToOpen) {
+                handleEdit(leadToOpen);
+                // Clear the state so it doesn't re-open on refresh
+                window.history.replaceState({}, document.title)
+            }
+        }
+    }, [leads, location.state]);
 
     const loadLeads = async (isRefetch = false) => {
         try {

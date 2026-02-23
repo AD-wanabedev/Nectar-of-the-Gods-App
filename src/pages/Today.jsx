@@ -139,7 +139,7 @@ export default function Today() {
                                         </div>
                                         <div className="flex gap-2">
                                             <GlassButton
-                                                onClick={() => navigate(`/leads`)} // Ideally open edit modal
+                                                onClick={() => navigate('/leads', { state: { openLeadId: item.id } })}
                                                 className="p-2 h-9 w-9 rounded-full bg-white/10 text-gray-500 dark:text-gray-300 hover:bg-red-500/20 hover:text-red-500"
                                             >
                                                 <Edit2 size={16} />
@@ -198,7 +198,7 @@ export default function Today() {
                                         </div>
 
                                         <GlassButton
-                                            onClick={(e) => { e.stopPropagation(); navigate(`/leads`); }}
+                                            onClick={(e) => { e.stopPropagation(); navigate('/leads', { state: { openLeadId: item.id } }); }}
                                             className="p-2 h-9 w-9 flex-shrink-0 rounded-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5 text-gray-400 dark:text-gray-500 group-hover:text-brand-gold group-hover:border-brand-gold/20 transition-all"
                                         >
                                             <Edit2 size={16} />
