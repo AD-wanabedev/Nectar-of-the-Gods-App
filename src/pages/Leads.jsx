@@ -110,7 +110,7 @@ const SwipeableLeadCard = ({ lead, onEdit, onDelete, onCall }) => {
                                     </p>
                                 )}
                                 <p className="text-brand-dark/50 dark:text-white/50 text-xs ml-auto">
-                                    Follow-up: {format(parseISO(lead.nextFollowUp), 'MMM d, h:mm a')}
+                                    Follow-up: {lead.nextFollowUp ? format(parseISO(lead.nextFollowUp), 'MMM d, h:mm a') : 'None'}
                                 </p>
                             </div>
                         </div>
