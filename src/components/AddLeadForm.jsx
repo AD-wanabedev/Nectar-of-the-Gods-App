@@ -391,18 +391,57 @@ export default function AddLeadForm({ onClose, initialData = null }) {
     }, []);
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 pb-24 md:pb-4 animate-in fade-in" onClick={onClose}>
+        <>
+            {/* Backdrop */}
             <div
-                onClick={(e) => e.stopPropagation()}
-                className="glass-card w-full max-w-md max-h-[85vh] max-h-[85dvh] flex flex-col relative overflow-hidden shadow-2xl bg-brand-dark border border-white/10"
-            >
-                {/* Fixed Header */}
-                <div className="p-6 border-b border-white/5 flex-shrink-0 relative flex items-center justify-between">
-                    <h2 className="text-xl font-bold text-white">
+                onClick={onClose}
+                className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[100] animate-in fade-in"
+            />
+
+            {/* Panel - CENTERED on Desktop, Full-screen on Mobile */}
+            <div className={`
+                fixed z-[101]
+                /* Desktop: Centered Modal */
+                md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2
+                md:w-[600px] md:max-w-[90vw] md:h-auto md:max-h-[85vh]
+                md:rounded-2xl md:border md:border-gray-700
+                
+                /* Mobile: Full Screen with Bottom Nav Safe Area */
+                top-0 left-0 w-full h-full
+                
+                /* Layout */
+                flex flex-col
+                bg-gray-900 shadow-2xl overflow-hidden
+                
+                /* Animation */
+                animate-in md:zoom-in-95 fade-in
+                slide-in-from-bottom-8 md:slide-in-from-bottom-0
+                duration-300
+            `}>
+
+                {/* Header - Sticky */}
+                <div className="
+                    flex-shrink-0 sticky top-0 z-10
+                    bg-gray-900/95 backdrop-blur-md
+                    border-b border-gray-800
+                    px-6 py-4
+                    flex items-center justify-between
+                ">
+                    <h2 className="text-xl font-bold text-white tracking-wide">
                         {initialData ? 'Edit Lead' : 'New Lead'}
                     </h2>
-                    <button onClick={onClose} className="text-white/60 hover:text-white bg-white/5 p-2 rounded-full hover:bg-white/10 transition-colors">
-                        <X size={20} />
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="
+                            w-8 h-8 rounded-lg
+                            bg-gray-800 hover:bg-gray-700
+                            text-white/60 hover:text-white
+                            flex items-center justify-center
+                            transition-colors border border-gray-700
+                        "
+                    >
+                        ✕
                     </button>
                 </div>
 
@@ -410,7 +449,12 @@ export default function AddLeadForm({ onClose, initialData = null }) {
                 <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden min-h-0">
 
                     {/* Scrollable Content */}
-                    <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
+                    <div className="
+                        flex-1 overflow-y-auto 
+                        px-6 py-4 space-y-5
+                        pb-[calc(80px+2rem)] md:pb-6 /* Mobile: Bottom Nav clearance */
+                        custom-scrollbar
+                    ">
                         {/* Name & Contact Picker */}
                         <div>
                             <label className="block text-xs text-white/70 mb-1 flex justify-between items-center">
@@ -816,21 +860,55 @@ export default function AddLeadForm({ onClose, initialData = null }) {
                     </div>
 
                     {/* Fixed Footer */}
-                    <div className="p-6 pt-4 border-t border-white/5 flex-shrink-0 bg-brand-dark/95 backdrop-blur flex gap-3 z-10 w-full rounded-b-2xl">
+                    <div className="
+                        flex-shrink-0 sticky bottom-0 z-10
+                        bg-gray-900/95 backdrop-blur-md
+                        border-t border-gray-800
+                        px-6 py-4 flex gap-3
+                        pb-[calc(80px+1rem)] md:pb-4 /* Critical: Bottom Nav padding override */
+                    ">
                         {initialData && (
-                            <GlassButton type="button" onClick={handleDeleteLead} className="bg-red-600/20 hover:bg-red-600/40 text-red-200 border-red-500/30">
+                            <button
+                                type="button"
+                                onClick={handleDeleteLead}
+                                className="
+                                    px-6 py-3 rounded-lg
+                                    bg-red-500/10 hover:bg-red-500/20
+                                    text-red-400 border border-red-500/20
+                                    transition-colors font-medium text-sm
+                                "
+                            >
                                 Delete
-                            </GlassButton>
+                            </button>
                         )}
-                        <GlassButton type="button" onClick={onClose} variant="secondary" className="flex-1">
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className={`
+                                ${initialData ? 'flex-1 md:flex-none' : 'w-1/3'} 
+                                px-6 py-3 rounded-lg
+                                bg-gray-800 hover:bg-gray-700
+                                text-white border border-gray-700
+                                transition-colors font-medium text-sm
+                            `}
+                        >
                             Cancel
-                        </GlassButton>
-                        <GlassButton type="submit" className="flex-1 bg-brand-gold/20 hover:bg-brand-gold/40 text-brand-gold border-brand-gold/30 font-bold">
+                        </button>
+                        <button
+                            type="submit"
+                            className="
+                                flex-1 px-6 py-3 rounded-lg
+                                bg-gold-500 hover:bg-gold-600
+                                text-gray-950 font-bold text-sm
+                                shadow-lg shadow-gold-500/20
+                                transition-all
+                            "
+                        >
                             Save Lead
-                        </GlassButton>
+                        </button>
                     </div>
                 </form>
             </div>
-        </div>
+        </>
     );
 }

@@ -17,13 +17,22 @@ export default function FilterDropdown({ label, options, value, onChange }) {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    // For simplicity, we implement single selection here (matching the current filter mechanism),
-    // but styled as a glassmorphic dropdown menu.
+    // Add color mapping to standard CRM options if labels match Status/Priority
+    const getOptionColor = (opt) => {
+        if (!opt || opt === 'All') return 'bg-gray-600';
+        const colors = {
+            'new': 'bg-blue-500', 'customer': 'bg-green-500',
+            'qualified': 'bg-purple-500', 'lost': 'bg-gray-500',
+            'high': 'bg-red-500', 'medium': 'bg-amber-500', 'low': 'bg-gray-500'
+        };
+        return colors[opt.toLowerCase()] || 'bg-gold-500';
+    };
 
     return (
         <div className="relative" ref={dropdownRef}>
             {/* Trigger Button */}
             <button
+                type="button"
                 onClick={() => setIsOpen(!isOpen)}
                 className={`
                     flex items-center justify-between gap-2 
@@ -31,12 +40,12 @@ export default function FilterDropdown({ label, options, value, onChange }) {
                     text-white
                     px-4 py-2 
                     rounded-lg 
-                    border ${value !== 'All' ? 'border-gold-500/50 text-gold-300' : 'border-gray-700 hover:border-gold-500/30'}
+                    border ${value !== 'All' ? 'border-gold-500/50 text-gold-300' : 'border-gray-600 hover:border-gold-500/30'}
                     transition-all
-                    min-w-[140px] shadow-sm
+                    min-w-[140px] shadow-sm text-sm
                 `}
             >
-                <span className="text-sm">{label}: <span className="font-bold ml-1">{value || 'All'}</span></span>
+                <span>{label}: <span className="font-bold ml-1">{value || 'All'}</span></span>
                 <ChevronDown size={16} className={`text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
             </button>
 
@@ -47,27 +56,30 @@ export default function FilterDropdown({ label, options, value, onChange }) {
                     w-full min-w-[200px]
                     bg-gray-800 
                     rounded-lg 
-                    border border-white/10
-                    shadow-2xl shadow-black/50
+                    border border-gray-600
+                    shadow-2xl shadow-black/60
                     py-2
-                    z-50
+                    z-[60]
+                    overflow-hidden
                     animate-in fade-in slide-in-from-top-2 duration-200
                 ">
                     {options.map((opt) => (
                         <button
                             key={opt}
+                            type="button"
                             onClick={() => {
                                 onChange(opt);
                                 setIsOpen(false);
                             }}
                             className={`
-                                w-full flex items-center justify-between px-4 py-2.5 
+                                w-full flex items-center gap-3 px-4 py-2.5 
                                 text-sm transition-colors text-left
-                                ${value === opt ? 'bg-gold-500/10 text-gold-300 font-bold' : 'text-gray-300 hover:bg-white/5 hover:text-white'}
+                                ${value === opt ? 'bg-gray-700 text-white' : 'text-white hover:bg-gray-700'}
                             `}
                         >
+                            <span className={`w-2 h-2 min-w-2 rounded-full ${getOptionColor(opt)}`}></span>
                             <span>{opt}</span>
-                            {value === opt && <Check size={16} className="text-gold-500" />}
+                            {value === opt && <Check size={16} className="text-gold-400 ml-auto" />}
                         </button>
                     ))}
                 </div>

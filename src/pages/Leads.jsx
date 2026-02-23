@@ -144,6 +144,9 @@ export default function Leads() {
         return matchesSearch && matchesPriority && matchesStatus && matchesType;
     }).sort((a, b) => (b.totalRevenue || 0) - (a.totalRevenue || 0));
 
+    // Calculate aggregated Total Value for FilterBar Unified Header
+    const calculatedTotalValue = filteredAccounts.reduce((sum, acc) => sum + (parseFloat(acc.totalRevenue) || 0), 0);
+
     // Dynamic CSV Export utilizing Papaparse
     const exportCSV = () => {
         if (filteredAccounts.length === 0) return alert("No active data to export.");
@@ -281,13 +284,14 @@ export default function Leads() {
                 </div>
             </div>
 
-            {/* Notion Filter Bar Engine */}
+            {/* Notion Filter Bar Engine -> Converted to Unified Header */}
             <FilterBar
                 searchTerm={searchTerm} setSearchTerm={setSearchTerm}
                 filterStatus={filterStatus} setFilterStatus={setFilterStatus}
                 filterPriority={filterPriority} setFilterPriority={setFilterPriority}
                 filterType={filterType} setFilterType={setFilterType}
                 onExportCSV={exportCSV} onExportPDF={exportPDF}
+                totalValue={calculatedTotalValue}
             />
 
             {/* Dynamic View Injection */}
