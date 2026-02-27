@@ -79,9 +79,6 @@ export default function AccountDetailsModal({ account, onClose, onRefreshAccount
                         <h2 className="text-xl font-bold text-white flex items-center gap-2">
                             <Building2 size={20} className="text-brand-gold" />
                             {account.businessName}
-                            <button onClick={() => setShowEditAccount(true)} className="ml-2 p-1.5 text-blue-400 hover:bg-blue-400/10 rounded-lg transition-colors" title="Edit Account">
-                                <Edit2 size={16} />
-                            </button>
                         </h2>
                         <div className="flex gap-2 mt-2">
                             <span className="text-xs px-2 py-0.5 rounded bg-brand-gold/10 text-brand-gold border border-brand-gold/20 font-medium tracking-wider uppercase">
@@ -92,9 +89,14 @@ export default function AccountDetailsModal({ account, onClose, onRefreshAccount
                             </span>
                         </div>
                     </div>
-                    <button onClick={onClose} className="text-white/60 hover:text-white bg-white/5 p-2 rounded-full hover:bg-white/10 transition-colors">
-                        <X size={20} />
-                    </button>
+                    <div className="flex items-center gap-1">
+                        <button onClick={() => setShowEditAccount(true)} className="text-blue-400 hover:text-blue-300 bg-blue-400/10 p-2 rounded-full hover:bg-blue-400/20 transition-colors" title="Edit Account">
+                            <Edit2 size={20} />
+                        </button>
+                        <button onClick={onClose} className="text-white/60 hover:text-white bg-white/5 p-2 rounded-full hover:bg-white/10 transition-colors">
+                            <X size={20} />
+                        </button>
+                    </div>
                 </div>
 
                 {/* Contacts List */}
