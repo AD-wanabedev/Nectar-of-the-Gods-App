@@ -19,6 +19,10 @@ export default function AddLeadForm({ onClose, initialData = null }) {
     const [isAddingSale, setIsAddingSale] = useState(false);
     const [addAmount, setAddAmount] = useState('');
 
+    // --- Account Rename Logic ---
+    const [showRenameModal, setShowRenameModal] = useState(false);
+    const [renameValue, setRenameValue] = useState('');
+
     // --- Account Dropdown ---
     const [accounts, setAccounts] = useState([]);
 
@@ -435,17 +439,10 @@ export default function AddLeadForm({ onClose, initialData = null }) {
                                 {formData.accountId && (
                                     <button
                                         type="button"
-                                        onClick={async () => {
+                                        onClick={() => {
                                             const currentAccount = accounts.find(a => a.id === formData.accountId);
-                                            const newName = prompt("Rename Account / Business:", currentAccount?.businessName);
-                                            if (newName && newName.trim() && newName.trim() !== currentAccount?.businessName) {
-                                                try {
-                                                    await accountsDB.update(formData.accountId, { businessName: newName.trim() });
-                                                    setAccounts(accounts.map(a => a.id === formData.accountId ? { ...a, businessName: newName.trim() } : a));
-                                                } catch (e) {
-                                                    alert("Failed to rename account");
-                                                }
-                                            }
+                                            setRenameValue(currentAccount?.businessName || '');
+                                            setShowRenameModal(true);
                                         }}
                                         className="text-blue-400 hover:text-blue-300 text-[10px] bg-blue-400/10 px-2 py-0.5 rounded flex items-center gap-1"
                                     >
@@ -819,6 +816,65 @@ export default function AddLeadForm({ onClose, initialData = null }) {
                     </div>
                 </form>
             </div >
+
+            {/* Custom Rename Modal */}
+            {showRenameModal && (
+                <div className="fixed inset-0 z-[105] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-black/80 backdrop-blur-sm animate-in fade-in" onClick={() => setShowRenameModal(false)} />
+                    <div className="glass-card relative w-full max-w-sm p-6 space-y-4 shadow-2xl animate-in zoom-in-95 duration-200 border border-white/10">
+                        <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                            <Building2 size={18} className="text-brand-gold" />
+                            Rename Account
+                        </h3>
+                        <div>
+                            <label className="block text-xs text-white/70 mb-1">New Business Name</label>
+                            <GlassInput
+                                autoFocus
+                                value={renameValue}
+                                onChange={(e) => setRenameValue(e.target.value)}
+                                onKeyDown={async (e) => {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        if (!renameValue.trim()) return;
+                                        try {
+                                            await accountsDB.update(formData.accountId, { businessName: renameValue.trim() });
+                                            setAccounts(accounts.map(a => a.id === formData.accountId ? { ...a, businessName: renameValue.trim() } : a));
+                                            setShowRenameModal(false);
+                                        } catch (err) {
+                                            alert("Failed to rename account");
+                                        }
+                                    }
+                                }}
+                            />
+                        </div>
+                        <div className="flex gap-2 justify-end pt-2">
+                            <button
+                                type="button"
+                                onClick={() => setShowRenameModal(false)}
+                                className="px-4 py-2 text-sm text-white/70 hover:text-white bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={async () => {
+                                    if (!renameValue.trim()) return;
+                                    try {
+                                        await accountsDB.update(formData.accountId, { businessName: renameValue.trim() });
+                                        setAccounts(accounts.map(a => a.id === formData.accountId ? { ...a, businessName: renameValue.trim() } : a));
+                                        setShowRenameModal(false);
+                                    } catch (err) {
+                                        alert("Failed to rename account");
+                                    }
+                                }}
+                                className="px-4 py-2 text-sm text-black font-bold bg-brand-gold hover:bg-brand-peach rounded-lg transition-colors"
+                            >
+                                Save Name
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 }
