@@ -94,7 +94,9 @@ export default function AddLeadForm({ onClose, initialData = null }) {
         date: format(new Date(), 'yyyy-MM-dd'),
         hour: '10',
         minute: '00',
-        ampm: 'AM'
+        ampm: 'AM',
+        leadType: 'B2C',
+        leadSubType: ''
     });
 
     // Contact Picker Logic
@@ -241,7 +243,9 @@ export default function AddLeadForm({ onClose, initialData = null }) {
                     hour: initialHour,
                     minute: initialMinute,
                     ampm: initialAmPm,
-                    platform: initialData.platform || prev.platform || 'Instagram'
+                    platform: initialData.platform || prev.platform || 'Instagram',
+                    leadType: initialData.leadType || prev.leadType || 'B2C',
+                    leadSubType: initialData.leadSubType || prev.leadSubType || ''
                 };
             });
         }
@@ -290,7 +294,9 @@ export default function AddLeadForm({ onClose, initialData = null }) {
             honeyTypes: formData.honeyTypes,
             orderValue: formData.orderValue,
             saleDate: formData.saleDate,
-            nextFollowUp: followUpIsoString
+            nextFollowUp: followUpIsoString,
+            leadType: formData.leadType,
+            leadSubType: formData.leadSubType
         };
 
         try {
@@ -440,6 +446,34 @@ export default function AddLeadForm({ onClose, initialData = null }) {
                                     <option key={a.id} value={a.id} className="text-white bg-black">{a.businessName}</option>
                                 ))}
                             </select>
+                        </div>
+
+                        {/* Customer Segment */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-xs text-white/70 mb-1">Customer Segment</label>
+                                <select name="leadType" value={formData.leadType} onChange={handleChange} className="glass-input w-full appearance-none bg-black">
+                                    {leadTypes.map(t => <option key={t} value={t} className="text-white bg-black">{t}</option>)}
+                                </select>
+                            </div>
+                            {formData.leadType === 'B2B' && (
+                                <div className="animate-in fade-in slide-in-from-left-2">
+                                    <label className="block text-xs text-white/70 mb-1">B2B Category</label>
+                                    <select name="leadSubType" value={formData.leadSubType} onChange={handleChange} className="glass-input w-full appearance-none bg-black">
+                                        <option value="" className="text-white/50 bg-black">Select...</option>
+                                        {b2bSubTypes.map(t => <option key={t} value={t} className="text-white bg-black">{t}</option>)}
+                                    </select>
+                                </div>
+                            )}
+                            {formData.leadType === 'Collaborator' && (
+                                <div className="animate-in fade-in slide-in-from-left-2">
+                                    <label className="block text-xs text-white/70 mb-1">Collab Type</label>
+                                    <select name="leadSubType" value={formData.leadSubType} onChange={handleChange} className="glass-input w-full appearance-none bg-black">
+                                        <option value="" className="text-white/50 bg-black">Select...</option>
+                                        {collaboratorSubTypes.map(t => <option key={t} value={t} className="text-white bg-black">{t}</option>)}
+                                    </select>
+                                </div>
+                            )}
                         </div>
 
                         <div>

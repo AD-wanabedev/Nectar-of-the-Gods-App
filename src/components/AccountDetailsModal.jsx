@@ -3,6 +3,7 @@ import { db, leadsDB } from '../db';
 import GlassCard from './ui/GlassCard';
 import GlassButton from './ui/GlassButton';
 import AddLeadForm from './AddLeadForm';
+import AddAccountForm from './AddAccountForm';
 import { X, Phone, Mail, Instagram, MessageCircle, Building2, UserPlus, Trash2, Edit2 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 
@@ -11,6 +12,7 @@ export default function AccountDetailsModal({ account, onClose, onRefreshAccount
     const [loading, setLoading] = useState(true);
     const [showAddForm, setShowAddForm] = useState(false);
     const [editingContact, setEditingContact] = useState(null);
+    const [showEditAccount, setShowEditAccount] = useState(false);
 
     const loadContacts = async () => {
         setLoading(true);
@@ -77,6 +79,9 @@ export default function AccountDetailsModal({ account, onClose, onRefreshAccount
                         <h2 className="text-xl font-bold text-white flex items-center gap-2">
                             <Building2 size={20} className="text-brand-gold" />
                             {account.businessName}
+                            <button onClick={() => setShowEditAccount(true)} className="ml-2 p-1.5 text-blue-400 hover:bg-blue-400/10 rounded-lg transition-colors" title="Edit Account">
+                                <Edit2 size={16} />
+                            </button>
                         </h2>
                         <div className="flex gap-2 mt-2">
                             <span className="text-xs px-2 py-0.5 rounded bg-brand-gold/10 text-brand-gold border border-brand-gold/20 font-medium tracking-wider uppercase">
@@ -153,6 +158,22 @@ export default function AccountDetailsModal({ account, onClose, onRefreshAccount
             {showAddForm && (
                 <div className="absolute inset-0 z-[60]">
                     <AddLeadForm onClose={handleCloseAddForm} initialData={editingContact} />
+                </div>
+            )}
+
+            {/* Edit Account Form */}
+            {showEditAccount && (
+                <div className="absolute inset-0 z-[60]">
+                    <AddAccountForm
+                        onClose={(saved) => {
+                            setShowEditAccount(false);
+                            if (saved) {
+                                if (onRefreshAccounts) onRefreshAccounts();
+                                onClose(); // Close modal to reflect updated title in main view
+                            }
+                        }}
+                        initialData={account}
+                    />
                 </div>
             )}
         </div>
