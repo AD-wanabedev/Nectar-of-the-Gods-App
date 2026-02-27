@@ -430,20 +430,39 @@ export default function AddLeadForm({ onClose, initialData = null }) {
 
                         {/* Account Selection Dropdown */}
                         <div className="relative">
-                            <label className="block text-xs text-white/70 mb-1 flex items-center gap-1">
-                                <Building2 size={12} /> Account / Business *
+                            <label className="block text-xs text-brand-white/70 mb-1 flex items-center justify-between">
+                                <span className="flex items-center gap-1"><Building2 size={12} /> Account / Business *</span>
+                                {formData.accountId && (
+                                    <button
+                                        type="button"
+                                        onClick={async () => {
+                                            const currentAccount = accounts.find(a => a.id === formData.accountId);
+                                            const newName = prompt("Rename Account / Business:", currentAccount?.businessName);
+                                            if (newName && newName.trim() && newName.trim() !== currentAccount?.businessName) {
+                                                try {
+                                                    await accountsDB.update(formData.accountId, { businessName: newName.trim() });
+                                                    setAccounts(accounts.map(a => a.id === formData.accountId ? { ...a, businessName: newName.trim() } : a));
+                                                } catch (e) {
+                                                    alert("Failed to rename account");
+                                                }
+                                            }
+                                        }}
+                                        className="text-blue-400 hover:text-blue-300 text-[10px] bg-blue-400/10 px-2 py-0.5 rounded flex items-center gap-1"
+                                    >
+                                        Edit Name
+                                    </button>
+                                )}
                             </label>
                             <select
                                 required
                                 name="accountId"
                                 value={formData.accountId || ''}
                                 onChange={handleChange}
-                                className="glass-input w-full appearance-none bg-black text-white"
-                                disabled={!!initialData?.accountId} // Prevent moving between accounts lightly
+                                className="glass-input w-full appearance-none bg-black text-brand-white focus:border-blue-500/50 transition-colors"
                             >
-                                <option value="" disabled className="text-white/50 bg-black">Select an Account...</option>
+                                <option value="" disabled className="text-brand-white/50 bg-black">Select an Account...</option>
                                 {accounts.map(a => (
-                                    <option key={a.id} value={a.id} className="text-white bg-black">{a.businessName}</option>
+                                    <option key={a.id} value={a.id} className="text-brand-white bg-black">{a.businessName}</option>
                                 ))}
                             </select>
                         </div>
