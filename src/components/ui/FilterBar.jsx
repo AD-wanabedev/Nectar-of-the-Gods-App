@@ -14,7 +14,8 @@ export default function FilterBar({
     filterType,
     setFilterType,
     onExportCSV,
-    onExportExcel
+    onExportExcel,
+    onAddLead
 }) {
     const STATUS_OPTIONS = ['All', 'New', 'In Progress', 'Converted', 'Lost'];
     const PRIORITY_OPTIONS = ['All', 'High', 'Medium', 'Low'];
@@ -68,9 +69,17 @@ export default function FilterBar({
 
                 {/* Actions */}
                 <div className="flex gap-2 ml-auto shrink-0 relative">
+                    {onAddLead && (
+                        <button
+                            onClick={onAddLead}
+                            className="h-11 px-5 rounded-xl text-sm bg-gold-500 hover:bg-gold-400 text-gray-950 font-bold border-none shadow-[0_0_15px_rgba(234,179,8,0.4)] flex items-center gap-2 transition-all active:scale-95"
+                        >
+                            <Plus size={16} /> Add Lead
+                        </button>
+                    )}
                     <button
                         onClick={() => setShowExportOptions(!showExportOptions)}
-                        className="h-11 px-6 rounded-xl text-sm bg-gold-500 hover:bg-gold-600 text-gray-950 font-bold border-none shadow-[0_0_15px_rgba(234,179,8,0.3)] flex items-center gap-2 transition-all"
+                        className="h-11 px-6 rounded-xl text-sm bg-gray-700 hover:bg-gray-600 text-white font-bold border border-gray-600 flex items-center gap-2 transition-all"
                     >
                         <Download size={16} /> Export
                     </button>

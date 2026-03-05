@@ -348,6 +348,7 @@ export default function Leads() {
                 filterType={filterType} setFilterType={setFilterType}
                 onExportCSV={exportCSV}
                 onExportExcel={exportExcel}
+                onAddLead={handleAddContact}
             />
 
             {/* Dynamic View Injection */}

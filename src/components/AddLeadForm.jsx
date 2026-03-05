@@ -753,8 +753,15 @@ export default function AddLeadForm({ onClose, initialData = null }) {
                                     </div>
                                 </div>
                             ) : (
-                                <div className="flex justify-center p-3 border border-white/10 rounded-xl bg-black/20 text-white/40 text-sm">
-                                    No follow-up needed
+                                <div className="flex items-center justify-between p-3 border border-white/10 rounded-xl bg-black/20">
+                                    <span className="text-white/40 text-sm">No follow-up needed</span>
+                                    <button
+                                        type="button"
+                                        onClick={() => setFormData(p => ({ ...p, date: format(new Date(), 'yyyy-MM-dd'), hour: '10', minute: '00', ampm: 'AM' }))}
+                                        className="text-xs text-gold-400 hover:text-gold-300 flex items-center gap-1 bg-gold-500/10 hover:bg-gold-500/20 px-3 py-1.5 rounded-lg transition-all font-medium"
+                                    >
+                                        <PlusCircle size={12} /> Set Follow-up
+                                    </button>
                                 </div>
                             )}
                         </div>
