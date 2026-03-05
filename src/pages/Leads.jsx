@@ -349,6 +349,7 @@ export default function Leads() {
                 onExportCSV={exportCSV}
                 onExportExcel={exportExcel}
                 onAddLead={handleAddContact}
+                onAddAccount={handleAddAccount}
             />
 
             {/* Dynamic View Injection */}
