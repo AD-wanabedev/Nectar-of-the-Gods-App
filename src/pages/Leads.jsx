@@ -412,7 +412,7 @@ export default function Leads() {
     };
 
     return (
-        <div className="pb-24 pt-2 px-2 md:px-4 space-y-4 max-w-[1400px] mx-auto min-h-screen flex flex-col">
+        <div className="pb-24 pt-2 px-2 md:px-6 space-y-4 w-full min-h-screen flex flex-col">
             {/* Top Toolbar (Condensed for Bug 7) */}
             <div className="flex justify-between items-center mb-1 gap-2">
                 <h1 className="text-xl font-bold text-gold-300 flex-shrink-0 mr-4">CRM Database</h1>

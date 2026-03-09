@@ -171,8 +171,8 @@ export default function AccountsTable({ accounts, contacts, isLoading, onRowClic
 
     return (
         <div className="w-full bg-gray-900 rounded-xl overflow-hidden border border-white/10 shadow-2xl relative custom-scrollbar">
-            <div className="w-full overflow-x-auto">
-                <table className="w-full text-left border-collapse min-w-[1200px] text-white">
+            <div className="w-full">
+                <table className="w-full text-left border-collapse table-fixed text-white">
                     <thead className="bg-gray-800 text-xs uppercase tracking-wider text-white/80 border-b border-white/10 sticky top-0 z-10">
                         {table.getHeaderGroups().map(headerGroup => (
                             <tr key={headerGroup.id}>
