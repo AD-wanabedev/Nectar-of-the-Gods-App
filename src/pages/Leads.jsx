@@ -250,33 +250,55 @@ export default function Leads() {
                 alert('The file appears to be empty or unreadable.');
                 return;
             }
-            let created = 0;
-            let skipped = 0;
 
+            // Placeholder values that mean "no real contact" — skip silently
+            const SKIP_NAMES = new Set(['-', '[not public]', 'n/a', 'na', '']);
+
+            // ── Step 1: group all rows by company name (case-insensitive key) ──
+            const companyMap = new Map(); // key → { canonical, rows[] }
             for (const row of rows) {
-                const companyName = (row['Company Name'] || '').trim();
-                if (!companyName) { skipped++; continue; }
+                const raw = (row['Company Name'] || '').trim();
+                if (!raw) continue;
+                const key = raw.toLowerCase();
+                if (!companyMap.has(key)) companyMap.set(key, { canonical: raw, rows: [] });
+                companyMap.get(key).rows.push(row);
+            }
 
+            if (companyMap.size === 0) {
+                alert('No valid rows found. Make sure the "Company Name" column is filled in.');
+                return;
+            }
+
+            let accountsCreated = 0;
+            let contactsCreated = 0;
+            let rowsSkipped = 0;
+
+            // ── Step 2: one account per unique company ──
+            for (const [, { canonical, rows: companyRows }] of companyMap) {
+                const firstRow = companyRows[0];
                 try {
-                    // Create the account
                     const accountId = await accountsDB.add({
-                        businessName: companyName,
-                        status: row['Status'] || 'New',
-                        priority: row['Priority'] || 'Medium',
-                        totalRevenue: parseFloat(row['Total Revenue']) || 0,
+                        businessName: canonical,
+                        status: firstRow['Status'] || 'New',
+                        priority: firstRow['Priority'] || 'Medium',
+                        totalRevenue: parseFloat(firstRow['Total Revenue']) || 0,
                         notes: '',
                     });
+                    accountsCreated++;
 
-                    // Create the primary contact if name or phone exists
-                    const contactName = (row['Primary Contact Name'] || '').trim();
-                    const contactPhone = (row['Primary Phone'] || '').trim();
-                    const contactEmail = (row['Primary Email'] || '').trim();
-                    const teamMember = (row['Account Owner'] || '').trim();
+                    // ── Step 3: add every contact row under the same account ──
+                    for (const row of companyRows) {
+                        const rawName = (row['Primary Contact Name'] || '').trim();
+                        const contactName = SKIP_NAMES.has(rawName.toLowerCase()) ? '' : rawName;
+                        const contactPhone = (row['Primary Phone'] || '').trim();
+                        const contactEmail = (row['Primary Email'] || '').trim();
+                        const teamMember = (row['Account Owner'] || '').trim();
 
-                    if (contactName || contactPhone || contactEmail) {
+                        if (!contactName && !contactPhone && !contactEmail) { rowsSkipped++; continue; }
+
                         await leadsDB.add({
                             accountId,
-                            name: contactName || companyName,
+                            name: contactName || canonical,
                             phone: contactPhone,
                             email: contactEmail,
                             teamMember: teamMember || 'Unassigned',
@@ -284,15 +306,21 @@ export default function Leads() {
                             status: row['Status'] || 'New',
                             priority: row['Priority'] || 'Medium',
                         });
+                        contactsCreated++;
                     }
-                    created++;
                 } catch (err) {
-                    console.error('Import row error:', row, err);
-                    skipped++;
+                    console.error('Import error for:', canonical, err);
+                    rowsSkipped++;
                 }
             }
+
             await loadData(true);
-            alert(`✅ Import complete!\n${created} account(s) created.${skipped > 0 ? `\n${skipped} row(s) skipped (missing Company Name or errors).` : ''}`);
+            alert(
+                `✅ Import complete!\n` +
+                `${accountsCreated} unique account(s) created.\n` +
+                `${contactsCreated} contact(s) linked.` +
+                (rowsSkipped > 0 ? `\n${rowsSkipped} row(s) skipped (no contact info or placeholder names).` : '')
+            );
         };
 
         if (ext === 'csv') {
