@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Search, Download, X, Plus } from 'lucide-react';
+import { Search, Download, Upload, X, Plus } from 'lucide-react';
 import GlassInput from './GlassInput';
 import GlassButton from './GlassButton';
 import FilterDropdown from './FilterDropdown';
@@ -15,6 +15,7 @@ export default function FilterBar({
     setFilterType,
     onExportCSV,
     onExportExcel,
+    onImport,
     onAddLead,
     onAddAccount
 }) {
@@ -25,12 +26,17 @@ export default function FilterBar({
     const [showExportOptions, setShowExportOptions] = useState(false);
     const [showAddOptions, setShowAddOptions] = useState(false);
     const addDropdownRef = useRef(null);
+    const exportDropdownRef = useRef(null);
+    const importInputRef = useRef(null);
 
     // Close add dropdown on outside click
     useEffect(() => {
         const handler = (e) => {
             if (addDropdownRef.current && !addDropdownRef.current.contains(e.target)) {
                 setShowAddOptions(false);
+            }
+            if (exportDropdownRef.current && !exportDropdownRef.current.contains(e.target)) {
+                setShowExportOptions(false);
             }
         };
         document.addEventListener('mousedown', handler);
@@ -113,28 +119,57 @@ export default function FilterBar({
                             )}
                         </div>
                     )}
-                    <button
-                        onClick={() => setShowExportOptions(!showExportOptions)}
-                        className="h-11 px-6 rounded-xl text-sm bg-gray-700 hover:bg-gray-600 text-white font-bold border border-gray-600 flex items-center gap-2 transition-all"
-                    >
-                        <Download size={16} /> Export
-                    </button>
-                    {showExportOptions && (
-                        <div className="absolute top-full right-0 mt-2 py-2 w-40 bg-gray-900 border border-gray-700 rounded-xl shadow-2xl z-50 flex flex-col overflow-hidden">
+
+                    {/* Import button */}
+                    {onImport && (
+                        <>
+                            <input
+                                ref={importInputRef}
+                                type="file"
+                                accept=".csv,.xlsx,.xls"
+                                className="hidden"
+                                onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) onImport(file);
+                                    // reset so same file can be re-imported
+                                    e.target.value = '';
+                                }}
+                            />
                             <button
-                                onClick={() => { if (onExportCSV) onExportCSV(); setShowExportOptions(false); }}
-                                className="px-4 py-2 text-sm text-left text-white/80 hover:bg-gray-800 hover:text-white transition-colors border-b border-gray-800"
+                                onClick={() => importInputRef.current?.click()}
+                                className="h-11 px-4 rounded-xl text-sm bg-gray-700 hover:bg-gray-600 text-white font-bold border border-gray-600 flex items-center gap-2 transition-all active:scale-95"
+                                title="Import CSV or Excel"
                             >
-                                Download .CSV
+                                <Upload size={16} /> Import
                             </button>
-                            <button
-                                onClick={() => { if (onExportExcel) onExportExcel(); setShowExportOptions(false); }}
-                                className="px-4 py-2 text-sm text-left text-white/80 hover:bg-gray-800 hover:text-white transition-colors"
-                            >
-                                Download .Excel
-                            </button>
-                        </div>
+                        </>
                     )}
+
+                    {/* Export button (compact) */}
+                    <div className="relative" ref={exportDropdownRef}>
+                        <button
+                            onClick={() => setShowExportOptions(!showExportOptions)}
+                            className="h-11 px-4 rounded-xl text-sm bg-gray-700 hover:bg-gray-600 text-white font-bold border border-gray-600 flex items-center gap-2 transition-all active:scale-95"
+                        >
+                            <Download size={16} /> Export
+                        </button>
+                        {showExportOptions && (
+                            <div className="absolute top-full right-0 mt-2 py-2 w-40 bg-gray-900 border border-gray-700 rounded-xl shadow-2xl z-50 flex flex-col overflow-hidden">
+                                <button
+                                    onClick={() => { if (onExportCSV) onExportCSV(); setShowExportOptions(false); }}
+                                    className="px-4 py-2 text-sm text-left text-white/80 hover:bg-gray-800 hover:text-white transition-colors border-b border-gray-800"
+                                >
+                                    Download .CSV
+                                </button>
+                                <button
+                                    onClick={() => { if (onExportExcel) onExportExcel(); setShowExportOptions(false); }}
+                                    className="px-4 py-2 text-sm text-left text-white/80 hover:bg-gray-800 hover:text-white transition-colors"
+                                >
+                                    Download .Excel
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

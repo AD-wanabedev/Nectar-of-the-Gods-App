@@ -241,6 +241,78 @@ export default function Leads() {
         XLSX.writeFile(workbook, `moonshine_crm_${format(new Date(), 'yyyy-MM-dd')}.xlsx`);
     };
 
+    // Import CSV / Excel
+    const importData = async (file) => {
+        const ext = file.name.split('.').pop().toLowerCase();
+
+        const processRows = async (rows) => {
+            if (!rows || rows.length === 0) {
+                alert('The file appears to be empty or unreadable.');
+                return;
+            }
+            let created = 0;
+            let skipped = 0;
+
+            for (const row of rows) {
+                const companyName = (row['Company Name'] || '').trim();
+                if (!companyName) { skipped++; continue; }
+
+                try {
+                    // Create the account
+                    const accountId = await accountsDB.add({
+                        businessName: companyName,
+                        status: row['Status'] || 'New',
+                        priority: row['Priority'] || 'Medium',
+                        totalRevenue: parseFloat(row['Total Revenue']) || 0,
+                        notes: '',
+                    });
+
+                    // Create the primary contact if name or phone exists
+                    const contactName = (row['Primary Contact Name'] || '').trim();
+                    const contactPhone = (row['Primary Phone'] || '').trim();
+                    const contactEmail = (row['Primary Email'] || '').trim();
+                    const teamMember = (row['Account Owner'] || '').trim();
+
+                    if (contactName || contactPhone || contactEmail) {
+                        await leadsDB.add({
+                            accountId,
+                            name: contactName || companyName,
+                            phone: contactPhone,
+                            email: contactEmail,
+                            teamMember: teamMember || 'Unassigned',
+                            leadType: 'B2B',
+                            status: row['Status'] || 'New',
+                            priority: row['Priority'] || 'Medium',
+                        });
+                    }
+                    created++;
+                } catch (err) {
+                    console.error('Import row error:', row, err);
+                    skipped++;
+                }
+            }
+            await loadData(true);
+            alert(`✅ Import complete!\n${created} account(s) created.${skipped > 0 ? `\n${skipped} row(s) skipped (missing Company Name or errors).` : ''}`);
+        };
+
+        if (ext === 'csv') {
+            Papa.parse(file, {
+                header: true,
+                skipEmptyLines: true,
+                complete: async (result) => { await processRows(result.data); },
+                error: () => alert('Failed to parse CSV file. Please check the format.'),
+            });
+        } else if (ext === 'xlsx' || ext === 'xls') {
+            const arrayBuffer = await file.arrayBuffer();
+            const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+            const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+            await processRows(rows);
+        } else {
+            alert('Unsupported file type. Please use .csv or .xlsx');
+        }
+    };
+
     // PDF Export utilizing jsPDF and autoTable
     const exportPDF = () => {
         if (filteredAccounts.length === 0) return alert("No active data to export.");
@@ -348,6 +420,7 @@ export default function Leads() {
                 filterType={filterType} setFilterType={setFilterType}
                 onExportCSV={exportCSV}
                 onExportExcel={exportExcel}
+                onImport={importData}
                 onAddLead={handleAddContact}
                 onAddAccount={handleAddAccount}
             />
